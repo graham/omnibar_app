@@ -22,37 +22,19 @@ var omni_app = null;
         return false;
     };
 
-    var Application = function() {
-        this.after_load = [];
-    };
-
-    Application.prototype.ready = function(cb) {
-        this.after_load.push(cb);
-    };
-
-    Application.prototype.finish_loading_app = function() {
-        var _this = this;
-        for(var i = 0; i < this.after_load.length; i++) {
-            this.after_load[i](_this);
-        }
-    };
-    
-    omni_app = new Application();
+    omni_app = new OmniApplication();
 
     omni_app.ready( function(app) {
-
+        console.log("application ready.");
     });
 
     $(document).ready(function() {
-        omni_app.kap = new kapture.Kapture();
-        $(window).keydown(function(event) {
-            omni_app.kap.key_down(event);
-        });
-        
         omni_app.kap.add_command('enter', function() {
+            console.log('enter');
         });
         
         omni_app.kap.add_command('control-g', function() {
+            console.log('control-g');
         });
 
         omni_app.finish_loading_app();
