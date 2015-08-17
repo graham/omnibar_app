@@ -1,0 +1,146 @@
+/* fonts */
+
+@font-face {
+    font-family: 'Raleway';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Raleway Light'), local('Raleway-Light'), url(https://fonts.gstatic.com/s/raleway/v9/-_Ctzj9b56b8RgXW8FAriS3USBnSvpkopQaUR-2r7iU.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'Raleway';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Raleway'), url(https://fonts.gstatic.com/s/raleway/v9/bIcY3_3JNqUVRAQQRNVteQ.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'Raleway';
+    font-style: normal;
+    font-weight: 500;
+    src: local('Raleway Medium'), local('Raleway-Medium'), url(https://fonts.gstatic.com/s/raleway/v9/CcKI4k9un7TZVWzRVT-T8y3USBnSvpkopQaUR-2r7iU.ttf) format('truetype');
+}
+
+body { font-family: "Raleway" }
+
+/* first a css reset, of the meyer kind */
+.ob-reset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+.ob-inner {
+    margin:0px;
+    padding:0px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+/* end reset */
+#ob-omnibar-outer {
+    /* For testing */
+    background-color: rgba(0,0,0,0.05);
+
+    /* The real deal */
+    position: fixed;
+    top: 0px;
+    left: 160px;
+    right: 0px;
+    height: 80px;
+
+    width: auto;
+
+    /* styling */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#ob-omnibar-outer > .ob-inner > .ob-input-holder > input {
+    outline: none;
+    background: transparent;
+    border: 0;
+    color: rgba(20, 20, 20, 0.8);
+    font-size: 32px;
+    background-color: white;
+
+    width: 100%;
+    bottom: 10px;
+    padding: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#ob-omnibar-outer > .ob-inner > .ob-input-holder {
+    position: absolute;
+    right: 10px;
+    left: 0px;
+    top: 12px;
+}
+
+#ob-left-control-outer {
+    /* The real deal */
+    position:fixed;
+    top: 80px;
+    left: 0px;
+    bottom: 0px;
+    width: 160px;
+    text-align: center;
+    font-size: 14px;
+    
+    /* styling */
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#ob-left-widget-outer {
+    /* For testing */
+    background-color: rgba(0,0,0,0.05);
+
+     /* The real deal */
+    position:fixed;
+    top: 0px;
+    left: 0px;
+    width: 160px;
+    height: 80px;
+
+    /* styling */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#ob-content-outer {
+    /* the real deal */
+    position: fixed;
+    top: 80px;
+    left: 160px;
+    right: 0px;
+    bottom: 0px;
+}
+
+#ob-content-inner {
+    height: 100%;
+    overflow: auto;
+    padding-right: 20px;
+}
+
+#app_name {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+}
+
+#ob-help {
+
+}
+
+.ob-view { }
+.ob-litem { }
+.ob-modal { }
+
+/* things you should modify below. */
+
+#ob-content {
+    padding: 20px;
+}
+
