@@ -31,6 +31,14 @@ body { font-family: "Raleway" }
     vertical-align: baseline;
 }
 
+.ob-inner {
+    margin:0px;
+    padding:0px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
 /* end reset */
 #ob-omnibar-outer {
     /* For testing */
@@ -49,7 +57,7 @@ body { font-family: "Raleway" }
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-#ob-omnibar-outer > .ob-inner > input {
+#ob-omnibar-outer > .ob-inner > .ob-input-holder > input {
     outline: none;
     background: transparent;
     border: 0;
@@ -57,13 +65,17 @@ body { font-family: "Raleway" }
     font-size: 32px;
     background-color: white;
 
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    left: 0px;
+    width: 100%;
     bottom: 10px;
-    padding: 10px;
+    padding: 6px;
     border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#ob-omnibar-outer > .ob-inner > .ob-input-holder {
+    position: absolute;
+    right: 10px;
+    left: 0px;
+    top: 12px;
 }
 
 #ob-left-control-outer {
@@ -108,14 +120,6 @@ body { font-family: "Raleway" }
     height: 100%;
     overflow: auto;
     padding-right: 20px;
-}
-
-.ob-inner {
-    margin:0px;
-    padding:0px;
-    height: 100%;
-    width: 100%;
-    position: relative;
 }
 
 #app_name {

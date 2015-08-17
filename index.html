@@ -1,15 +1,30 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="omnibar.css" />
+
+    <!--
+      Let's load up our javascript libraries.
+    -->
+    
     <script src='lib/jquery.min.js'></script>
     <script src='lib/genie.js'> </script>
     <script src='lib/kapture.js'> </script>
 
+    <!--
+      Now the omnibar app specifics.
+    -->
+    
     <script src='js/application.js'></script>
     <script src='js/data.js'></script>
     <script src='js/omnibar.js'></script>
     <script src='js/main.js'></script>
+
+    <!--
+      User code, should over ride css and take action.
+    -->
+    <link rel="stylesheet" type="text/css" href="../omnibar_theme.css" />    
     <script src='../main.js'></script>
+    
   </head>
 
   <body>
@@ -28,7 +43,9 @@
     
     <div id='ob-omnibar-outer'>
       <div class='ob-inner'>
-        <input type='textfield' value='' id='ob-input'>
+        <div class='ob-input-holder'>
+          <input type='textfield' value='' id='ob-input'>
+        </div>
       </div>
     </div>
     
