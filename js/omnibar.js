@@ -1,4 +1,5 @@
 var omni_app = null;
+var omni_app_data = {};
 
 (function() {
     var storage = localStorage;
@@ -30,13 +31,34 @@ var omni_app = null;
 
     $(document).ready(function() {
         omni_app.kap.add_command('enter', function() {
-            console.log('enter');
+            omni_app.event_emitter.fire('cmd:enter');
         });
         
         omni_app.kap.add_command('control-g', function() {
-            console.log('control-g');
+            omni_app.event_emitter.fire('cmd:cancel');
         });
 
-        omni_app.finish_loading_app();
+        omni_app.kap.add_push('control-x');
+        omni_app.kap.add_command('control-x control-s', function(term) {
+            omni_app.event_emitter.fire('cmd:save');
+        });
+
+        omni_app.kap.add_command('control-x control-c', function(term) {
+            omni_app.event_emitter.fire('cmd:reload');
+        });
+
+        omni_app.event_emitter.on('*', function(args) {
+            console.log(new Date().toISOString() + " - " + (dottime() - omni_app_data.timers.start) +
+                        " - EventLog: " + args);
+        });
+
+        omni_app.event_emitter.once('cmd:reload', function() {
+            window.location.reload();
+        });
+
+        omni_app_data.timers = {};
+        omni_app_data.timers.start = dottime();
+        
+        omni_app.event_emitter.fire('ready');
     });
 })();
