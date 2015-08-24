@@ -2,6 +2,6 @@
 
 <div class='ob-item'>
   <div class='ob-inner'>
-    <div>[[ obj.content ]]</div>
+    <div class='ob-litem'>[[ obj.content ]]</div>
   </div>
 </div>

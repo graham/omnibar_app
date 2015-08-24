@@ -1,5 +1,0 @@
-<div>
-  [% for row in rows %]
-      [[ partial('line_item.genie', {'obj':row}) ]]
-  [% end %]
-</div>
