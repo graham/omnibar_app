@@ -1,7 +1,7 @@
 [^ expose ["content"] ^]
 
-<div class='ob-item'>
+<td>
   <div class='ob-inner'>
-    <div class='ob-litem'>[[ obj.content ]]</div>
+    <div class='ob-litem'>[[ content ]]</div>
   </div>
-</div>
+</td>

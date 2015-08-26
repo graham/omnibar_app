@@ -8,14 +8,8 @@ body { font-family: sans-serif; }
     font-size: 100%;
     font: inherit;
     vertical-align: baseline;
-}
-
-.ob-inner {
-    margin:0px;
-    padding:0px;
-    height: 100%;
-    width: 100%;
-    position: relative;
+    -webkit-border-horizontal-spacing: 0px;
+    -webkit-border-vertical-spacing: 0px;
 }
 
 /* end reset */
@@ -29,7 +23,6 @@ body { font-family: sans-serif; }
     left: 160px;
     right: 0px;
     height: 80px;
-
     width: auto;
 
     /* styling */
@@ -43,7 +36,6 @@ body { font-family: sans-serif; }
     color: rgba(20, 20, 20, 0.8);
     font-size: 32px;
     background-color: white;
-
     width: 100%;
     bottom: 10px;
     padding: 6px;
@@ -98,7 +90,7 @@ body { font-family: sans-serif; }
 #ob-content-inner {
     height: 100%;
     overflow: auto;
-    padding-right: 20px;
+    padding-right: 0px;
 }
 
 #app_name {
@@ -109,17 +101,38 @@ body { font-family: sans-serif; }
     font-size: 30px;
 }
 
-#ob-help {
-
+.ob-table {
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
 }
 
-.ob-view { }
-.ob-litem { }
-.ob-modal { }
+.ob-tr {
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+.ob-tr > td {
+    padding: 0px;
+    margin: 0px;
+}
+
+.ob-inner {
+    margin:0px;
+    padding:0px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.ob-litem {
+    margin:0px;
+    padding:0px;
+}
 
 /* things you should modify below. */
-
 #ob-content {
-    padding: 20px;
+    padding: 0px;
+    margin: 0px;
 }
-

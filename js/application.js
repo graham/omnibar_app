@@ -14,35 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-var OmniApplication = (function() {
-    var Application = function() {
-        var _this = this;
-
-        this.view_stack = [];
-
-        this.kap = new kapture.Kapture();
-        $(window).keydown(function(event) {
-            _this.kap.key_down(event);
-        });
-
-        this.event_emitter = new Beacon();
-    };
-
-    Application.prototype.ready = function(cb) {
-        this.event_emitter.once('ready', cb);
-    };
-
-    Application.prototype.push_view = function(view, options) {
-
-    };
-
-    Application.prototype.pop_view = function(options) {
-
-    };
-
-    return Application;
-})();
-
 var Beacon = (function() {
     var x_in_list = function(x, the_list) {
         var l = the_list.length;
@@ -98,13 +69,13 @@ var Beacon = (function() {
     Beacon.prototype.fire = function(name) {
         if (this.obs[name] != undefined) {
             var ll = this.obs[name];
-            var args = [name].concat(arguments); //slice.call(arguments, 1)
+            var args = [name].concat(arguments);
             this.obs[name] = this.publish_event_to_list(ll, args);
         }
 
         if (this.obs['*'] != undefined) {
             var ll = this.obs['*'];
-            var args = [name].concat(arguments); //slice.call(arguments, 1)
+            var args = [name].concat(arguments);
             this.obs['*'] = this.publish_event_to_list(ll, args);
         }
     };
@@ -138,4 +109,128 @@ var Beacon = (function() {
     };
 
     return Beacon;
+})();
+
+var OmniApplication = (function() {
+    var Application = function() {
+        var _this = this;
+
+        this.view_stack = [];
+        this.event_emitter = new Beacon();
+        this.kap = new kapture.Kapture();
+        this.env = new genie.Environment();
+        this.render_flag = 0;
+        
+        $(window).keydown(function(event) {
+            _this.kap.key_down(event);
+            if (document.activeElement == $("#ob-input")[0]) {
+                setTimeout(function() {
+                    _this.event_emitter.fire('app.bar_updated');
+                }, 0);
+            }
+        });
+    };
+
+    Application.prototype.refresh = function() {
+        this.event_emitter.fire('app.render_list');
+    };
+
+    Application.prototype.ready = function(cb) {
+        var _this = this;
+        $.get('templates/line_item.genie', function(data) {
+            _this.env.create_template('line_item', data);
+            _this.event_emitter.fire('app.render_list');
+        });
+        this.event_emitter.once('app.ready', cb);
+    };
+
+    Application.prototype.push_view = function(view, options) {
+
+    };
+
+    Application.prototype.pop_view = function(options) {
+
+    };
+
+    return Application;
+})();
+
+var omni_app = new OmniApplication();
+var omni_app_data = {};
+omni_app_data.item_list = [];
+
+(function() {
+    var storage = localStorage;
+    var str_trim = function(s) { return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, ""); };
+    var dottime = function() { return Math.floor((new Date).getTime() / 1000); };
+    var dottimem = function() { return Math.floor((new Date).getTime()); };
+    var ensure_https = function() {
+        if (document.location.href.slice(0, 5) == 'http:') {
+            document.location = 'https:' + document.location.href.slice(6);
+        }
+    };
+    
+    omni_app_data.timers = {};
+    omni_app_data.timers.start = dottime();
+
+    var x_in_list = function(x, the_list) {
+        var l = the_list.length;
+        for(var i = 0; i < l; i += 1) {
+            if (x == the_list[i]) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // Key Commands
+    omni_app.kap.add_command('enter', function() {
+        omni_app.event_emitter.fire('cmd.enter');
+    });
+    
+    omni_app.kap.add_command('control-g', function() {
+        omni_app.event_emitter.fire('cmd.cancel');
+    });
+    
+    omni_app.kap.add_push('control-x');
+    omni_app.kap.add_command('control-x control-s', function(term) {
+        omni_app.event_emitter.fire('cmd.save');
+    });
+    
+    omni_app.kap.add_command('control-x control-c', function(term) {
+        omni_app.event_emitter.fire('cmd.reload');
+    });
+
+    // listeners
+    omni_app.event_emitter.on('*', function(args) {
+        console.log(new Date().toISOString() + " - " +
+                    (dottime() - omni_app_data.timers.start) +
+                    " - EventLog: " + args);
+    });
+    
+    omni_app.event_emitter.once('cmd.reload', function() {
+        window.location.reload();
+    });
+
+    omni_app.event_emitter.on('app.render_list', function() {
+        $("#ob-content").html("");
+        
+        var table = document.createElement('table');
+        table.className = 'ob-table ob-reset';
+
+        for(var i=0; i < omni_app_data.item_list.length; i++) {
+            var obj = omni_app_data.item_list[i];
+            var d = document.createElement('tr');
+            
+            d.className = 'ob-tr';
+            d.innerHTML = omni_app.env.render('line_item', obj);
+            table.appendChild(d);
+        }
+        $('#ob-content').append(table);
+    });
+
+    // Lets get started.
+    $(document).ready(function() {
+        omni_app.event_emitter.fire('app.ready', omni_app);
+    });
 })();
