@@ -125,23 +125,23 @@ var OmniApplication = (function() {
             _this.kap.key_down(event);
             if (document.activeElement == $("#ob-input")[0]) {
                 setTimeout(function() {
-                    _this.event_emitter.fire('app.bar_updated');
+                    _this.event_emitter.fire('app:bar_updated');
                 }, 0);
             }
         });
     };
 
     Application.prototype.refresh = function() {
-        this.event_emitter.fire('app.render_list');
+        this.event_emitter.fire('app:render_list');
     };
 
     Application.prototype.ready = function(cb) {
         var _this = this;
         $.get('templates/line_item.genie', function(data) {
             _this.env.create_template('line_item', data);
-            _this.event_emitter.fire('app.render_list');
+            _this.event_emitter.fire('app:render_list');
         });
-        this.event_emitter.once('app.ready', cb);
+        this.event_emitter.once('app:ready', cb);
     };
 
     Application.prototype.push_view = function(view, options) {
@@ -185,20 +185,20 @@ omni_app_data.item_list = [];
 
     // Key Commands
     omni_app.kap.add_command('enter', function() {
-        omni_app.event_emitter.fire('cmd.enter');
+        omni_app.event_emitter.fire('cmd:enter');
     });
     
     omni_app.kap.add_command('control-g', function() {
-        omni_app.event_emitter.fire('cmd.cancel');
+        omni_app.event_emitter.fire('cmd:cancel');
     });
     
     omni_app.kap.add_push('control-x');
     omni_app.kap.add_command('control-x control-s', function(term) {
-        omni_app.event_emitter.fire('cmd.save');
+        omni_app.event_emitter.fire('cmd:save');
     });
     
     omni_app.kap.add_command('control-x control-c', function(term) {
-        omni_app.event_emitter.fire('cmd.reload');
+        omni_app.event_emitter.fire('cmd:reload');
     });
 
     // listeners
@@ -208,11 +208,11 @@ omni_app_data.item_list = [];
                     " - EventLog: " + args);
     });
     
-    omni_app.event_emitter.once('cmd.reload', function() {
+    omni_app.event_emitter.once('cmd:reload', function() {
         window.location.reload();
     });
 
-    omni_app.event_emitter.on('app.render_list', function() {
+    omni_app.event_emitter.on('app:render_list', function() {
         $("#ob-content").html("");
         
         var table = document.createElement('table');
@@ -231,6 +231,6 @@ omni_app_data.item_list = [];
 
     // Lets get started.
     $(document).ready(function() {
-        omni_app.event_emitter.fire('app.ready', omni_app);
+        omni_app.event_emitter.fire('app:ready', omni_app);
     });
 })();
