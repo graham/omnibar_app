@@ -1,5 +1,5 @@
 /*
-Copyright [2014] [Graham Abbott <graham.abbott@gmail.com>]
+Copyright [2015] [Graham Abbott <graham.abbott@gmail.com>]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -112,6 +112,14 @@ var Beacon = (function() {
 })();
 
 var OmniApplication = (function() {
+    var has_function = function(o, f) {
+	if (typeof(o[f]) === 'function') {
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
     var Application = function() {
         var _this = this;
 
@@ -145,11 +153,30 @@ var OmniApplication = (function() {
     };
 
     Application.prototype.push_view = function(view, options) {
+	var _this = this;
+	var current_view = _this.get_top_view();
 
+	// lets let the current view know we're hiding it.
+	if (has_function(current_view, 'will_hide_view')) {
+	    current_view.will_hide_view();
+	}
+
+	if (has_function(view, 'will_show_view')) {
+	    view.will_show_view();
+	}
+
+	this.view_stack.push(view);
+
+	if (has_function(current_view, 'did_hide_view')) {
+	    current_view.did_hide_view();
+	}
+	
+	if (has_function(view, 'did_show_view')) {
+	    view.did_show_view();
+	}
     };
 
     Application.prototype.pop_view = function(options) {
-
     };
 
     return Application;
