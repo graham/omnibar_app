@@ -140,24 +140,34 @@ var OmniApplication = (function() {
     };
 
     Application.prototype.refresh = function() {
-        this.event_emitter.fire('app:render_list');
+        this.event_emitter.fire('app:render');
     };
 
     Application.prototype.ready = function(cb) {
         var _this = this;
         $.get('templates/line_item.genie', function(data) {
             _this.env.create_template('line_item', data);
-            _this.event_emitter.fire('app:render_list');
+            _this.event_emitter.fire('app:render');
         });
         this.event_emitter.once('app:ready', cb);
+    };
+    
+    Application.prototype.present_view = function(view, options) {
+	if (options === undefined) {
+	    options = {};
+	}
+
+	var view_content = view.render();
+	$("#ob-content").html(view_content);
     };
 
     Application.prototype.push_view = function(view, options) {
 	var _this = this;
-	var current_view = _this.get_top_view();
+	var stack_length = _this.view_stack.length;
+	var current_view = _this.view_stack[stack_length-1];
 
 	// lets let the current view know we're hiding it.
-	if (has_function(current_view, 'will_hide_view')) {
+	if (current_view && has_function(current_view, 'will_hide_view')) {
 	    current_view.will_hide_view();
 	}
 
@@ -166,8 +176,9 @@ var OmniApplication = (function() {
 	}
 
 	this.view_stack.push(view);
+	this.present_view(view, options);
 
-	if (has_function(current_view, 'did_hide_view')) {
+	if (current_view && has_function(current_view, 'did_hide_view')) {
 	    current_view.did_hide_view();
 	}
 	
@@ -177,6 +188,39 @@ var OmniApplication = (function() {
     };
 
     Application.prototype.pop_view = function(options) {
+	var _this = this;
+
+	if (_this.view_stack.length == 1) {
+	    // Sorry there must always be a view on the stack.
+	    return false;
+	} else {
+	    var stack_length = _this.view_stack.length;
+	    var current_view = _this.view_stack[stack_length-1];
+	    var new_view =     _this.view_stack[stack_length-2];
+
+	    // lets let the current view know we're hiding it.
+	    
+	    if (has_function(current_view, 'will_hide_view')) {
+		current_view.will_hide_view();
+	    }
+	    
+	    if (has_function(new_view, 'will_show_view')) {
+		new_view.will_show_view();
+	    }
+
+	    _this.view_stack.pop();
+	    this.present_view(new_view, options);
+
+	    if (has_function(current_view, 'did_hide_view')) {
+		current_view.did_hide_view();
+	    }
+	    
+	    if (has_function(new_view, 'did_show_view')) {
+		new_view.did_show_view();
+	    }
+
+	    return true;
+	}
     };
 
     return Application;
@@ -239,9 +283,41 @@ omni_app_data.item_list = [];
         window.location.reload();
     });
 
-    omni_app.event_emitter.on('app:render_list', function() {
-        $("#ob-content").html("");
-        
+    omni_app.event_emitter.on('app:render', function() {
+	var stack_length = omni_app.view_stack.length;
+	var current_view = omni_app.view_stack[stack_length-1];
+	omni_app.present_view(current_view);
+    });
+
+    // Lets get started.
+    $(document).ready(function() {
+        omni_app.event_emitter.fire('app:ready', omni_app);
+    });
+})();
+
+var ViewController = Class.extend({
+    init: function() {
+	console.log('init inside view.');
+    },
+    
+    render: function() {
+	console.log("Core View rendering.");
+	var d = document.createElement('div')
+	d.innerHTML = "Someone didn't implement the render method on their view. :(";
+	return d;
+    }
+});
+
+var GAListView = ViewController.extend({
+    init: function() {
+	// Call the superclass init with nothing.
+	this._super();
+	this.item_list = [];
+	this.cursor = 0;
+    },
+
+    render: function() {
+	console.log("GAListView rendering.");
         var table = document.createElement('table');
         table.className = 'ob-table ob-reset';
 
@@ -253,11 +329,6 @@ omni_app_data.item_list = [];
             d.innerHTML = omni_app.env.render('line_item', obj);
             table.appendChild(d);
         }
-        $('#ob-content').append(table);
-    });
-
-    // Lets get started.
-    $(document).ready(function() {
-        omni_app.event_emitter.fire('app:ready', omni_app);
-    });
-})();
+	return table;
+    }
+});
