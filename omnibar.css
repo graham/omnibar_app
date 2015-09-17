@@ -136,3 +136,19 @@ body { font-family: sans-serif; }
     padding: 0px;
     margin: 0px;
 }
+
+.ob-highlight {
+    width: 4px;
+    height: inherit;
+    background-color: transparent;
+}
+
+.active {
+    background-color: lightblue;
+}
+
+.ob-right-tags {
+    background-color: rgba(255,255,0,0.3);
+    text-align: right;
+    width: 100px;
+}
