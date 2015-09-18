@@ -1,6 +1,6 @@
-[^ expose ["content"] ^]
+[^ expose ["content", "active"] ^]
 
-<td class='ob-highlight active'></td>
+<td class='ob-highlight [% if active %]active[% end %]'></td>
 
 <td style='width: 22px; padding-top: 0px;'>
     <input type='checkbox'>

@@ -125,7 +125,7 @@ var OmniApplication = (function() {
 
         this.view_stack = [];
         this.event_emitter = new Beacon();
-        this.kap = new kapture.Kapture();
+        this.kap = new kapture.Stack();
         this.env = new genie.Environment();
         this.render_flag = 0;
         
@@ -171,8 +171,14 @@ var OmniApplication = (function() {
 	    current_view.will_hide_view();
 	}
 
+	this.kap.push(view.kap);
+
 	if (has_function(view, 'will_show_view')) {
 	    view.will_show_view();
+	}
+
+	if (has_function(view, 'prepare')) {
+	    view.prepare();
 	}
 
 	this.view_stack.push(view);
@@ -203,6 +209,8 @@ var OmniApplication = (function() {
 	    if (has_function(current_view, 'will_hide_view')) {
 		current_view.will_hide_view();
 	    }
+
+	    this.kap.pop();
 	    
 	    if (has_function(new_view, 'will_show_view')) {
 		new_view.will_show_view();
@@ -255,20 +263,54 @@ omni_app_data.item_list = [];
     };
 
     // Key Commands
-    omni_app.kap.add_command('enter', function() {
+    var kap_handler = omni_app.kap.get_root_handler();
+
+    kap_handler.add_command('enter', function() {
         omni_app.event_emitter.fire('cmd:enter');
     });
+
+    kap_handler.add_command('shift-enter', function() {
+	omni_app.event_emitter.fire('cmd:enter', 'shift');
+    });
     
-    omni_app.kap.add_command('control-g', function() {
+    kap_handler.add_command('control-g', function() {
         omni_app.event_emitter.fire('cmd:cancel');
     });
-    
-    omni_app.kap.add_push('control-x');
-    omni_app.kap.add_command('control-x control-s', function(term) {
-        omni_app.event_emitter.fire('cmd:save');
+
+    kap_handler.add_passive_command('/', function() {
+	$("#ob-input").focus();
+    });
+
+    kap_handler.add_command('control-s', function() {
+	$("#ob-input").val('search:');
+	$("#ob-input").focus();
+	return true;
+    });
+
+    kap_handler.add_command('control-d', function() {
+	$("#ob-input").val('do:');
+	$("#ob-input").focus();
+	return true;
+    });
+
+    kap_handler.add_command('esc', function() {
+	$("#ob-input").blur();
     });
     
-    omni_app.kap.add_command('control-x control-c', function(term) {
+    kap_handler.add_push('control-x');
+    kap_handler.add_command('control-x control-s', function(term) {
+        omni_app.event_emitter.fire('cmd:save');
+    });
+
+    kap_handler.add_command('control-x r', function(term) {
+	omni_app.refresh();
+    });
+
+    kap_handler.add_command('alt-p', function(term) {
+	omni_app.pop_view();
+    });
+    
+    kap_handler.add_command('control-x control-c', function(term) {
         omni_app.event_emitter.fire('cmd:reload');
     });
 
@@ -291,44 +333,12 @@ omni_app_data.item_list = [];
 
     // Lets get started.
     $(document).ready(function() {
+	var hostname = window.location.hostname;
+	if (hostname == 'localhost' || hostname == '127.0.0.1') {
+	    // pass, easier to understand formatted this way.
+	} else {
+	    ensure_https();
+	}
         omni_app.event_emitter.fire('app:ready', omni_app);
     });
 })();
-
-var ViewController = Class.extend({
-    init: function() {
-	console.log('init inside view.');
-    },
-    
-    render: function() {
-	console.log("Core View rendering.");
-	var d = document.createElement('div')
-	d.innerHTML = "Someone didn't implement the render method on their view. :(";
-	return d;
-    }
-});
-
-var GAListView = ViewController.extend({
-    init: function() {
-	// Call the superclass init with nothing.
-	this._super();
-	this.item_list = [];
-	this.cursor = 0;
-    },
-
-    render: function() {
-	console.log("GAListView rendering.");
-        var table = document.createElement('table');
-        table.className = 'ob-table ob-reset';
-
-        for(var i=0; i < omni_app_data.item_list.length; i++) {
-            var obj = omni_app_data.item_list[i];
-            var d = document.createElement('tr');
-            
-            d.className = 'ob-tr';
-            d.innerHTML = omni_app.env.render('line_item', obj);
-            table.appendChild(d);
-        }
-	return table;
-    }
-});

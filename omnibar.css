@@ -143,8 +143,12 @@ body { font-family: sans-serif; }
     background-color: transparent;
 }
 
+#ob-omnibar-outer > .ob-inner > .ob-input-holder > input:focus {
+    background-color: rgba(0,255,255, 0.05);
+}
+
 .active {
-    background-color: lightblue;
+    background-color: rgba(0,128,255, 0.8);
 }
 
 .ob-right-tags {
