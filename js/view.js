@@ -41,6 +41,10 @@ var GAListView = ViewController.extend({
 	// Now some local stuff.
 	this.item_list = [];
 	this.cursor_index = 0;
+
+	for(var i=0; i < 10; i++) {
+	    this.item_list.push({'content':'a word '+i});
+	}
     },
 
     run_command: function(value) {

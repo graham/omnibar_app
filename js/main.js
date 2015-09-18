@@ -31,7 +31,4 @@ omni_app.ready(function(label, args) {
 
     var stock_view = new GAListView();
     omni_app.push_view(stock_view);
-
-    var custom_view = new MyView();
-    omni_app.push_view(custom_view);
 });

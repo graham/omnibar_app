@@ -302,6 +302,15 @@ omni_app_data.item_list = [];
 	return true;
     });
 
+    kap_handler.add_command('`', function() {
+        window.location.reload();
+    });
+
+    kap_handler.add_command('control-p', function() {
+	var custom_view = new MyView();
+	omni_app.push_view(custom_view);
+    });
+
     // Moving the cursor, whatever the controller is.
     var move_down = function() { omni_app.fire_event('control:move_down', {}); };
     kap_handler.add_passive_command('j', move_down);
@@ -326,10 +335,6 @@ omni_app_data.item_list = [];
     //
     
     // listen.
-    omni_app.event_emitter.once('cmd:reload', function() {
-        window.location.reload();
-    });
-
     omni_app.event_emitter.on('app:render', function() {
 	var stack_length = omni_app.view_stack.length;
 	var current_view = omni_app.view_stack[stack_length-1];
