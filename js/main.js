@@ -4,20 +4,20 @@ var str_trim = function(s) {
 
 var MyView = ViewController.extend({
     prepare: function() {
-	console.log('prepare myview');
-	this.beacon.once("cmd:close", function() {
-	    console.log("cmd close;");
-	    omni_app.pop_view();
-	});
-	this.beacon.on('time:update', function(options) {
-	    console.log("update: " + JSON.stringify(options));
-	    omni_app.refresh();
-	});
+    console.log('prepare myview');
+    this.beacon.once("cmd:close", function() {
+        console.log("cmd close;");
+        omni_app.pop_view();
+    });
+    this.beacon.on('time:update', function(options) {
+        console.log("update: " + JSON.stringify(options));
+        omni_app.refresh();
+    });
     },
 
     render: function() {
-	console.log("MyView rendering.");
-	return "hello world: " + (new Date());
+    console.log("MyView rendering.");
+    return "hello world: " + (new Date());
     }
 
 });

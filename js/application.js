@@ -67,30 +67,30 @@ var Beacon = (function() {
     };
 
     Beacon.prototype.fire = function(name, options) {
-	if (options === undefined) {
-	    options = {};
-	}
-	var did_hit = false;
+    if (options === undefined) {
+        options = {};
+    }
+    var did_hit = false;
         if (this.obs[name] != undefined) {
             var ll = this.obs[name];
-	    options['event_name'] = name;
+        options['event_name'] = name;
             var args = options;
-	    var response = this.publish_event_to_list(ll, args);
-	    this.obs[name] = response[0];
-	    did_hit = response[1];
+        var response = this.publish_event_to_list(ll, args);
+        this.obs[name] = response[0];
+        did_hit = response[1];
         }
 
-	if (did_hit) {
-	    return true;
-	} else {
-	    return false;
-	}
+    if (did_hit) {
+        return true;
+    } else {
+        return false;
+    }
     };
 
     Beacon.prototype.publish_event_to_list = function(ll, args) {
         var new_list = [];
         var now_final = false;
-	var did_hit = false;
+    var did_hit = false;
         
         for(var i = 0; i < ll.length; i += 1) {
             if (x_in_list(ll[i][2], this.to_remove)) {
@@ -98,7 +98,7 @@ var Beacon = (function() {
                 this.to_remove = remove_x_from_list(ll[i][2], to_remove);
             } else {
                 now_final = ll[i][0].apply(null, [args]);
-		did_hit = true;
+        did_hit = true;
                 if (now_final != false) {
                     if (ll[i][1]) {
                         new_list.push(ll[i]);
@@ -118,11 +118,11 @@ var Beacon = (function() {
 
 var OmniApplication = (function() {
     var has_function = function(o, f) {
-	if (typeof(o[f]) === 'function') {
-	    return true;
-	} else {
-	    return false;
-	}
+    if (typeof(o[f]) === 'function') {
+        return true;
+    } else {
+        return false;
+    }
     }
 
     var Application = function() {
@@ -145,15 +145,15 @@ var OmniApplication = (function() {
     };
 
     Application.prototype.fire_event = function() {
-	var len = this.view_stack.length;
-	for(var index=1; index <= len; index++) {
-	    var beacon = this.view_stack[len-index].beacon;
-	    var result = beacon.fire.apply(beacon, arguments);
-	    if (result == true) {
-		return true;
-	    }
-	}
-	return false;
+    var len = this.view_stack.length;
+    for(var index=1; index <= len; index++) {
+        var beacon = this.view_stack[len-index].beacon;
+        var result = beacon.fire.apply(beacon, arguments);
+        if (result == true) {
+        return true;
+        }
+    }
+    return false;
     };
 
     Application.prototype.refresh = function() {
@@ -170,64 +170,64 @@ var OmniApplication = (function() {
     };
     
     Application.prototype.present_view = function(view, options) {
-	if (options === undefined) {
-	    options = {};
-	}
+    if (options === undefined) {
+        options = {};
+    }
 
-	var view_content = view.render();
-	$("#ob-content").html(view_content);
+    var view_content = view.render();
+    $("#ob-content").html(view_content);
     };
 
     Application.prototype.push_view = function(view, options) {
-	var _this = this;
-	var stack_length = _this.view_stack.length;
-	var current_view = _this.view_stack[stack_length-1];
+    var _this = this;
+    var stack_length = _this.view_stack.length;
+    var current_view = _this.view_stack[stack_length-1];
 
-	// lets let the current view know we're hiding it.
-	if (current_view) {
-	    current_view.will_hide_view();
-	}
+    // lets let the current view know we're hiding it.
+    if (current_view) {
+        current_view.will_hide_view();
+    }
 
-	this.kap.push(view.kap);
-	view.will_show_view();
+    this.kap.push(view.kap);
+    view.will_show_view();
 
-	view.prepare();
+    view.prepare();
 
-	this.view_stack.push(view);
-	this.present_view(view, options);
+    this.view_stack.push(view);
+    this.present_view(view, options);
 
-	if (current_view) {
-	    current_view.did_hide_view();
-	}
-	view.did_show_view();
+    if (current_view) {
+        current_view.did_hide_view();
+    }
+    view.did_show_view();
     };
 
     Application.prototype.pop_view = function(options) {
-	var _this = this;
+    var _this = this;
 
-	if (_this.view_stack.length == 1) {
-	    // Sorry there must always be a view on the stack.
-	    return false;
-	} else {
-	    var stack_length = _this.view_stack.length;
-	    var current_view = _this.view_stack[stack_length-1];
-	    var new_view =     _this.view_stack[stack_length-2];
+    if (_this.view_stack.length == 1) {
+        // Sorry there must always be a view on the stack.
+        return false;
+    } else {
+        var stack_length = _this.view_stack.length;
+        var current_view = _this.view_stack[stack_length-1];
+        var new_view =     _this.view_stack[stack_length-2];
 
-	    // lets let the current view know we're hiding it.
-	    
-	    current_view.will_hide_view();
-	    this.kap.pop();
+        // lets let the current view know we're hiding it.
+        
+        current_view.will_hide_view();
+        this.kap.pop();
 
-	    new_view.will_show_view();
+        new_view.will_show_view();
 
-	    _this.view_stack.pop();
-	    this.present_view(new_view, options);
+        _this.view_stack.pop();
+        this.present_view(new_view, options);
 
-	    current_view.did_hide_view();
-	    new_view.did_show_view();
+        current_view.did_hide_view();
+        new_view.did_show_view();
 
-	    return true;
-	}
+        return true;
+    }
     };
 
     return Application;
@@ -283,23 +283,35 @@ omni_app_data.item_list = [];
 
     // Commands for getting to and away from the omnibar.
     kap_handler.add_command('esc', function() {
-	$("#ob-input").blur();
+        $("#ob-input").blur();
     });
-
+    
     kap_handler.add_passive_command('/', function() {
-	$("#ob-input").focus();
+        $("#ob-input").focus();
     });
-
+    
     kap_handler.add_command('control-s', function() {
-	$("#ob-input").val('search:');
-	$("#ob-input").focus();
-	return true;
+        $("#ob-input").val('search:');
+        $("#ob-input").focus();
+        return true;
     });
 
     kap_handler.add_command('control-d', function() {
-	$("#ob-input").val('do:');
-	$("#ob-input").focus();
-	return true;
+        $("#ob-input").val('do:');
+        $("#ob-input").focus();
+        return true;
+    });
+
+    kap_handler.add_command('control-b', function() {
+        $("#ob-input").val('before:');
+        $("#ob-input").focus();
+        return true;
+    });
+
+    kap_handler.add_command('control-a', function() {
+        $("#ob-input").val('after:');
+        $("#ob-input").focus();
+        return true;
     });
 
     kap_handler.add_command('`', function() {
@@ -307,8 +319,8 @@ omni_app_data.item_list = [];
     });
 
     kap_handler.add_command('control-p', function() {
-	var custom_view = new MyView();
-	omni_app.push_view(custom_view);
+    var custom_view = new MyView();
+    omni_app.push_view(custom_view);
     });
 
     // Moving the cursor, whatever the controller is.
@@ -323,11 +335,11 @@ omni_app_data.item_list = [];
     kap_handler.add_push('control-x');
     
     kap_handler.add_command('control-c', function(term) {
-	omni_app.fire_event('cmd:close', {});
+    omni_app.fire_event('cmd:close', {});
     });
 
     kap_handler.add_command('alt-t', function() {
-	omni_app.fire_event('time:update', {'ts':dottime()});
+    omni_app.fire_event('time:update', {'ts':dottime()});
     });
     
     //
@@ -336,19 +348,19 @@ omni_app_data.item_list = [];
     
     // listen.
     omni_app.event_emitter.on('app:render', function() {
-	var stack_length = omni_app.view_stack.length;
-	var current_view = omni_app.view_stack[stack_length-1];
-	omni_app.present_view(current_view);
+    var stack_length = omni_app.view_stack.length;
+    var current_view = omni_app.view_stack[stack_length-1];
+    omni_app.present_view(current_view);
     });
 
     // Lets get started.
     $(document).ready(function() {
-	var hostname = window.location.hostname;
-	if (hostname == 'localhost' || hostname == '127.0.0.1') {
-	    // pass, easier to understand formatted this way.
-	} else {
-	    ensure_https();
-	}
+    var hostname = window.location.hostname;
+    if (hostname == 'localhost' || hostname == '127.0.0.1') {
+        // pass, easier to understand formatted this way.
+    } else {
+        ensure_https();
+    }
         omni_app.event_emitter.fire('app:ready', omni_app);
     });
 })();
