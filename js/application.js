@@ -267,6 +267,22 @@ omni_app_data.item_list = [];
 
     var kap_handler = omni_app.kap.get_root_handler();
 
+    for(var key in omniapp_default_passive_keymap) {
+        var value = omniapp_default_passive_keymap[key];
+        kap_handler.add_passive_command(key, (function(v) {
+            return function() { omni_app.fire_event(v); };
+        })(value));
+    }
+    
+    for(var key in omniapp_default_active_keymap) {
+        var value = omniapp_default_active_keymap[key];
+        kap_handler.add_command(key, (function(v) {
+            return function() { omni_app.fire_event(v); };
+        })(value));
+    }
+
+    
+
     // The all important cancel, this could move to control-c as well.
     kap_handler.add_command('control-g', function() {
         omni_app.event_emitter.fire('cmd:cancel');
@@ -324,14 +340,6 @@ omni_app_data.item_list = [];
     });
 
     // Moving the cursor, whatever the controller is.
-    var move_down = function() { omni_app.fire_event('control:move_down', {}); };
-    kap_handler.add_passive_command('j', move_down);
-    kap_handler.add_passive_command('down', move_down);
- 
-    var move_up = function() { omni_app.fire_event('control:move_up', {}); };
-    kap_handler.add_passive_command('k', move_up);
-    kap_handler.add_passive_command('up', move_up);
-
     kap_handler.add_push('control-x');
     
     kap_handler.add_command('control-c', function(term) {
