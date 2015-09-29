@@ -9,7 +9,7 @@ var global_passive_keymap = {
     'control-b':'command:before',
     'control-a':'command:after',
     
-    'control-q':'special:one',
+    'control-t':'special:one',
     'control-w':'special:two'
 };
 
