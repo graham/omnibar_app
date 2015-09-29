@@ -276,8 +276,8 @@ omni_app_data.item_list = [];
 
     var kap_handler = omni_app.kap.get_root_handler();
 
-    for(var key in global_passive_keymap) {
-        var value = global_passive_keymap[key];
+    for(var key in global_active_keymap) {
+        var value = global_active_keymap[key];
         kap_handler.add_command(key, (function(v) {
             return function() {
                 console.log(v);
@@ -286,8 +286,18 @@ omni_app_data.item_list = [];
         })(value));
     }
 
-    for(var key in omniapp_default_passive_keymap) {
-        var value = omniapp_default_passive_keymap[key];
+    for(var key in global_passive_keymap) {
+        var value = global_passive_keymap[key];
+        kap_handler.add_passive_command(key, (function(v) {
+            return function() {
+                console.log(v);
+                omni_app.event_emitter.fire(v, {});
+            };
+        })(value));
+    }
+
+    for(var key in mvc_passive_keymap) {
+        var value = mvc_passive_keymap[key];
         kap_handler.add_passive_command(key, (function(v) {
             return function() {
                 console.log(v);
@@ -296,8 +306,8 @@ omni_app_data.item_list = [];
         })(value));
     }
     
-    for(var key in omniapp_default_active_keymap) {
-        var value = omniapp_default_active_keymap[key];
+    for(var key in mvc_active_keymap) {
+        var value = mvc_active_keymap[key];
         kap_handler.add_command(key, (function(v) {
             return function() {
                 console.log(v);

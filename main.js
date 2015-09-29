@@ -78,11 +78,19 @@ var GAListView = ViewController.extend({
             omni_app.refresh();
         });
         
+        _this.beacon.on('control:move_up_more', function(options) {
+            _this.cursor_index -= 10;
+            if (_this.cursor_index < 0) {
+                _this.cursor_index = 0;
+            }
+            omni_app.refresh();
+        });
+
         _this.beacon.on('control:move_top', function(options) {
             _this.cursor_index = 0;
             omni_app.refresh();
         });
-        
+
         _this.beacon.on('control:move_down', function(options) {
             _this.cursor_index += 1;
             mydbconn.cmd('llen', _this.item_list_key).then(function(thelen) {
@@ -93,9 +101,19 @@ var GAListView = ViewController.extend({
             });
         });
 
+        _this.beacon.on('control:move_down_more', function(options) {
+            _this.cursor_index += 10;
+            mydbconn.cmd('llen', _this.item_list_key).then(function(thelen) {
+                if (_this.cursor_index > (thelen-1)) {
+                    _this.cursor_index = thelen-1;
+                }
+                omni_app.refresh();
+            });
+        });
+        
         _this.beacon.on('control:move_bottom', function(options) {
             mydbconn.cmd('llen', _this.item_list_key).then(function(thelen) {
-                _this.cursor_index = thelen - 1;
+                _this.cursor_index = thelen-1;
                 omni_app.refresh();
             });
         });
@@ -147,8 +165,23 @@ omni_app.ready(function(label, args) {
         omni_app.fire_event('command:close', {});
     });
 
+    omni_app.event_emitter.on('command:cancel', function() {
+        $("#ob-input").val('');
+        $("#ob-input").blur();
+    });
+    
     omni_app.event_emitter.on('command:search', function() {
         $("#ob-input").val('search:');
+        $("#ob-input").focus();
+    });
+
+    omni_app.event_emitter.on('command:go', function() {
+        $("#ob-input").val('go:');
+        $("#ob-input").focus();
+    });
+    
+    omni_app.event_emitter.on('command:filter', function() {
+        $("#ob-input").val('filter:');
         $("#ob-input").focus();
     });
 
