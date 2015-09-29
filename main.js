@@ -3,7 +3,7 @@ var mydbconn = jsredis.connect('local');
 var MyView = ViewController.extend({
     prepare: function() {
         console.log('prepare myview');
-        this.beacon.once("cmd:close", function() {
+        this.beacon.once("command:close", function() {
             console.log("cmd close;");
             omni_app.pop_view();
         });
@@ -47,7 +47,7 @@ var GAListView = ViewController.extend({
     prepare: function() {
         var _this = this;
         
-        _this.beacon.on('cmd:enter', function(options) {
+        _this.beacon.on('command:enter', function(options) {
             console.log("Command enter done on GALISTVIEW");
             var value = $("#ob-input").val();
             
@@ -65,12 +65,21 @@ var GAListView = ViewController.extend({
             $("#ob-input").val('');
             $("#ob-input").blur();
         });
+
+        _this.beacon.on('control:select', function(options) {
+            console.log("SELECT");
+        });
         
         _this.beacon.on('control:move_up', function(options) {
             _this.cursor_index -= 1;
             if (_this.cursor_index < 0) {
                 _this.cursor_index = 0;
             }
+            omni_app.refresh();
+        });
+        
+        _this.beacon.on('control:move_top', function(options) {
+            _this.cursor_index = 0;
             omni_app.refresh();
         });
         
@@ -83,9 +92,16 @@ var GAListView = ViewController.extend({
                 omni_app.refresh();
             });
         });
+
+        _this.beacon.on('control:move_bottom', function(options) {
+            mydbconn.cmd('llen', _this.item_list_key).then(function(thelen) {
+                _this.cursor_index = thelen - 1;
+                omni_app.refresh();
+            });
+        });
     },
     
-    render: function() {
+    render: function(done) {
         var _this = this;
         
         console.log("GAListView rendering.");
@@ -108,9 +124,8 @@ var GAListView = ViewController.extend({
                 d.innerHTML = omni_app.env.render('line_item', obj);
                 table.appendChild(d);
             }
+            done(table);
         });
-        
-        return table;
     }
 });
 
@@ -123,6 +138,35 @@ omni_app.ready(function(label, args) {
         console.log($("#ob-input").val());
     });
     
+    omni_app.event_emitter.on('special:one', function() {
+        var custom_view = new MyView();
+        omni_app.push_view(custom_view);
+    });
+    
+    omni_app.event_emitter.on('special:two', function() {
+        omni_app.fire_event('command:close', {});
+    });
+
+    omni_app.event_emitter.on('command:search', function() {
+        $("#ob-input").val('search:');
+        $("#ob-input").focus();
+    });
+
+    omni_app.event_emitter.on('command:do', function() {
+        $("#ob-input").val('do:');
+        $("#ob-input").focus();
+    });
+
+    omni_app.event_emitter.on('command:before', function() {
+        $("#ob-input").val('before:');
+        $("#ob-input").focus();
+    });
+
+    omni_app.event_emitter.on('command:after', function() {
+        $("#ob-input").val('after:');
+        $("#ob-input").focus();
+    });
+
     var stock_view = new GAListView();
     omni_app.push_view(stock_view);
 });
