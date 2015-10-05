@@ -67,9 +67,20 @@ var GAListView = ViewController.extend({
         });
 
         _this.beacon.on('control:select', function(options) {
-            console.log("SELECT");
+            mydbconn.cmd('lindex', _this.item_list_key, _this.cursor_index).then(function(value) {
+                var obj = JSON.parse(value);
+                if (obj['selected']) {
+                    obj['selected'] = false;
+                } else {
+                    obj['selected'] = true;
+                }
+                value = JSON.stringify(obj);
+                mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, value).then(function(_v) {
+                    omni_app.refresh();
+                });
+            });
         });
-        
+
         _this.beacon.on('control:move_up', function(options) {
             _this.cursor_index -= 1;
             if (_this.cursor_index < 0) {
@@ -121,9 +132,6 @@ var GAListView = ViewController.extend({
     
     render: function(done) {
         var _this = this;
-        
-        console.log("GAListView rendering.");
-        
         var table = document.createElement('table');
         table.className = 'ob-table ob-reset';
 
@@ -137,7 +145,7 @@ var GAListView = ViewController.extend({
                 } else {
                     obj.active = false;
                 }
-                
+
                 d.className = 'ob-tr';
                 d.innerHTML = omni_app.env.render('line_item', obj);
                 table.appendChild(d);

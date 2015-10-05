@@ -16,3 +16,5 @@ OmniBarApp has the same focus: Need to build an application quickly? Good OmniBa
 
 The goal of OmniBarApp is to jumpstart you to the point where you can "Build that pretty quickly". Every engineer says it, but few can actually do it in a "really short period of time, like a weekend."
 
+## Information
+
