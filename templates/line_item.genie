@@ -1,9 +1,11 @@
-[^ expose ["content", "active", "selected"] ^]
+[^ expose ["content", "active", "selected", "index"] ^]
 
 <td class='ob-highlight [% if active %]active[% end %]'></td>
 
 <td style='width: 22px; padding-top: 0px;'>
-    <input type='checkbox' [% if selected %]checked[% end %]>
+  <input type='checkbox'
+         onchange='omni_app.fire_event("control:select", {"index":[[index]]});'
+         [% if selected %]checked[% end %]>
 </td>
 
 <td style='width: auto;'>

@@ -43,7 +43,58 @@ var GAListView = ViewController.extend({
             }, 10);
         }
     },
-    
+
+    get_selected: function() {
+        var _this = this;
+        return new Promise(function(resolve, reject) {
+            var return_values = [];
+            mydbconn.cmd('lrange', _this.item_list_key, 0, -1).then(function(data) {
+                for(var i=0; i < data.length; i++) {
+                    var obj = data[i];
+                    obj.index = i;
+
+                    if (obj['selected'] == true) {
+                        return_values.push(obj);
+                    }
+                }
+                resolve(return_values);
+            });
+        });
+    },
+
+    map_selected: function(fn) {
+        var _this = this;
+        return _this.get_selected().then(function(values) {
+            var last_promise = null;
+            var indexs_to_remove = [];
+            var ps = [];
+            
+            for(var i=0; i < values.length; i++) {
+                (function(index, item) {
+                    var result = fn(item);
+                    if (result) {
+                        mydbconn.cmd('lset', _this.item_list_key, item.index, result);
+                    } else {
+                        indexs_to_remove.push(item.index);
+                    }
+                })(i, values[i]);
+            }
+
+            for(var i=indexs_to_remove.length-1; i >= 0; i--) {
+                (function(index, item) {
+                    ps.push(mydbconn.cmd('lrem', _this.item_list_key, item));
+                })(i, indexs_to_remove[i]);
+            }
+            
+            return mydbconn.all(ps);
+        });
+    },
+
+    get_focused: function() {
+        var _this = this;
+        return mydbconn.cmd('lindex', _this.item_list_key, _this.cursor_index);
+    },
+
     prepare: function() {
         var _this = this;
         
@@ -66,14 +117,24 @@ var GAListView = ViewController.extend({
             $("#ob-input").blur();
         });
 
+        _this.beacon.on('command:archive', function(options) {
+            _this.map_selected(function(item) {
+                return undefined;
+            }).then(function() {
+                omni_app.refresh();
+            });
+        });
+
         _this.beacon.on('control:select', function(options) {
-            mydbconn.cmd('lindex', _this.item_list_key, _this.cursor_index).then(function(obj) {
+            var target_index = options.index || _this.cursor_index;
+            
+            mydbconn.cmd('lindex', _this.item_list_key, target_index).then(function(obj) {
                 if (obj['selected']) {
                     obj['selected'] = false;
                 } else {
                     obj['selected'] = true;
                 }
-                mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, obj).then(function(_v) {
+                mydbconn.cmd('lset', _this.item_list_key, target_index, obj).then(function(_v) {
                     omni_app.refresh();
                 });
             });
@@ -160,6 +221,10 @@ var GAListView = ViewController.extend({
         table.className = 'ob-table ob-reset';
 
         mydbconn.cmd('lrange', _this.item_list_key, 0, -1).then(function(data) {
+            if (_this.cursor_index >= data.length) {
+                _this.cursor_index = data.length-1;
+            }
+            
             for(var i=0; i < data.length; i++) {
                 var obj = data[i];
                 var d = document.createElement('tr');
@@ -170,10 +235,13 @@ var GAListView = ViewController.extend({
                     obj.active = false;
                 }
 
+                obj.index = i;
+
                 d.className = 'ob-tr';
                 d.innerHTML = omni_app.env.render('line_item', obj);
                 table.appendChild(d);
             }
+
             done(table);
         });
     }
