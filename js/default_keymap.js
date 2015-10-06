@@ -35,6 +35,9 @@ var mvc_passive_keymap = {
     'space':           'control:select',
     'x':               'control:select',
 
+    'shift-z':         'control:deselect_all',
+    'shift-x':         'control:select_all',
+    
     'p':               'command:prev',
     'n':               'command:next',
 

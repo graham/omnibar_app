@@ -35,7 +35,7 @@ var GAListView = ViewController.extend({
         var _this = this;
         if (value == 'do:value') {
             for(var i=0; i < 10; i++) {
-                mydbconn.cmd('rpush', _this.item_list_key, JSON.stringify({'content':'a word '+i}));
+                mydbconn.cmd('rpush', _this.item_list_key, {'content':'a word '+i});
             }
             this.cursor_index = 0;
             setTimeout(function() {
@@ -50,32 +50,56 @@ var GAListView = ViewController.extend({
         _this.beacon.on('command:enter', function(options) {
             console.log("Command enter done on GALISTVIEW");
             var value = $("#ob-input").val();
-            
+
             value = str_trim(value);
-            
+
             if (startswith(value, "do:")) {
                 _this.run_command(value);
             } else if (startswith(value, "search:")) {
                 console.log("Don't know how to search yet. :(");
             } else if (value.length > 0) {
-                mydbconn.cmd('lpush', _this.item_list_key, JSON.stringify({'content':value}))
+                mydbconn.cmd('lpush', _this.item_list_key, {'content':value})
                 omni_app.refresh();
             }
-            
+
             $("#ob-input").val('');
             $("#ob-input").blur();
         });
 
         _this.beacon.on('control:select', function(options) {
-            mydbconn.cmd('lindex', _this.item_list_key, _this.cursor_index).then(function(value) {
-                var obj = JSON.parse(value);
+            mydbconn.cmd('lindex', _this.item_list_key, _this.cursor_index).then(function(obj) {
                 if (obj['selected']) {
                     obj['selected'] = false;
                 } else {
                     obj['selected'] = true;
                 }
-                value = JSON.stringify(obj);
-                mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, value).then(function(_v) {
+                mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, obj).then(function(_v) {
+                    omni_app.refresh();
+                });
+            });
+        });
+        
+        _this.beacon.on('control:deselect_all', function(options) {
+            mydbconn.cmd('get', _this.item_list_key).then(function(str_value) {
+                var rows = JSON.parse(str_value.slice(1));
+
+                for(var i=0; i < rows.length; i++) {
+                    rows[i]['selected'] = false;
+                }
+                mydbconn.cmd('set', _this.item_list_key, "!" + JSON.stringify(rows)).then(function() {
+                    omni_app.refresh();
+                });
+            });
+        });
+
+        _this.beacon.on('control:select_all', function(options) {
+            mydbconn.cmd('get', _this.item_list_key).then(function(str_value) {
+                var rows = JSON.parse(str_value.slice(1));
+
+                for(var i=0; i < rows.length; i++) {
+                    rows[i]['selected'] = true;
+                }
+                mydbconn.cmd('set', _this.item_list_key, "!" + JSON.stringify(rows)).then(function() {
                     omni_app.refresh();
                 });
             });
@@ -137,7 +161,7 @@ var GAListView = ViewController.extend({
 
         mydbconn.cmd('lrange', _this.item_list_key, 0, -1).then(function(data) {
             for(var i=0; i < data.length; i++) {
-                var obj = JSON.parse(data[i]);
+                var obj = data[i];
                 var d = document.createElement('tr');
                 
                 if (_this.cursor_index == i) {
