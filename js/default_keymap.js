@@ -11,9 +11,6 @@ var global_passive_keymap = {
     'control-x a':     'command:after',
     'control-x g':     'command:go',
 
-    'control-t':       'special:one',
-    'control-w':       'special:two',
-
     'g':               'command:go',
     'f':               'command:filter'
 };
@@ -31,32 +28,32 @@ var mvc_passive_keymap = {
     'shift-j':         'control:move_down_more',
     'down':            'control:move_down',
     'j':               'control:move_down',
+    'h':               'control:help',
 
     'space':           'control:select',
     'x':               'control:select',
 
     'shift-z':         'control:deselect_all',
     'shift-x':         'control:select_all',
+
+    'y':               'command_multi:archive',
+    'u':               'command_multi:return',
+    'm':               'command_multi:pull',
+
+    'l':               'command_multi:label',
+    'o':               'command_multi:open',
+    'i':               'command_multi:info',
+
+    '-':               'command_multi:subtract',
+    '=':               'command_multi:add',
+    '[':               'command_multi:left',
+    ']':               'command_multi:right',
+
+    'n':               'command_single:next',
+    'e':               'command_single:edit'
+    'r':               'command_single:reply',
+    'p':               'command_single:prev',
     
-    'p':               'command:prev',
-    'n':               'command:next',
-
-    'u':               'command:return',
-    'y':               'command:archive',
-    'm':               'command:pull',
-
-    'l':               'command:label',
-    'o':               'command:open',
-    'i':               'command:info',
-
 };
 
-var mvc_active_keymap = {
-    'control-p':       'command:pull',
-    'control-u':       'command:return',
-    'control-o':       'command:open',
-    'control-i':       'command:info',
-
-    'control-l':       'command:label',
-    'control-y':       'command:archive'
-};
+var mvc_active_keymap = { };
