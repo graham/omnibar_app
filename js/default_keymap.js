@@ -50,7 +50,7 @@ var mvc_passive_keymap = {
     ']':               'command_multi:right',
 
     'n':               'command_single:next',
-    'e':               'command_single:edit'
+    'e':               'command_single:edit',
     'r':               'command_single:reply',
     'p':               'command_single:prev'
 };
