@@ -320,7 +320,7 @@ omni_app_data.item_list = [];
     kap_handler.add_push('control-x');
 
     // When you hit enter.
-    kap_handler.add_command('enter', function() {
+    kap_handler.add_active_command('enter', function() {
         omni_app.fire_event('command:enter');
     });
 

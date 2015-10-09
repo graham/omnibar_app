@@ -52,7 +52,8 @@ var mvc_passive_keymap = {
     'n':               'command_single:next',
     'e':               'command_single:edit',
     'r':               'command_single:reply',
-    'p':               'command_single:prev'
+    'p':               'command_single:prev',
+    'enter':           'command_single:open'
 };
 
 var mvc_active_keymap = { };
