@@ -38,7 +38,7 @@ var mvc_passive_keymap = {
 
     'y':               'command_multi:archive',
     'u':               'command_multi:return',
-    'm':               'command_multi:pull',
+    'p':               'command_multi:pull',
 
     'l':               'command_multi:label',
     'o':               'command_multi:open',
@@ -49,10 +49,11 @@ var mvc_passive_keymap = {
     '[':               'command_multi:left',
     ']':               'command_multi:right',
 
-    'n':               'command_single:next',
+    'control-n':       'command_single:next',
+    'control-p':       'command_single:prev',
+    
     'e':               'command_single:edit',
     'r':               'command_single:reply',
-    'p':               'command_single:prev',
     'enter':           'command_single:open'
 };
 
