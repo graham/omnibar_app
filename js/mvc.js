@@ -1,3 +1,9 @@
+var done = function() {
+    return new Promise(function(success, failure) {
+        success();
+    });
+};
+
 var View = Class.extend({});
 
 var Controller = Class.extend({});
@@ -101,6 +107,20 @@ var OmniListController = ViewController.extend({
     get_focused: function() {
         var _this = this;
         return mydbconn.cmd('lindex', _this.item_list_key, _this.cursor_index);
+    },
+
+    map_focused: function(fn) {
+        var _this = this;
+        return _this.get_focused().then(function(item) {
+            var result = fn(item);
+            if (result === undefined) {
+                mydbconn.cmd('lrem', _this.item_list_key, _this.cursor_index);
+            } else {
+                mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, result);
+            }
+
+            return done();
+        });
     },
 
     prepare: function() {
@@ -215,7 +235,7 @@ var OmniListController = ViewController.extend({
         });
     },
     
-    render: function(done) {
+    render: function(is_done) {
         var _this = this;
         var table = document.createElement('table');
         table.className = 'ob-table ob-reset';
@@ -242,7 +262,7 @@ var OmniListController = ViewController.extend({
                 table.appendChild(d);
             }
 
-            done(table);
+            is_done(table);
         });
     }
 });

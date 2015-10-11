@@ -42,6 +42,16 @@ var SourceController = OmniListController.extend({
                 omni_app.refresh();
             });
         });
+
+        _this.beacon.on('command_single:edit', function(options) {
+            _this.map_focused(function(item) {
+                $("#ob-input").val(item.content);
+                $("#ob-input").focus();
+                return undefined;
+            }).then(function() {
+                omni_app.refresh();
+            });
+        });
     }
 });
 
