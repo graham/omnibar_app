@@ -33,8 +33,8 @@ var mvc_passive_keymap = {
     'space':           'control:select',
     'x':               'control:select',
 
-    'shift-z':         'control:deselect_all',
-    'shift-x':         'control:select_all',
+    'z':               'control:deselect_all',
+    'a':               'control:select_all',
 
     'y':               'command_multi:archive',
     'u':               'command_multi:return',
@@ -43,7 +43,7 @@ var mvc_passive_keymap = {
     'l':               'command_multi:label',
     'o':               'command_multi:open',
     'i':               'command_multi:info',
-
+    
     '-':               'command_multi:subtract',
     '=':               'command_multi:add',
     '[':               'command_multi:left',
