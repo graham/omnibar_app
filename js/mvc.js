@@ -47,14 +47,21 @@ var OmniListController = ViewController.extend({
     
     run_command: function(value) {
         var _this = this;
+        var last_command = null;
         if (value == 'do:value') {
             for(var i=0; i < 10; i++) {
-                mydbconn.cmd('rpush', _this.item_list_key, {'content':'a word '+i});
+                last_command = mydbconn.cmd('rpush', _this.item_list_key, {'content':'a word '+i});
             }
             this.cursor_index = 0;
-            setTimeout(function() {
-                omni_app.refresh();
-            }, 10);
+            if (last_command) {
+                last_command.then(function() {
+                    omni_app.refresh();
+                });
+            } else {
+                setTimeout(function() {
+                    omni_app.refresh();
+                }, 0);
+            }
         }
     },
 
@@ -238,6 +245,7 @@ var OmniListController = ViewController.extend({
     render: function(is_done) {
         var _this = this;
         var table = document.createElement('table');
+        var did = null;
         table.className = 'ob-table ob-reset';
 
         mydbconn.cmd('lrange', _this.item_list_key, 0, -1).then(function(data) {
@@ -260,8 +268,13 @@ var OmniListController = ViewController.extend({
                 d.className = 'ob-tr';
                 d.innerHTML = omni_app.env.render('line_item', obj);
                 table.appendChild(d);
+
+                did = d;
             }
 
+            // Needs to be better.
+            $("#ob-content").parent().animate({'scrollTop':0}, 10);
+            
             is_done(table);
         });
     }
