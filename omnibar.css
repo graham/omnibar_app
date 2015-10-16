@@ -20,9 +20,10 @@ body { font-family: sans-serif; }
     /* The real deal */
     position: fixed;
     top: 0px;
-    left: 160px;
+    //    left: 160px;
+    left: 0px;
     right: 0px;
-    height: 80px;
+    height: 70px;
     width: auto;
 
     /* styling */
@@ -34,7 +35,7 @@ body { font-family: sans-serif; }
     background: transparent;
     border: 0;
     color: rgba(20, 20, 20, 0.8);
-    font-size: 32px;
+    font-size: 28px;
     background-color: white;
     width: 100%;
     bottom: 10px;
@@ -45,14 +46,15 @@ body { font-family: sans-serif; }
 #ob-omnibar-outer > .ob-inner > .ob-input-holder {
     position: absolute;
     right: 10px;
-    left: 0px;
-    top: 12px;
+    left: 10px;
+    top: 8px;
 }
 
 #ob-left-control-outer {
+    display:none;
     /* The real deal */
     position:fixed;
-    top: 80px;
+    top: 60px;
     left: 0px;
     bottom: 0px;
     width: 160px;
@@ -64,6 +66,7 @@ body { font-family: sans-serif; }
 }
 
 #ob-left-widget-outer {
+    display:none;
     /* For testing */
     background-color: rgba(0,0,0,0.05);
 
@@ -81,8 +84,9 @@ body { font-family: sans-serif; }
 #ob-content-outer {
     /* the real deal */
     position: fixed;
-    top: 80px;
-    left: 160px;
+    //left: 160px;
+    top: 70px;
+    left: 0px;
     right: 0px;
     bottom: 0px;
 }
@@ -128,7 +132,8 @@ body { font-family: sans-serif; }
 
 .ob-litem {
     margin:0px;
-    padding:0px;
+    margin-top: 2px;
+    margin-left: 4px;
 }
 
 /* things you should modify below. */
@@ -138,7 +143,7 @@ body { font-family: sans-serif; }
 }
 
 .ob-highlight {
-    width: 4px;
+    width: 5px;
     height: inherit;
     background-color: transparent;
 }
@@ -147,18 +152,28 @@ body { font-family: sans-serif; }
     background-color: rgba(0,255,255, 0.05);
 }
 
-.active {
-    background-color: rgba(0,128,255, 0.8);
+tr.active > td.ob-highlight {
+    background-color: rgba(0,128,255, 0.7);
+}
+
+tr.active {
+    background-color: rgba(0,128,255, 0.08);
 }
 
 .ob-right-tags {
-    background-color: rgba(255,255,0,0.3);
-    text-align: right;
-    width: 100px;
+    margin-top: 3px;
+    float: right;
+    margin-right: 10px;
 }
 
 #view_depth {
     position: fixed;
     top:  0px;
     left: 0px;
+}
+
+.ob-checkbox-holder {
+    text-align: right;
+    width: 18px;
+    padding:0px;
 }

@@ -252,6 +252,10 @@ var OmniListController = ViewController.extend({
             if (_this.cursor_index >= data.length) {
                 _this.cursor_index = data.length-1;
             }
+
+            if (data.length == 0) {
+                _this.cursor_index = 0;
+            }
             
             for(var i=0; i < data.length; i++) {
                 var obj = data[i];
@@ -259,13 +263,13 @@ var OmniListController = ViewController.extend({
                 
                 if (_this.cursor_index == i) {
                     obj.active = true;
+                    d.className = 'ob-tr active';
                 } else {
                     obj.active = false;
+                    d.className = 'ob-tr';
                 }
 
                 obj.index = i;
-
-                d.className = 'ob-tr';
                 d.innerHTML = omni_app.env.render('line_item', obj);
                 table.appendChild(d);
 
