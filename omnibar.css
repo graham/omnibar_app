@@ -39,15 +39,15 @@ body { font-family: sans-serif; }
     background-color: white;
     width: 100%;
     bottom: 10px;
-    padding: 6px;
+    padding: 10px;
     border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 #ob-omnibar-outer > .ob-inner > .ob-input-holder {
     position: absolute;
-    right: 10px;
-    left: 10px;
-    top: 8px;
+    right: 8px;
+    left: 6px;
+    top: 6px;
 }
 
 #ob-left-control-outer {
@@ -132,8 +132,8 @@ body { font-family: sans-serif; }
 
 .ob-litem {
     margin:0px;
-    margin-top: 2px;
     margin-left: 4px;
+    margin-top: 2px;
 }
 
 /* things you should modify below. */
