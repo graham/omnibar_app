@@ -1,51 +1,52 @@
-var done = function() {
-    return new Promise(function(success, failure) {
-        success();
-    });
-};
+class View {
+    constructor() {}
+    render() {
+        return "hello world"
+    }
+}
 
-var View = Class.extend({});
+class Controller {
 
-var Controller = Class.extend({});
+}
 
-var ViewController = Class.extend({
-    init: function() {
+class Source {}
+
+class Item {}
+
+class ViewController extends View {
+    contructor() {
         this.beacon = new Beacon();
         console.log('init inside view.');
-    },
+    }
 
-    render: function() {
+    render() {
         console.log("Core View rendering.");
         var d = document.createElement('div')
         d.innerHTML = "Someone didn't implement the render method on their view. :(";
         return d;
-    },
+    }
 
-    prepare: function() {
+    prepare() {
         console.log("Prepare basic ViewController.");
-    },
+    }
 
-    destroy: function() {
+    destroy() {
         console.log("Destroy basic ViewController.");
-    },
+    }
+}
 
-    will_hide_view: function() {},
-    will_show_view: function() {},
-    did_hide_view: function() {},
-    did_show_view: function() {}
-});
-
-var OmniListController = ViewController.extend({
-    init: function() {
+class OmniListController extends ViewController {
+    constructor() {
         // Call the superclass init with nothing.
-        this._super();
+        super();
         
         // Now some local stuff.
         this.item_list_key = 'wndrfl_list_items';
         this.cursor_index = 0;
-    },
+        this.beacon = new Beacon();
+    }
     
-    run_command: function(value) {
+    run_command(value) {
         var _this = this;
         var last_command = null;
         if (value == 'do:value') {
@@ -63,9 +64,9 @@ var OmniListController = ViewController.extend({
                 }, 0);
             }
         }
-    },
+    }
 
-    get_selected: function() {
+    get_selected() {
         var _this = this;
         return new Promise(function(resolve, reject) {
             var return_values = [];
@@ -81,9 +82,9 @@ var OmniListController = ViewController.extend({
                 resolve(return_values);
             });
         });
-    },
+    }
 
-    map_selected: function(fn) {
+    map_selected(fn) {
         var _this = this;
         return _this.get_selected().then(function(values) {
             var last_promise = null;
@@ -109,14 +110,14 @@ var OmniListController = ViewController.extend({
             
             return mydbconn.all(ps);
         });
-    },
+    }
 
-    get_focused: function() {
+    get_focused() {
         var _this = this;
         return mydbconn.cmd('lindex', _this.item_list_key, _this.cursor_index);
-    },
+    }
 
-    map_focused: function(fn) {
+    map_focused(fn) {
         var _this = this;
         return _this.get_focused().then(function(item) {
             var result = fn(item);
@@ -128,9 +129,9 @@ var OmniListController = ViewController.extend({
 
             return done();
         });
-    },
+    }
 
-    prepare: function() {
+    prepare() {
         var _this = this;
         
         _this.beacon.on('command:enter', function(options) {
@@ -240,9 +241,9 @@ var OmniListController = ViewController.extend({
                 omni_app.refresh();
             });
         });
-    },
+    }
     
-    render: function(is_done) {
+    render(is_done) {
         var _this = this;
         var table = document.createElement('table');
         var did = null;
@@ -282,4 +283,4 @@ var OmniListController = ViewController.extend({
             is_done(table);
         });
     }
-});
+}

@@ -1,7 +1,7 @@
 var mydbconn = jsredis.connect('local');
 
-var SourceController = OmniListController.extend({
-    prepare: function() {
+class SourceController extends OmniListController {
+    prepare() {
         var _this = this;
         
         OmniListController.prototype.prepare.call(this, []);
@@ -53,7 +53,7 @@ var SourceController = OmniListController.extend({
             });
         });
     }
-});
+}
 
 // Our App Code.
 

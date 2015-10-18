@@ -1,56 +1,36 @@
-var Beacon = (function() {
-    var x_in_list = function(x, the_list) {
-        var l = the_list.length;
-        for(var i = 0; i < l; i += 1) {
-            if (x == the_list[i]) {
-                return true;
-            }
-        }
-        return false;
-    };
-    
-    var remove_x_from_list = function(x, the_list) {
-        var new_list = [];
-        for(var i = 0; i < the_list.length; i += 1) {
-            if (x != the_list[i]) {
-                new_list.push(the_list[i]);
-            }
-        }
-        return new_list;
-    };
-
-    var Beacon = function() {
+class Beacon {
+    constructor() {
         this.obs = {};
         this.to_remove = [];
         this.obs_id = 1;
-    };
+    }
 
-    Beacon.prototype.next_id = function() {
+    next_id() {
         this.obs_id += 1;
         return this.obs_id;
-    };
+    }
 
-    Beacon.prototype.smart_add = function(name, o) {
+    smart_add(name, o) {
         if (this.obs[name] == undefined) {
             this.obs[name] = [o];
         } else {
             this.obs[name].push(o);
         }
-    };
+    }
 
-    Beacon.prototype.on = function(name, cb) {
+    on(name, cb) {
         var uid = this.next_id();
         this.smart_add(name, [cb, true, uid]);
         return uid;
-    };
+    }
 
-    Beacon.prototype.once = function(name, cb) {
+    once(name, cb) {
         var uid = this.next_id();
         this.smart_add(name, [cb, false, uid]);
         return uid;
-    };
+    }
 
-    Beacon.prototype.fire = function(name, options) {
+    fire(name, options) {
         if (options === undefined) {
             options = {};
         }
@@ -69,20 +49,20 @@ var Beacon = (function() {
         } else {
             return false;
         }
-    };
-    
-    Beacon.prototype.publish_event_to_list = function(ll, args) {
+    }
+
+    publish_event_to_list(ll, args) {
         var new_list = [];
         var now_final = false;
-    var did_hit = false;
-        
+        var did_hit = false;
+
         for(var i = 0; i < ll.length; i += 1) {
-            if (x_in_list(ll[i][2], this.to_remove)) {
+            if (this.x_in_list(ll[i][2], this.to_remove)) {
                 // pass, either it's not a continue, or it's in the remove list.
-                this.to_remove = remove_x_from_list(ll[i][2], to_remove);
+                this.to_remove = this.remove_x_from_list(ll[i][2], to_remove);
             } else {
                 now_final = ll[i][0].apply(null, [args]);
-        did_hit = true;
+                did_hit = true;
                 if (now_final != false) {
                     if (ll[i][1]) {
                         new_list.push(ll[i]);
@@ -91,11 +71,27 @@ var Beacon = (function() {
             }
         }
         return [new_list, did_hit];
-    };
 
-    Beacon.prototype.reset = function() {
-        this.obs = {};
-    };
+    }
 
-    return Beacon;
-})();
+    remove_x_from_list(x, the_list) {
+        var new_list = [];
+        for(var i = 0; i < the_list.length; i += 1) {
+            if (x != the_list[i]) {
+                new_list.push(the_list[i]);
+            }
+        }
+        return new_list;
+    }
+
+    x_in_list(x, the_list) {
+        var l = the_list.length;
+        for(var i = 0; i < l; i += 1) {
+            if (x == the_list[i]) {
+                return true;
+            }
+        }
+        return false;
+    };
+    
+}

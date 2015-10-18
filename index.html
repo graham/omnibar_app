@@ -1,7 +1,5 @@
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="omnibar.css" />
-
     <!--
       Let's load up our javascript libraries.
     -->
@@ -9,28 +7,22 @@
     <script src='lib/jquery.min.js'></script>
     <script src='lib/genie.js'> </script>
     <script src='lib/kapture.js'> </script>
-    <script src='lib/underscore-min.js'></script>
-    <script src='lib/backbone-min.js'></script>
     <script src='lib/jsredis.js'></script>
     
     <!--
       Now the omnibar app specifics.
     -->
-    
-    <script src='js/util.js'></script>
-    <script src='js/beacon.js'></script>
-    <script src='js/klass.js'></script>
-    <script src='js/default_keymap.js'></script>
-    <script src='js/application.js'></script>
-    <script src='js/mvc.js'></script>
-    <script src='js/plugin.js'></script>
-    
+    <script src='rendered/default_keymap.js'></script>
+    <script src='rendered/beacon.js'></script>
+    <script src='rendered/mvc.js'></script>
+    <script src='rendered/resource.js'></script>
+    <script src='rendered/application.js'></script>
     <!--
       User code, should over ride css and take action.
     -->
     
     <link rel="stylesheet" type="text/css" href="../omnibar_theme.css" />    
-    <script src='main.js'></script>
+    <script src='rendered/main.js'></script>
     
   </head>
 
@@ -66,5 +58,10 @@
     
     <div id='ob-help'></div>
     <div id='view_depth'><div>
+
+      <script>
+       var r = new ResourceManager();
+       r.add_to_page('omnibar.css');
+      </script>
   </body>
 </html>

@@ -1,48 +1,36 @@
-/*
-Copyright [2015] [Graham Abbott <graham.abbott@gmail.com>]
+var str_trim = function(s) { 
+    return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
+};
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-var OmniApplication = (function() {
-    var has_function = function(o, f) {
-        if (typeof(o[f]) === 'function') {
-            return true;
-        } else {
-            return false;
-        }
+var startswith = function(s, prefix) {
+    if (s.slice(0, prefix.length) == prefix) {
+        return true;
+    } else {
+        return false;
     }
+};
 
-    var Application = function() {
-        var _this = this;
-
+class Application {
+    constructor() {
         this.view_stack = [];
         this.event_emitter = new Beacon();
         this.kap = new kapture.Stack();
         this.env = new genie.Environment();
         this.render_flag = 0;
 
-        $(window).keydown(function(event) {
+        let _this = this;
+
+        $(window).keydown( (event) => {
             _this.kap.key_down(event);
             if (document.activeElement == $("#ob-input")[0]) {
-                setTimeout(function() {
+                setTimeout(() => {
                     _this.event_emitter.fire('app:bar_updated');
                 }, 0);
             }
         });
-    };
+    }
 
-    Application.prototype.fire_event = function() {
+    fire_event() {
         var len = this.view_stack.length;
         for(var index=1; index <= len; index++) {
             var beacon = this.view_stack[len-index].beacon;
@@ -52,22 +40,22 @@ var OmniApplication = (function() {
             }
         }
         return false;
-    };
+    }
 
-    Application.prototype.refresh = function() {
-        this.event_emitter.fire('app:render');
-    };
-    
-    Application.prototype.ready = function(cb) {
+    refresh() {
+        this.event_emitter.fire("app:render");
+    }
+
+    ready(cb) {
         var _this = this;
         $.get('templates/line_item.genie', function(data) {
             _this.env.create_template('line_item', data);
             _this.event_emitter.fire('app:render');
         });
         this.event_emitter.once('app:ready', cb);
-    };
-    
-    Application.prototype.present_view = function(view, options) {
+    }
+
+    present_view(view, options) {
         if (options === undefined) {
             options = {};
         }
@@ -83,33 +71,22 @@ var OmniApplication = (function() {
         } else {
             finish_callback(view_content)
         }
-    };
+    }
 
-    Application.prototype.push_view = function(view, options) {
+    push_view(view, options) {
         var _this = this;
         var stack_length = _this.view_stack.length;
         var current_view = _this.view_stack[stack_length-1];
         
         // lets let the current view know we're hiding it.
-        if (current_view) {
-            current_view.will_hide_view();
-        }
-        
         this.kap.push(view.kap);
-        view.will_show_view();
-        
         view.prepare();
-        
         this.view_stack.push(view);
         this.present_view(view, options);
-        
-        if (current_view) {
-            current_view.did_hide_view();
-        }
-        view.did_show_view();
-    };
-    
-    Application.prototype.pop_view = function(options) {
+
+    }
+
+    pop_view(options) {
         var _this = this;
         
         if (_this.view_stack.length == 1) {
@@ -119,30 +96,23 @@ var OmniApplication = (function() {
             var stack_length = _this.view_stack.length;
             var current_view = _this.view_stack[stack_length-1];
             var new_view =     _this.view_stack[stack_length-2];
-            
+
             // lets let the current view know we're hiding it.
-            
-            current_view.will_hide_view();
+
             this.kap.pop();
-            
-            new_view.will_show_view();
-            
+
             _this.view_stack.pop();
             this.present_view(new_view, options);
-            
-            current_view.did_hide_view();
-            new_view.did_show_view();
-            
+
             return true;
         }
-    };
-    
-    return Application;
-})();
+    }
+}
 
-var omni_app = new OmniApplication();
+var omni_app = new Application();
 var omni_app_data = {};
 omni_app_data.item_list = [];
+
 
 (function() {
     var storage = localStorage;
@@ -267,4 +237,6 @@ omni_app_data.item_list = [];
         omni_app.event_emitter.fire('app:ready', omni_app);
     });
 })();
+
+
 
