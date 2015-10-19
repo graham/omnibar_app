@@ -85,9 +85,9 @@ body { font-family: sans-serif; }
     /* the real deal */
     position: fixed;
     //left: 160px;
-    top: 70px;
-    left: 0px;
-    right: 0px;
+    top: 78px;
+    left: 6px;
+    right: 6px;
     bottom: 0px;
 }
 
@@ -131,9 +131,8 @@ body { font-family: sans-serif; }
 }
 
 .ob-litem {
-    margin:0px;
+    margin:      4px;
     margin-left: 4px;
-    margin-top: 2px;
 }
 
 /* things you should modify below. */
@@ -143,7 +142,7 @@ body { font-family: sans-serif; }
 }
 
 .ob-highlight {
-    width: 5px;
+    width: 4px;
     height: inherit;
     background-color: transparent;
 }
@@ -153,11 +152,11 @@ body { font-family: sans-serif; }
 }
 
 tr.active > td.ob-highlight {
-    background-color: rgba(0,128,255, 0.7);
+    background-color: rgba(0,96,255, 0.5);
 }
 
 tr.active {
-    background-color: rgba(0,128,255, 0.08);
+    background-color: rgba(0,96,255, 0.05);
 }
 
 .ob-right-tags {
