@@ -168,14 +168,15 @@ var OmniListController = (function (_ViewController) {
         value: function map_focused(fn) {
             var _this = this;
             return _this.get_focused().then(function (item) {
+                var promise = null;
                 var result = fn(item);
                 if (result === undefined) {
-                    mydbconn.cmd('lrem', _this.item_list_key, _this.cursor_index);
+                    promise = mydbconn.cmd('lrem', _this.item_list_key, _this.cursor_index);
                 } else {
-                    mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, result);
+                    promise = mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, result);
                 }
 
-                return done();
+                return promise;
             });
         }
     }, {
