@@ -19,14 +19,12 @@ var SourceController = (function (_OmniListController) {
         _get(Object.getPrototypeOf(SourceController.prototype), 'constructor', this).apply(this, arguments);
     }
 
-    // Our App Code.
-
     _createClass(SourceController, [{
         key: 'prepare',
         value: function prepare() {
             var _this = this;
 
-            OmniListController.prototype.prepare.call(this, []);
+            _get(Object.getPrototypeOf(SourceController.prototype), 'prepare', this).call(this);
 
             _this.beacon.on('command_multi:archive', function (options) {
                 _this.map_selected(function (item) {
@@ -80,49 +78,3 @@ var SourceController = (function (_OmniListController) {
 
     return SourceController;
 })(OmniListController);
-
-omni_app.ready(function (label, args) {
-    $("#ob-input").focus();
-
-    omni_app.event_emitter.on('app:bar_updated', function () {
-        console.log($("#ob-input").val());
-    });
-
-    omni_app.event_emitter.on('command:cancel', function () {
-        $("#ob-input").val('');
-        $("#ob-input").blur();
-    });
-
-    omni_app.event_emitter.on('command:search', function () {
-        $("#ob-input").val('search:');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:go', function () {
-        $("#ob-input").val('go:');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:filter', function () {
-        $("#ob-input").val('filter:');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:do', function () {
-        $("#ob-input").val('do:');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:before', function () {
-        $("#ob-input").val('before:');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:after', function () {
-        $("#ob-input").val('after:');
-        $("#ob-input").focus();
-    });
-
-    var stock_view = new SourceController();
-    omni_app.push_view(stock_view);
-});

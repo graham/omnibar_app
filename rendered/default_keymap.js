@@ -9,10 +9,6 @@ var global_active_keymap = {
 };
 
 var global_passive_keymap = {
-    'control-x b': 'command:before',
-    'control-x a': 'command:after',
-    'control-x g': 'command:go',
-
     'g': 'command:go',
     'f': 'command:filter'
 };

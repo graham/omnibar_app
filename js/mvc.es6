@@ -5,14 +5,6 @@ class View {
     }
 }
 
-class Controller {
-
-}
-
-class Source {}
-
-class Item {}
-
 class ViewController extends View {
     contructor() {
         this.beacon = new Beacon();
@@ -247,7 +239,6 @@ class OmniListController extends ViewController {
     render(is_done) {
         var _this = this;
         var table = document.createElement('table');
-        var did = null;
         table.className = 'ob-table ob-reset';
 
         mydbconn.cmd('lrange', _this.item_list_key, 0, -1).then(function(data) {
@@ -272,10 +263,8 @@ class OmniListController extends ViewController {
                 }
 
                 obj.index = i;
-                d.innerHTML = omni_app.env.render('line_item', obj);
+                d.innerHTML = omni_app.plugin_manager.default_transformer.parse(obj, this);
                 table.appendChild(d);
-
-                did = d;
             }
 
             // Needs to be better.

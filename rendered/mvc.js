@@ -23,18 +23,6 @@ var View = (function () {
     return View;
 })();
 
-var Controller = function Controller() {
-    _classCallCheck(this, Controller);
-};
-
-var Source = function Source() {
-    _classCallCheck(this, Source);
-};
-
-var Item = function Item() {
-    _classCallCheck(this, Item);
-};
-
 var ViewController = (function (_View) {
     _inherits(ViewController, _View);
 
@@ -297,7 +285,6 @@ var OmniListController = (function (_ViewController) {
         value: function render(is_done) {
             var _this = this;
             var table = document.createElement('table');
-            var did = null;
             table.className = 'ob-table ob-reset';
 
             mydbconn.cmd('lrange', _this.item_list_key, 0, -1).then(function (data) {
@@ -322,10 +309,8 @@ var OmniListController = (function (_ViewController) {
                     }
 
                     obj.index = i;
-                    d.innerHTML = omni_app.env.render('line_item', obj);
+                    d.innerHTML = omni_app.plugin_manager.default_transformer.parse(obj, this);
                     table.appendChild(d);
-
-                    did = d;
                 }
 
                 // Needs to be better.

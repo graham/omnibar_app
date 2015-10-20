@@ -13,11 +13,14 @@ var startswith = function(s, prefix) {
 class Application {
     constructor() {
         this.view_stack = [];
+
         this.event_emitter = new Beacon();
         this.kap = new kapture.Stack();
-        this.env = new genie.Environment();
+        
+        this.plugin_manager = new PluginManager();
+        this.plugin_manager.default_transformer = new ItemTransformer();
+        
         this.render_flag = 0;
-
         let _this = this;
 
         $(window).keydown( (event) => {
@@ -48,11 +51,10 @@ class Application {
 
     ready(cb) {
         var _this = this;
-        $.get('templates/line_item.genie', function(data) {
-            _this.env.create_template('line_item', data);
-            _this.event_emitter.fire('app:render');
-        });
         this.event_emitter.once('app:ready', cb);
+        setTimeout(() => {
+            this.refresh();
+        }, 0);
     }
 
     present_view(view, options) {
@@ -100,43 +102,27 @@ class Application {
             // lets let the current view know we're hiding it.
 
             this.kap.pop();
-
             _this.view_stack.pop();
             this.present_view(new_view, options);
-
             return true;
         }
     }
 }
 
-var omni_app = new Application();
-var omni_app_data = {};
-omni_app_data.item_list = [];
+var omni_app = null;
 
-
-(function() {
-    var storage = localStorage;
-    var str_trim = function(s) { return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, ""); };
-    var dottime = function() { return Math.floor((new Date).getTime() / 1000); };
-    var dottimem = function() { return Math.floor((new Date).getTime()); };
-    var ensure_https = function() {
+// TODO refactor this into something reasonable.
+$(document).ready(function() {
+    var hostname = window.location.hostname;
+    if (hostname == 'localhost' || hostname == '127.0.0.1') {
+        // pass, easier to understand formatted this way.
+    } else {
         if (document.location.href.slice(0, 5) == 'http:') {
             document.location = 'https:' + document.location.href.slice(6);
         }
-    };
-    
-    omni_app_data.timers = {};
-    omni_app_data.timers.start = dottime();
+    }
 
-    var x_in_list = function(x, the_list) {
-        var l = the_list.length;
-        for(var i = 0; i < l; i += 1) {
-            if (x == the_list[i]) {
-                return true;
-            }
-        }
-        return false;
-    };
+    omni_app = new Application();
 
     //
     // Key Commands
@@ -192,29 +178,15 @@ omni_app_data.item_list = [];
         omni_app.fire_event('command:enter');
     });
 
-    kap_handler.add_command('shift-enter', function() {
-        omni_app.fire_event('command:enter', {'mod':'shift'});
-    });
-
     // Commands for getting to and away from the omnibar.
     kap_handler.add_command('esc', function() {
         $("#ob-input").blur();
     });
-    
+
     kap_handler.add_passive_command('/', function() {
         $("#ob-input").focus();
     });
 
-    // (asdf asdf asdf) - (asdf asdf asdf)
-    
-    kap_handler.add_command('control-`', function() {
-        window.location.reload();
-    });
-
-    kap_handler.add_command('alt-t', function() {
-        omni_app.fire_event('time:update', {'ts':dottime()});
-    });
-    
     //
     // End of Key Commands 
     //
@@ -226,17 +198,43 @@ omni_app_data.item_list = [];
         omni_app.present_view(current_view);
     });
 
-    // Lets get started.
-    $(document).ready(function() {
-        var hostname = window.location.hostname;
-        if (hostname == 'localhost' || hostname == '127.0.0.1') {
-            // pass, easier to understand formatted this way.
-        } else {
-            ensure_https();
-        }
-        omni_app.event_emitter.fire('app:ready', omni_app);
+    omni_app.event_emitter.on('app:bar_updated', function() {
+        console.log($("#ob-input").val());
     });
-})();
 
+    omni_app.event_emitter.on('command:cancel', function() {
+        $("#ob-input").val('');
+        $("#ob-input").blur();
+    });
+    
+    omni_app.event_emitter.on('command:search', function() {
+        $("#ob-input").val('search:');
+        $("#ob-input").focus();
+    });
+
+    omni_app.event_emitter.on('command:go', function() {
+        $("#ob-input").val('go:');
+        $("#ob-input").focus();
+    });
+    
+    omni_app.event_emitter.on('command:filter', function() {
+        $("#ob-input").val('filter:');
+        $("#ob-input").focus();
+    });
+
+    omni_app.event_emitter.on('command:do', function() {
+        $("#ob-input").val('do:');
+        $("#ob-input").focus();
+    });
+
+    var stock_view = new SourceController();
+    omni_app.push_view(stock_view);
+    
+    omni_app.event_emitter.fire('app:ready', omni_app);
+    setTimeout(() => {
+        $("#ob-input").focus();
+    }, 0);
+    
+});
 
 
