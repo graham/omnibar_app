@@ -1,4 +1,4 @@
-body { font-family: sans-serif; }
+body { font-family: "Open Sans"; }
 
 /* first a css reset, of the meyer kind */
 .ob-reset {
@@ -133,6 +133,7 @@ body { font-family: sans-serif; }
 .ob-litem {
     margin:      4px;
     margin-left: 4px;
+    margin-top: 1px;
 }
 
 /* things you should modify below. */

@@ -8,6 +8,7 @@ class SourceController extends OmniListController {
         
         _this.beacon.on('command_multi:archive', function(options) {
             _this.map_selected(function(item) {
+                mydbconn.cmd('rpush', 'archived', item);
                 return undefined;
             }).then(function() {
                 omni_app.refresh();
