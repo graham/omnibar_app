@@ -37,10 +37,22 @@ class ItemTransformer {
     }
     
     parse(obj, tools) {
-        console.log(obj);
         if (this.env.template_dict['line_item'] == undefined) {
             return obj['content'];
         } else {
+            return this.env.render('line_item', obj);
+        }
+    }
+}
+
+class TestingTransformer extends ItemTransformer {
+    parse(obj, tools) {
+        if (this.env.template_dict['line_item'] == undefined) {
+            return obj['content'];
+        } else {
+            if (obj['content'] == 'cool') {
+                obj['content'] = '<center><img src="http://static1.gamespot.com/uploads/original/1550/15507091/2844654-1475930077-giphy.gif"></center>';
+            }
             return this.env.render('line_item', obj);
         }
     }

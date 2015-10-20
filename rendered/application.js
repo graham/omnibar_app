@@ -26,7 +26,7 @@ var Application = (function () {
         this.kap = new kapture.Stack();
 
         this.plugin_manager = new PluginManager();
-        this.plugin_manager.default_transformer = new ItemTransformer();
+        this.plugin_manager.default_transformer = new TestingTransformer();
 
         this.render_flag = 0;
         var _this = this;

@@ -18,7 +18,7 @@ class Application {
         this.kap = new kapture.Stack();
         
         this.plugin_manager = new PluginManager();
-        this.plugin_manager.default_transformer = new ItemTransformer();
+        this.plugin_manager.default_transformer = new TestingTransformer();
         
         this.render_flag = 0;
         let _this = this;
