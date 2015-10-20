@@ -150,7 +150,7 @@ var OmniListController = (function (_ViewController) {
 
                 for (var i = indexs_to_remove.length - 1; i >= 0; i--) {
                     (function (index, item) {
-                        ps.push(mydbconn.cmd('lrem', _this.item_list_key, item));
+                        ps.push(mydbconn.cmd('lremindex', _this.item_list_key, item));
                     })(i, indexs_to_remove[i]);
                 }
 
@@ -171,7 +171,7 @@ var OmniListController = (function (_ViewController) {
                 var promise = null;
                 var result = fn(item);
                 if (result === undefined) {
-                    promise = mydbconn.cmd('lrem', _this.item_list_key, _this.cursor_index);
+                    promise = mydbconn.cmd('lremindex', _this.item_list_key, _this.cursor_index);
                 } else {
                     promise = mydbconn.cmd('lset', _this.item_list_key, _this.cursor_index, result);
                 }
