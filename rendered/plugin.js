@@ -41,10 +41,6 @@ var PluginManager = (function () {
     return PluginManager;
 })();
 
-var ItemType = function ItemType() {
-    _classCallCheck(this, ItemType);
-};
-
 var ItemSource = function ItemSource() {
     _classCallCheck(this, ItemSource);
 };
@@ -75,6 +71,10 @@ var ItemTransformer = (function () {
 
     return ItemTransformer;
 })();
+
+var SearchTransformer = function SearchTransformer() {
+    _classCallCheck(this, SearchTransformer);
+};
 
 var TestingTransformer = (function (_ItemTransformer) {
     _inherits(TestingTransformer, _ItemTransformer);

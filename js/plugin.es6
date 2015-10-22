@@ -22,7 +22,6 @@ class PluginManager {
     }
 }
 
-class ItemType {}
 class ItemSource {}
 
 class ItemTransformer {
@@ -44,6 +43,8 @@ class ItemTransformer {
         }
     }
 }
+
+class SearchTransformer {}
 
 class TestingTransformer extends ItemTransformer {
     parse(obj, tools) {
