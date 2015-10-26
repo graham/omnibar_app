@@ -276,7 +276,16 @@ class OmniListController extends ViewController {
                     obj.active = false;
                 }
 
-                var d = omni_app.plugin_manager.default_transformer.parse(obj, this);
+                var d = null;
+
+                try {
+                    d = omni_app.plugin_manager.default_transformer.parse(obj, this);
+                } catch (e) {
+                    console.log(e, e.stack);
+                    d = document.createElement('div')
+                    d.innerHTML = "" + e.stack
+                }
+
                 table.appendChild(d);
             }
 

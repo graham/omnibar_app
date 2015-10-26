@@ -48,18 +48,13 @@ class ItemTransformer {
         var internal_cb = document.createElement('input')
         internal_cb.type = 'checkbox'
         internal_cb.checked = obj.selected || false
+        internal_cb.style.cssText = 'margin-top: 3px;'
         internal_cb.onchange = () => {
             omni_app.fire_event("control:select", {"index":obj.index})
         }
 
         checkbox_td.appendChild(internal_cb)
         tr.appendChild(checkbox_td)
-
-        return tr
-    }
-    
-    parse(obj, tools) {
-        var tr = this.create_base_tr(obj);
 
         var outer_td = document.createElement('td')
         outer_td.style.cssText = 'width: auto;'
@@ -72,19 +67,36 @@ class ItemTransformer {
         } else {
             // boop
         }
-        outer_td.appendChild(star_div)
-        
+
+        checkbox_td.appendChild(star_div)
+
         var inner_div = document.createElement('div')
         inner_div.className = 'ob-inner'
-        
         var content_div = document.createElement('div')
         content_div.className = 'ob-litem'
-        content_div.innerHTML = obj['content']
-
+        
         inner_div.appendChild(content_div)
         outer_td.appendChild(inner_div)
         tr.appendChild(outer_td)
-        
+
+        return [tr, content_div]
+    }
+
+    float_right() {
+        var d = document.createElement('div')
+        d.className = 'ob-line-right'
+        return d;
+    }
+    
+    parse(obj) {
+        var tr, inner_div;
+        [tr, inner_div] = this.create_base_tr(obj)
+        inner_div.innerHTML = obj['content']
+
+        var tag = this.float_right();
+        tag.innerHTML = '#asdf'
+        inner_div.appendChild(tag)
+
         return tr
     }
 }

@@ -132,9 +132,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 }
 
 .ob-litem {
-    margin:      4px;
-    margin-left: 4px;
-    margin-top: 1px;
+    position: relative;
 }
 
 /* things you should modify below. */
@@ -175,22 +173,32 @@ tr.active {
 
 .ob-checkbox-holder {
     text-align: right;
-    width: 18px;
+    width: 40px;
     padding:0px;
 }
 
 .ob-star {
-    float:left;
-    margin-top: 2px;
+    float: right;
+    width: 18px;
+    height: 18px;
     margin-left: 1px;
-    width: 17px;
-    height: 16px;
+    margin-right: 2px;
     background-image:url("static/icons/StarOff.png");
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
 }
 
 .is_starred {
     background-image:url("static/icons/Star.png");
 }
 
+.ob-line-right {
+    float:right;
+    background-color: rgba(20, 222, 90, 0.3);
+    border: 1px solid rgba(20, 222, 90, 0.6);
+    border-radius: 4px;
+    padding: 2px;
+    margin: 2px;
+    font-size: 9px;
+}
