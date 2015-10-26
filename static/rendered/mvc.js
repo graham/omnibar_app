@@ -206,6 +206,21 @@ var OmniListController = (function (_ViewController) {
                 });
             });
 
+            _this.beacon.on('command_single:toggle_star', function (options) {
+                var target_index = options.index || _this.cursor_index;
+
+                mydbconn.cmd('lindex', _this.item_list_key, target_index).then(function (obj) {
+                    if (obj['starred']) {
+                        obj['starred'] = false;
+                    } else {
+                        obj['starred'] = true;
+                    }
+                    mydbconn.cmd('lset', _this.item_list_key, target_index, obj).then(function (_v) {
+                        omni_app.refresh();
+                    });
+                });
+            });
+
             _this.beacon.on('control:deselect_all', function (options) {
                 mydbconn.cmd('get', _this.item_list_key).then(function (str_value) {
                     var rows = JSON.parse(str_value.slice(1));
@@ -298,18 +313,15 @@ var OmniListController = (function (_ViewController) {
 
                 for (var i = 0; i < data.length; i++) {
                     var obj = data[i];
-                    var d = document.createElement('tr');
+                    obj.index = i;
 
                     if (_this.cursor_index == i) {
                         obj.active = true;
-                        d.className = 'ob-tr active';
                     } else {
                         obj.active = false;
-                        d.className = 'ob-tr';
                     }
 
-                    obj.index = i;
-                    d.innerHTML = omni_app.plugin_manager.default_transformer.parse(obj, this);
+                    var d = omni_app.plugin_manager.default_transformer.parse(obj, this);
                     table.appendChild(d);
                 }
 

@@ -52,7 +52,9 @@ var mvc_passive_keymap = {
 
     'e': 'command_single:edit',
     'r': 'command_single:reply',
-    'enter': 'command_single:open'
+    'enter': 'command_single:open',
+    's': 'command_single:toggle_star'
+
 };
 
 var mvc_active_keymap = {};

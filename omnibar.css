@@ -178,3 +178,19 @@ tr.active {
     width: 18px;
     padding:0px;
 }
+
+.ob-star {
+    float:left;
+    margin-top: 3px;
+    margin-left: 1px;
+    width: 17px;
+    height: 16px;
+    background-image:url("/static/icons/StarOff.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.is_starred {
+    background-image:url("/static/icons/Star.png");
+}
+
