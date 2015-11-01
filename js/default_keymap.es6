@@ -31,6 +31,7 @@ var mvc_passive_keymap = {
 
     'z':               'control:deselect_all',
     'a':               'control:select_all',
+    '\\':              'control:cycle_sort',
 
     'y':               'command_multi:archive',
     'u':               'command_multi:return',
