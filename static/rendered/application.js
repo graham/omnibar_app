@@ -226,7 +226,7 @@ $(document).ready(function () {
     });
 
     omni_app.event_emitter.on('command:search', function () {
-        $("#ob-input").val('search:');
+        $("#ob-input").val('?');
         $("#ob-input").focus();
     });
 
@@ -241,7 +241,7 @@ $(document).ready(function () {
     });
 
     omni_app.event_emitter.on('command:do', function () {
-        $("#ob-input").val('do:');
+        $("#ob-input").val('![');
         $("#ob-input").focus();
     });
 

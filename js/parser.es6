@@ -21,9 +21,10 @@ function string_to_item(s) {
     var exit_char = null;
     var last_char = null;
 
+    var open_range_chars = ["(", "\"", "'", "[", "{", "<"];
     var close_range_chars = { "(":")", "\"":"\"", "'":"'",
                               "[":"]", "{":"}",   "<":">"};
-    var open_range_chars = ["(", "\"", "'", "[", "{", "<"];
+
     var open_chars = ["@", "!", "#", "$", "%", "=", "&",
                       ":", "\\", ";", "?", "^", "`", "/"];
 
@@ -140,7 +141,8 @@ var search_strings = [
     "/asdf /work ;person",
     ":(person) /#asdf \\#work matcher",
     "![sort = (i) -> i.created]",
-    "/(#searching tag)"
+    "/(#searching tag)",
+    "#tag"
 ];
 
 for (var i in test_strings) {

@@ -9,8 +9,7 @@ var global_active_keymap = {
 };
 
 var global_passive_keymap = {
-    'g': 'command:go',
-    'f': 'command:filter'
+    'shift-/': 'command:search'
 };
 
 // These events get passed to the top view controller and only
@@ -26,6 +25,7 @@ var mvc_passive_keymap = {
     'shift-j': 'control:move_down_more',
     'down': 'control:move_down',
     'j': 'control:move_down',
+
     'h': 'control:help',
 
     'space': 'control:select',
@@ -33,6 +33,8 @@ var mvc_passive_keymap = {
 
     'z': 'control:deselect_all',
     'a': 'control:select_all',
+    '\\': 'control:cycle_sort',
+    '`': 'control:show_sources',
 
     'y': 'command_multi:archive',
     'u': 'command_multi:return',

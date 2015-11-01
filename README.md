@@ -9,3 +9,10 @@
 - Settings are pretty difficult, but it should probably be a subclass fo the list view.
 
 - Stars make sense, or just a active/inactive flag. Icon for flag can be set by the ItemTransformer.
+
+
+#Today
+
+- redo storage (local storage for selection)
+- gutter div for search status, general info.
+- pagination.
