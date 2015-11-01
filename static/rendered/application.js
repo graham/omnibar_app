@@ -20,7 +20,7 @@ var Application = (function () {
     function Application() {
         _classCallCheck(this, Application);
 
-        this.view_stack = [];
+        this.controller_stack = [];
         this.kap = new kapture.Stack();
         this.event_emitter = new Beacon();
         this.plugin_manager = new PluginManager();
@@ -49,9 +49,9 @@ var Application = (function () {
     _createClass(Application, [{
         key: "fire_event",
         value: function fire_event() {
-            var len = this.view_stack.length;
+            var len = this.controller_stack.length;
             for (var index = 1; index <= len; index++) {
-                var beacon = this.view_stack[len - index].beacon;
+                var beacon = this.controller_stack[len - index].beacon;
                 var result = beacon.fire.apply(beacon, arguments);
                 if (result == true) {
                     return true;
@@ -76,8 +76,8 @@ var Application = (function () {
             }, 0);
         }
     }, {
-        key: "present_view",
-        value: function present_view(view, options) {
+        key: "present_controller",
+        value: function present_controller(controller, options) {
             if (options === undefined) {
                 options = {};
             }
@@ -86,45 +86,45 @@ var Application = (function () {
                 $("#ob-content").html(data);
             };
 
-            var view_content = view.render(finish_callback);
+            var controller_content = controller.render(finish_callback);
 
-            if (view_content === undefined || view_content === null) {
+            if (controller_content === undefined || controller_content === null) {
                 // we assume they will call the function in time.
             } else {
-                    finish_callback(view_content);
+                    finish_callback(controller_content);
                 }
         }
     }, {
-        key: "push_view",
-        value: function push_view(view, options) {
+        key: "push_controller",
+        value: function push_controller(controller, options) {
             var _this = this;
-            var stack_length = _this.view_stack.length;
-            var current_view = _this.view_stack[stack_length - 1];
+            var stack_length = _this.controller_stack.length;
+            var current_controller = _this.controller_stack[stack_length - 1];
 
-            // lets let the current view know we're hiding it.
-            this.kap.push(view.kap);
-            view.prepare();
-            this.view_stack.push(view);
-            this.present_view(view, options);
+            // lets let the current controller know we're hiding it.
+            this.kap.push(controller.kap);
+            controller.prepare();
+            this.controller_stack.push(controller);
+            this.present_controller(controller, options);
         }
     }, {
-        key: "pop_view",
-        value: function pop_view(options) {
+        key: "pop_controller",
+        value: function pop_controller(options) {
             var _this = this;
 
-            if (_this.view_stack.length == 1) {
-                // Sorry there must always be a view on the stack.
+            if (_this.controller_stack.length == 1) {
+                // Sorry there must always be a controller on the stack.
                 return false;
             } else {
-                var stack_length = _this.view_stack.length;
-                var current_view = _this.view_stack[stack_length - 1];
-                var new_view = _this.view_stack[stack_length - 2];
+                var stack_length = _this.controller_stack.length;
+                var current_controller = _this.controller_stack[stack_length - 1];
+                var new_controller = _this.controller_stack[stack_length - 2];
 
-                // lets let the current view know we're hiding it.
+                // lets let the current controller know we're hiding it.
 
                 this.kap.pop();
-                _this.view_stack.pop();
-                this.present_view(new_view, options);
+                _this.controller_stack.pop();
+                this.present_controller(new_controller, options);
                 return true;
             }
         }
@@ -217,9 +217,9 @@ $(document).ready(function () {
 
     // listen.
     omni_app.event_emitter.on('app:render', function () {
-        var stack_length = omni_app.view_stack.length;
-        var current_view = omni_app.view_stack[stack_length - 1];
-        omni_app.present_view(current_view);
+        var stack_length = omni_app.controller_stack.length;
+        var current_controller = omni_app.controller_stack[stack_length - 1];
+        omni_app.present_controller(current_controller);
         omni_app.fire_event('app:bar_updated');
     });
 
@@ -238,8 +238,8 @@ $(document).ready(function () {
         $("#ob-input").focus();
     });
 
-    var stock_view = new SourceController();
-    omni_app.push_view(stock_view);
+    var stock_controller = new SourceController();
+    omni_app.push_controller(stock_controller);
     omni_app.event_emitter.fire('app:ready', omni_app);
 
     setTimeout(function () {

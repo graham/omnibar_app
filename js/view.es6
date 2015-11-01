@@ -1,6 +1,5 @@
 class View {
     contructor() {
-        this.beacon = new Beacon();
         console.log('init inside view.');
     }
 
@@ -20,7 +19,7 @@ class View {
     }
 }
 
-class OmniListView extends View {
+class ListView extends View {
     render(controller, is_done) {
         var table = document.createElement('table');
         table.className = 'ob-table ob-reset';

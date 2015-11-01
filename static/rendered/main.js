@@ -10,8 +10,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var mydbconn = jsredis.connect('local');
 
-var SourceController = (function (_OmniListController) {
-    _inherits(SourceController, _OmniListController);
+var SourceController = (function (_ListController) {
+    _inherits(SourceController, _ListController);
 
     function SourceController() {
         _classCallCheck(this, SourceController);
@@ -25,56 +25,8 @@ var SourceController = (function (_OmniListController) {
             var _this = this;
 
             _get(Object.getPrototypeOf(SourceController.prototype), 'prepare', this).call(this);
-
-            _this.beacon.on('command_multi:archive', function (options) {
-                _this.map_selected(function (item) {
-                    mydbconn.cmd('rpush', 'archived', item);
-                    return undefined;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_multi:info', function (options) {
-                _this.map_selected(function (item) {
-                    console.log(JSON.stringify(item));
-                    return item;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_multi:right', function (options) {
-                _this.map_selected(function (item) {
-                    item.content = '.' + item.content;
-                    return item;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_multi:left', function (options) {
-                _this.map_selected(function (item) {
-                    if (item.content[0] == '.') {
-                        item.content = item.content.slice(1);
-                    }
-                    return item;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_single:edit', function (options) {
-                _this.map_focused(function (item) {
-                    $("#ob-input").val(item.content);
-                    $("#ob-input").focus();
-                    return undefined;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
         }
     }]);
 
     return SourceController;
-})(OmniListController);
+})(ListController);
