@@ -13,10 +13,8 @@ var startswith = function(s, prefix) {
 class Application {
     constructor() {
         this.view_stack = [];
-
-        this.event_emitter = new Beacon();
         this.kap = new kapture.Stack();
-        
+        this.event_emitter = new Beacon();
         this.plugin_manager = new PluginManager();
         
         this.render_flag = 0;
@@ -218,21 +216,6 @@ $(document).ready(function() {
 
     omni_app.event_emitter.on('command:search', function() {
         $("#ob-input").val('?');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:go', function() {
-        $("#ob-input").val('go:');
-        $("#ob-input").focus();
-    });
-    
-    omni_app.event_emitter.on('command:filter', function() {
-        $("#ob-input").val('filter:');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:do', function() {
-        $("#ob-input").val('![');
         $("#ob-input").focus();
     });
 

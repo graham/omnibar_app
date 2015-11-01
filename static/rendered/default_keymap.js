@@ -4,8 +4,7 @@
 
 var global_active_keymap = {
     'control-c': 'command:cancel',
-    'control-s': 'command:search',
-    'control-d': 'command:do'
+    'control-s': 'command:search'
 };
 
 var global_passive_keymap = {
@@ -56,7 +55,6 @@ var mvc_passive_keymap = {
     'r': 'command_single:reply',
     'enter': 'command_single:open',
     's': 'command_single:toggle_star'
-
 };
 
 var mvc_active_keymap = {};
