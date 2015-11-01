@@ -72,9 +72,9 @@ var ItemTransformer = (function () {
             internal_cb.type = 'checkbox';
             internal_cb.checked = obj.selected || false;
             internal_cb.style.cssText = 'margin-top: 3px;';
-            internal_cb.onchange = function () {
+            $(internal_cb).on('click', function () {
                 omni_app.fire_event("control:select", { "index": obj.index });
-            };
+            });
 
             checkbox_td.appendChild(internal_cb);
             tr.appendChild(checkbox_td);
@@ -92,6 +92,9 @@ var ItemTransformer = (function () {
             }
 
             checkbox_td.appendChild(star_div);
+            $(star_div).on('click', function () {
+                omni_app.fire_event("command_single:toggle_star", { "index": obj.index });
+            });
 
             var inner_div = document.createElement('div');
             inner_div.className = 'ob-inner';

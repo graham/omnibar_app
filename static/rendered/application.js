@@ -31,10 +31,18 @@ var Application = (function () {
         var _this = this;
 
         $(window).keydown(function (event) {
-            _this.kap.key_down(event);
-            if (document.activeElement == $("#ob-input")[0]) {
+            var theTimeout = null;
+            if (theTimeout == null && document.activeElement == $("#ob-input")[0]) {
                 setTimeout(function () {
-                    _this.event_emitter.fire('app:bar_updated');
+                    theTimeout = _this.event_emitter.fire('app:bar_updated');
+                }, 0);
+            }
+
+            _this.kap.key_down(event);
+
+            if (theTimeout == null && document.activeElement == $("#ob-input")[0]) {
+                setTimeout(function () {
+                    theTimeout = _this.event_emitter.fire('app:bar_updated');
                 }, 0);
             }
         });
@@ -214,10 +222,12 @@ $(document).ready(function () {
         var stack_length = omni_app.view_stack.length;
         var current_view = omni_app.view_stack[stack_length - 1];
         omni_app.present_view(current_view);
+        omni_app.fire_event('app:bar_updated');
     });
 
     omni_app.event_emitter.on('app:bar_updated', function () {
-        console.log($("#ob-input").val());
+        var value = $("#ob-input").val();
+        $("#fancy_input").html(value);
     });
 
     omni_app.event_emitter.on('command:cancel', function () {
@@ -247,9 +257,13 @@ $(document).ready(function () {
 
     var stock_view = new SourceController();
     omni_app.push_view(stock_view);
-
     omni_app.event_emitter.fire('app:ready', omni_app);
+
     setTimeout(function () {
         $("#ob-input").focus();
     }, 0);
+
+    $("#fancy_input").on('click', function () {
+        $("#ob-input").focus();
+    });
 });

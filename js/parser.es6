@@ -25,7 +25,7 @@ function string_to_item(s) {
     var close_range_chars = { "(":")", "\"":"\"", "'":"'",
                               "[":"]", "{":"}",   "<":">"};
 
-    var open_chars = ["@", "!", "#", "$", "%", "=", "&",
+    var open_chars = ["@", "!", "#", "$", "%", "=", "&", "+",
                       ":", "\\", ";", "?", "^", "`", "/"];
 
     for(var i=0; i < s.length; i++) {
@@ -50,7 +50,7 @@ function string_to_item(s) {
                 buffer.push(chr);
             }
         } else {
-            if (open_chars.indexOf(chr) != -1) {
+            if (open_chars.indexOf(chr) != -1 && s[i+1] != ' ') {
                 exit_char = " ";
                 body.push(buffer.join(''));
                 buffer = [chr];
@@ -134,6 +134,8 @@ var test_strings = [
     "%id=1 Lunch with todd $cost=14.99 !star #food",
     "%id=2 Lunch with todd $cost=14.99 !star #food",
     "![var x = (i) -> i + 1] ![x(123)] @graham @code",
+    "+project testing",
+    "we should do x + y"
 ];
 
 var search_strings = [

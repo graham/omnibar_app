@@ -21,7 +21,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     /* The real deal */
     position: fixed;
     top: 0px;
-    //    left: 160px;
+    //left: 160px;
     left: 0px;
     right: 0px;
     height: 70px;
@@ -35,13 +35,26 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     outline: none;
     background: transparent;
     border: 0;
-    color: rgba(20, 20, 20, 0.8);
+    color: rgba(20, 20, 20, 0.1);
     font-size: 28px;
     background-color: white;
     width: 100%;
     bottom: 10px;
     padding: 10px;
     border: 1px solid rgba(0, 0, 0, 0.2);
+    text-align:right;
+}
+
+#ob-omnibar-outer > .ob-inner > .ob-input-holder > #fancy_input {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    background-color: rgba(255,0,0,0.05);
+    font-size: 28px;
+    padding-left: 10px;
+    padding-top: 10px;
 }
 
 #ob-omnibar-outer > .ob-inner > .ob-input-holder {
