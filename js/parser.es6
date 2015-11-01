@@ -14,29 +14,18 @@ var str_trim = function(s) {
 function string_to_item(s) {
     s += ' ';
     
-    let result = {};
+    var result = {};
+    var body = [];
+    var entries = [];
+    var buffer = [];
+    var exit_char = null;
+    var last_char = null;
 
-    let body = [];
-    let entries = [];
-    let buffer = [];
-
-    let exit_char = null;
-    let last_char = null;
-
-    let close_range_chars = {
-        "(":")",
-        "\"":"\"",
-        "'":"'",
-        "[":"]",
-        "{":"}",
-        "<":">"
-    };
-
-    let open_range_chars = ["(", "\"", "'",
-                            "[", "{", "<"];
-
-    let open_chars = ["@", "!", "#", "$", "%",
-                      "=", "&", ";", ":"];
+    var close_range_chars = { "(":")", "\"":"\"", "'":"'",
+                              "[":"]", "{":"}",   "<":">"};
+    var open_range_chars = ["(", "\"", "'", "[", "{", "<"];
+    var open_chars = ["@", "!", "#", "$", "%", "=", "&",
+                      ":", "\\", ";", "?", "^", "`", "/"];
 
     for(var i=0; i < s.length; i++) {
         var chr = s[i];
@@ -47,11 +36,10 @@ function string_to_item(s) {
                 exit_char = close_range_chars[chr] || " ";
             } else if (exit_char == chr) {
                 var eq_hit = buffer.indexOf('=');
-                if (eq_hit != -1) {
+                if (eq_hit != -1 && buffer[0] != '!') {
                     entries.push([buffer[0],
                                   buffer.slice(1, eq_hit).join(''),
-                                  buffer.slice(eq_hit+1, buffer.length).join('')
-                                 ]);
+                                  buffer.slice(eq_hit+1, buffer.length).join('')]);
                 } else {
                     entries.push([buffer[0], buffer.slice(1).join('')]);
                 }
@@ -79,7 +67,7 @@ function string_to_item(s) {
 }
 
 function strings_to_vars(s) {
-    let result = {};
+    var result = {};
 
     for(var i=0; i < s.length; i++) {
         var item = string_to_item(s[i]);
@@ -114,19 +102,45 @@ function strings_to_vars(s) {
     return result;
 }
 
-console.log('hello world');
+function string_to_query(s) {
+    var search = []
+    var item = string_to_item(s);
 
-let test_strings = [
+    for(var i=0; i < item.entries.length; i++) {
+        var obj = item.entries[i];
+
+        if (obj[0] == '/') {
+            search.push(['include', obj[1]]);
+        } else if (obj[0] == '\\') {
+            search.push(['exclude', obj[1]]);
+        } else if (obj[0] == ':') {
+            search.push(['match', obj[1]]);
+        } else if (obj[0] == ';') {
+            search.push(['type', obj[1]]);
+        } else if (obj[0] == '!') {
+            search.push(['lambda', obj[1]]);
+        }
+    }
+
+    search.push(['body', item.body]);
+    return search;
+}
+
+var test_strings = [
     "@graham $key=value",
-    "@graham #this_tag",
     "%id=1 %type=Person $key=value blah blah blah !(asdf)",
-    "%id=1 asdf #one #two $cost=123 @graham ![one two three]",
     "%(id=1) @me $(name=Graham Abbott)",
-    "%id=1 Lunch with todd $cost=14.99 !star !heavy #food",
-    "%id=2 Lunch with todd $cost=14.99 !star !heavy #food",
-    "%id=3 Lunch with todd $cost=14.99 !star !heavy #food",
-    "%id=4 Lunch with todd $cost=14.99 !star !heavy #food",
-    "%id=5 Lunch with todd $cost=14.99 !star !heavy #food",
+    "%id=1 Lunch with todd $cost=14.99 !star #food",
+    "%id=2 Lunch with todd $cost=14.99 !star #food",
+    "![var x = (i) -> i + 1] ![x(123)] @graham @code",
+];
+
+var search_strings = [
+    "/food \\free :todd",
+    "/asdf /work ;person",
+    ":(person) /#asdf \\#work matcher",
+    "![sort = (i) -> i.created]",
+    "/(#searching tag)"
 ];
 
 for (var i in test_strings) {
@@ -136,7 +150,10 @@ for (var i in test_strings) {
     console.log('--------------------------------------------------------');
 }
 
-var obj = strings_to_vars(test_strings);
-console.log(obj);
-console.log(sum(obj['cost']));
-
+for (var i in search_strings) {
+    var obj = search_strings[i];
+    var result = string_to_query(obj);
+    console.log("     " + obj);
+    console.log(result);
+    console.log('--------------------------------------------------------');
+}
