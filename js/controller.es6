@@ -18,59 +18,77 @@ class ListController extends Controller {
     }
     
     get_selected() {
-        var results = [];
-        this.item_list.forEach((item, index) => {
-            if (item.selected == true) {
-                results.push(item);
-            }
+        var _this = this;
+        return new Promise(function(resolve, reject) {
+            var results = [];
+            _this.item_list.forEach((item, index) => {
+                if (item.selected == true) {
+                    results.push(item);
+                }
+            });
+            resolve(results);
         });
-        return results;
     }
     
     map_selected(fn) {
-        var remaining_list = [];
+        var _this = this;
+        return new Promise(function(resolve, reject) {
+            var remaining_list = [];
         
-        this.item_list.forEach((item, index) => {
-            if (item.selected) {
-                var result = true;
-            
-                try {
-                    result = fn(item);
-                } catch (e) {
-                    alert(e);
-                }
-                
-                if (result == false) {
-                    // pass we are discarding.
+            _this.item_list.forEach((item, index) => {
+                if (item.selected) {
+                    var result = true;
+                    
+                    try {
+                        result = fn(item);
+                    } catch (e) {
+                        alert(e);
+                        reject();
+                    }
+                    
+                    console.log(result + "getting rid of" + item);
+                    
+                    if (result == false) {
+                        // pass we are discarding.
+                    } else {
+                        remaining_list.push(item);
+                    }
                 } else {
                     remaining_list.push(item);
                 }
-            } else {
-                remaining_list.push(item);
-            }
+            });
+            
+            _this.item_list = remaining_list;
+            resolve();
         });
-
-        this.item_list = remaining_list;
     }
     
-    get_focused() { return this.item_list[this.cursor_index]; }
-
+    get_focused() {
+        return new Promise(function(resolve, reject) {
+            resolve(this.item_list[this.cursor_index]);
+        });
+    }
+    
     map_focused(fn) {
-        var result = true;
-        var item = this.get_focused();
-        
-        try {
-            result = fn(item);
-        } catch(e) {
-            alert(e);
-        }
+        return new Promise(function(resolve, reject) {
+            var result = true;
+            var item = this.get_focused();
+            
+            try {
+                result = fn(item);
+            } catch(e) {
+                alert(e);
+            }
+            
+            if (result == false) {
+                // do nothing.
+            } else {
+                this.item_list = this.item_list.slice(0, this.cursor_index) +
+                    this.item_list.slice(this.cursor_index+1, this.item_list.length+1);
+            }
 
-        if (result == false) {
-            // do nothing.
-        } else {
-            this.item_list = this.item_list.slice(0, this.cursor_index) +
-                this.item_list.slice(this.cursor_index+1, this.item_list.length+1);
-        }
+            resolve();
+        });
     }
 
     prepare() {
@@ -93,10 +111,31 @@ class ListController extends Controller {
         });
 
         _this.beacon.on('control:select', function(options) {
-            
+            var index = options.index || _this.cursor_index;
+            var item = _this.item_list[index];
+
+            if (item.selected == true) {
+                item.selected = false;
+            } else {
+                item.selected = true;
+            }
+            omni_app.refresh();
         });
 
         _this.beacon.on('command_single:toggle_star', function(options) {
+            var index = _this.cursor_index;
+            if (options.index != undefined) {
+                index = options.index;
+            }
+            
+            var item = _this.item_list[index];
+            
+            if (item.starred == true) {
+                item.starred = false;
+            } else {
+                item.starred = true;
+            }
+            omni_app.refresh();
         });
 
         
@@ -129,13 +168,16 @@ class ListController extends Controller {
 
         _this.beacon.on('control:move_down', function(options) {
             _this.cursor_index += 1;
+            omni_app.refresh();
         });
 
         _this.beacon.on('control:move_down_more', function(options) {
             _this.cursor_index += 10;
+            omni_app.refresh();
         });
         
         _this.beacon.on('control:move_bottom', function(options) {
+            omni_app.refresh();
         });
 
         _this.beacon.on('command_multi:archive', function(options) {

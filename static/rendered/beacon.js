@@ -113,3 +113,16 @@ var Beacon = (function () {
 
     return Beacon;
 })();
+
+var SafePromise = Promise;
+
+var Promise = function Promise(fn) {
+    return SafePromise(function (resolve, reject) {
+        try {
+            fn(resolve, reject);
+        } catch (e) {
+            console.log(e);
+            reject();
+        }
+    });
+};

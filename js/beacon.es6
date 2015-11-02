@@ -95,3 +95,16 @@ class Beacon {
     };
     
 }
+
+let SafePromise = Promise;
+
+var Promise = function(fn) {
+    return SafePromise(function(resolve, reject) {
+        try {
+            fn(resolve, reject)
+        } catch (e) {
+            console.log(e);
+            reject();
+        }
+    });
+};
