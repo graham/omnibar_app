@@ -1,14 +1,8 @@
-"use strict";
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var str_trim = function str_trim(s) {
+var str_trim = function (s) {
     return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
 };
 
-var startswith = function startswith(s, prefix) {
+var startswith = function (s, prefix) {
     if (s.slice(0, prefix.length) == prefix) {
         return true;
     } else {
@@ -16,22 +10,20 @@ var startswith = function startswith(s, prefix) {
     }
 };
 
-var Application = (function () {
-    function Application() {
-        _classCallCheck(this, Application);
-
+class Application {
+    constructor() {
         this.controller_stack = [];
         this.kap = new kapture.Stack();
         this.event_emitter = new Beacon();
         this.plugin_manager = new PluginManager();
 
         this.render_flag = 0;
-        var _this = this;
+        let _this = this;
 
-        $(window).keydown(function (event) {
+        $(window).keydown(event => {
             var theTimeout = null;
             if (theTimeout == null && document.activeElement == $("#ob-input")[0]) {
-                setTimeout(function () {
+                setTimeout(() => {
                     theTimeout = _this.event_emitter.fire('app:bar_updated');
                 }, 0);
             }
@@ -39,99 +31,87 @@ var Application = (function () {
             _this.kap.key_down(event);
 
             if (theTimeout == null && document.activeElement == $("#ob-input")[0]) {
-                setTimeout(function () {
+                setTimeout(() => {
                     theTimeout = _this.event_emitter.fire('app:bar_updated');
                 }, 0);
             }
         });
     }
 
-    _createClass(Application, [{
-        key: "fire_event",
-        value: function fire_event() {
-            var len = this.controller_stack.length;
-            for (var index = 1; index <= len; index++) {
-                var beacon = this.controller_stack[len - index].beacon;
-                var result = beacon.fire.apply(beacon, arguments);
-                if (result == true) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }, {
-        key: "refresh",
-        value: function refresh() {
-            this.event_emitter.fire("app:render");
-        }
-    }, {
-        key: "ready",
-        value: function ready(cb) {
-            var _this2 = this;
-
-            var _this = this;
-            this.event_emitter.once('app:ready', cb);
-            setTimeout(function () {
-                _this2.refresh();
-            }, 0);
-        }
-    }, {
-        key: "present_controller",
-        value: function present_controller(controller, options) {
-            if (options === undefined) {
-                options = {};
-            }
-
-            var finish_callback = function finish_callback(data) {
-                $("#ob-content").html(data);
-            };
-
-            var controller_content = controller.render(finish_callback);
-
-            if (controller_content === undefined || controller_content === null) {
-                // we assume they will call the function in time.
-            } else {
-                    finish_callback(controller_content);
-                }
-        }
-    }, {
-        key: "push_controller",
-        value: function push_controller(controller, options) {
-            var _this = this;
-            var stack_length = _this.controller_stack.length;
-            var current_controller = _this.controller_stack[stack_length - 1];
-
-            // lets let the current controller know we're hiding it.
-            this.kap.push(controller.kap);
-            controller.prepare();
-            this.controller_stack.push(controller);
-            this.present_controller(controller, options);
-        }
-    }, {
-        key: "pop_controller",
-        value: function pop_controller(options) {
-            var _this = this;
-
-            if (_this.controller_stack.length == 1) {
-                // Sorry there must always be a controller on the stack.
-                return false;
-            } else {
-                var stack_length = _this.controller_stack.length;
-                var current_controller = _this.controller_stack[stack_length - 1];
-                var new_controller = _this.controller_stack[stack_length - 2];
-
-                // lets let the current controller know we're hiding it.
-
-                this.kap.pop();
-                _this.controller_stack.pop();
-                this.present_controller(new_controller, options);
+    fire_event() {
+        var len = this.controller_stack.length;
+        for (var index = 1; index <= len; index++) {
+            var beacon = this.controller_stack[len - index].beacon;
+            var result = beacon.fire.apply(beacon, arguments);
+            if (result == true) {
                 return true;
             }
         }
-    }]);
+        return false;
+    }
 
-    return Application;
-})();
+    refresh() {
+        this.event_emitter.fire("app:render");
+    }
+
+    ready(cb) {
+        var _this = this;
+        this.event_emitter.once('app:ready', cb);
+        setTimeout(() => {
+            this.refresh();
+        }, 0);
+    }
+
+    present_controller(controller, options) {
+        if (options === undefined) {
+            options = {};
+        }
+
+        var finish_callback = function (data) {
+            $("#ob-content").html(data);
+        };
+
+        var controller_content = controller.render(finish_callback);
+
+        if (controller_content === undefined || controller_content === null) {
+            // we assume they will call the function in time.
+        } else {
+                finish_callback(controller_content);
+            }
+    }
+
+    push_controller(controller, options) {
+        var _this = this;
+        var stack_length = _this.controller_stack.length;
+        var current_controller = _this.controller_stack[stack_length - 1];
+
+        // lets let the current controller know we're hiding it.
+        this.kap.push(controller.kap);
+        controller.prepare();
+        this.controller_stack.push(controller);
+        this.present_controller(controller, options);
+    }
+
+    pop_controller(options) {
+        var _this = this;
+
+        if (_this.controller_stack.length == 1) {
+            // Sorry there must always be a controller on the stack.
+            return false;
+        } else {
+            var stack_length = _this.controller_stack.length;
+            var current_controller = _this.controller_stack[stack_length - 1];
+            var new_controller = _this.controller_stack[stack_length - 2];
+
+            // lets let the current controller know we're hiding it.
+
+            this.kap.pop();
+            _this.controller_stack.pop();
+            this.present_controller(new_controller, options);
+            return true;
+        }
+    }
+}
 
 var omni_app = null;
 
@@ -242,7 +222,7 @@ $(document).ready(function () {
     omni_app.push_controller(stock_controller);
     omni_app.event_emitter.fire('app:ready', omni_app);
 
-    setTimeout(function () {
+    setTimeout(() => {
         $("#ob-input").focus();
     }, 0);
 

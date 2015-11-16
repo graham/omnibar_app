@@ -1,7 +1,5 @@
 // This keymap is a key-combo to event mapping.
 
-'use strict';
-
 var global_active_keymap = {
     'control-c': 'command:cancel',
     'control-s': 'command:search'
