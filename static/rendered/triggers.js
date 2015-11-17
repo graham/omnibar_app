@@ -1,3 +1,5 @@
+'use strict';
+
 function doGetCaretPosition(oField) {
 
     // Initialize
@@ -26,8 +28,8 @@ function doGetCaretPosition(oField) {
     return iCaretPos;
 }
 
-$(document).ready(() => {
-    setInterval(() => {
+$(document).ready(function () {
+    setInterval(function () {
         var d = document.getElementById('ob-input');
         console.log("CARET: " + doGetCaretPosition(d));
     }, 1000);

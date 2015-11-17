@@ -1,4 +1,6 @@
-var sum = function (s) {
+"use strict";
+
+var sum = function sum(s) {
     if (s.length) {
         return parseFloat(s[0]) + sum(s.slice(1));
     } else {
@@ -6,7 +8,7 @@ var sum = function (s) {
     }
 };
 
-var str_trim = function (s) {
+var str_trim = function str_trim(s) {
     return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
 };
 
