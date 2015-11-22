@@ -21,8 +21,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     /* The real deal */
     position: fixed;
     top: 0px;
-    //left: 160px;
-    left: 0px;
+    left: 160px;
     right: 0px;
     height: 70px;
     width: auto;
@@ -35,17 +34,20 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     outline: none;
     background: transparent;
     border: 0;
-    color: rgba(20, 20, 20, 0.1);
     font-size: 28px;
     background-color: white;
     width: 100%;
     bottom: 10px;
     padding: 10px;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    text-align:right;
+
+    // Uncomment with fancy input.
+    // text-align:right;
+    // color: rgba(20, 20, 20, 0.1);
 }
 
 #ob-omnibar-outer > .ob-inner > .ob-input-holder > #fancy_input {
+    display:none;
     position: absolute;
     left: 0px;
     right: 0px;
@@ -65,22 +67,21 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 }
 
 #ob-left-control-outer {
-    display:none;
     /* The real deal */
     position:fixed;
-    top: 60px;
+    top: 70px;
     left: 0px;
     bottom: 0px;
     width: 160px;
     text-align: center;
     font-size: 14px;
+    padding-top: 5px;
     
     /* styling */
     border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 #ob-left-widget-outer {
-    display:none;
     /* For testing */
     background-color: rgba(0,0,0,0.05);
 
@@ -89,7 +90,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     top: 0px;
     left: 0px;
     width: 160px;
-    height: 80px;
+    height: 70px;
 
     /* styling */
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
@@ -98,9 +99,8 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 #ob-content-outer {
     /* the real deal */
     position: fixed;
-    //left: 160px;
+    left: 160px;
     top: 78px;
-    left: 6px;
     right: 6px;
     bottom: 0px;
 }
@@ -161,7 +161,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 }
 
 #ob-omnibar-outer > .ob-inner > .ob-input-holder > input:focus {
-    background-color: rgba(0,255,255, 0.05);
+    background-color: rgba(0,255,255, 0.4);
 }
 
 tr.active > td.ob-highlight {
@@ -211,7 +211,10 @@ tr.active {
     background-color: rgba(20, 222, 90, 0.3);
     border: 1px solid rgba(20, 222, 90, 0.6);
     border-radius: 4px;
-    padding: 2px;
-    margin: 2px;
-    font-size: 9px;
+    padding: 1px;
+    margin: 1px;
+    margin-top: 2px;
+    
+    font-size: 11px;
+    font-family: courier;
 }

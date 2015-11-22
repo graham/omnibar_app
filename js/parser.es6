@@ -1,11 +1,3 @@
-var sum = function(s) {
-    if (s.length) {
-        return parseFloat(s[0]) + sum(s.slice(1));
-    } else {
-        return 0;
-    }
-}
-
 var str_trim = function(s) { 
     return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
 };
@@ -33,6 +25,10 @@ var search_chars = [
 ]
 
 var eq_cond_chars = [ '<=', '>=', '>', '<', '==', '!=', '='];
+var open_range_chars = ["(", "\"", "'", "[", "{", "<"];
+var close_range_chars = { "(":")", "\"":"\"", "'":"'",
+                          "[":"]", "{":"}",   "<":">"};
+
 
 function string_to_item(s, match_chars) {
     s += ' ';
@@ -43,10 +39,6 @@ function string_to_item(s, match_chars) {
     var buffer = [];
     var exit_char = null;
     var last_char = null;
-
-    var open_range_chars = ["(", "\"", "'", "[", "{", "<"];
-    var close_range_chars = { "(":")", "\"":"\"", "'":"'",
-                              "[":"]", "{":"}",   "<":">"};
 
     for(var i=0; i < s.length; i++) {
         var chr = s[i];
@@ -60,14 +52,12 @@ function string_to_item(s, match_chars) {
                 var search_hit = '';
 
                 for(var j=0; j < eq_cond_chars.length; j++) {
-                    var hit = buffer.search(eq_cond_chars[j]);
+                    var hit = buffer.indexOf(eq_cond_chars[j]);
                     if (hit != -1) {
                         eq_hit = hit;
                         search_hit = eq_cond_chars[j];
-                        console.log('hit');
                         break;
                     }
-                    console.log('loop, ' + eq_hit);
                 }
 
                 if (eq_hit != -1 && buffer[0] != '=') {
@@ -163,41 +153,41 @@ function string_to_query(s, match_chars) {
     return search;
 }
 
-var test_strings = [
-    "@graham $key=value",
-    "%id=1 %type=Person $key=value blah blah blah $(asdf)",
-    "%(id=1) @me $(name=Graham Abbott)",
-    "%id=1 Lunch with todd $cost=14.99 $star #food",
-    "%id=2 Lunch with todd cost=(cost) $cost=14.99 $star #food",
-    "=[x(123)] @graham @code",
-    "$project=what testing",
-    "we should do x + y",
-    "%data=({'one':1, 'two':2}) one two three"
-];
+// var test_strings = [
+//     "@graham $key=value",
+//     "%id=1 %type=Person $key=value blah blah blah $(asdf)",
+//     "%(id=1) @me $(name=Graham Abbott)",
+//     "%id=1 Lunch with todd $cost=14.99 $star #food",
+//     "%id=2 Lunch with todd cost=(cost) $cost=14.99 $star #food",
+//     "=[x(123)] @graham @code",
+//     "$project=what testing",
+//     "we should do x + y",
+//     "%data=({'one':1, 'two':2}) one two three"
+// ];
 
-var search_strings = [
-    "/food \\free :todd",
-    "/asdf /work ;person",
-    ":(person) /#asdf \\#work matcher",
-    "/(#searching tag)",
-    "#tag",
-    ";task $due>=tomorrow",
-    "$project==testing"
-];
+// var search_strings = [
+//     "/food \\free :todd",
+//     "/asdf /work ;person",
+//     ":(person) /#asdf \\#work matcher",
+//     "/(#searching tag)",
+//     "#tag",
+//     ";task $due>=tomorrow",
+//     "$project==testing"
+// ];
 
-for (var i in test_strings) {
-    var obj = test_strings[i];
-    var result = string_to_item(obj, action_chars);
-    console.log(" --> " + obj);
-    console.log(result);
-    console.log('--------------------------------------------------------');
-}
+// for (var i in test_strings) {
+//     var obj = test_strings[i];
+//     var result = string_to_item(obj, action_chars);
+//     console.log(" --> " + obj);
+//     console.log(result);
+//     console.log('--------------------------------------------------------');
+// }
 
-for (var i in search_strings) {
-    var obj = search_strings[i];
-    var result = string_to_query(obj, search_chars);
-    console.log(" --> " + obj);
-    console.log("SEARCH: ");
-    console.log(result);
-    console.log('--------------------------------------------------------');
-}
+// for (var i in search_strings) {
+//     var obj = search_strings[i];
+//     var result = string_to_query(obj, search_chars);
+//     console.log(" --> " + obj);
+//     console.log("SEARCH: ");
+//     console.log(result);
+//     console.log('--------------------------------------------------------');
+// }

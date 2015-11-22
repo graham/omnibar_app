@@ -76,7 +76,8 @@ var ListView = (function (_View) {
                 var d = null;
 
                 try {
-                    d = omni_app.plugin_manager.default_transformer.parse(obj, controller);
+                    var it = new ItemRenderer();
+                    d = it.parse(obj, controller);
                 } catch (e) {
                     console.log(e, e.stack);
                     d = document.createElement('div');

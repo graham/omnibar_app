@@ -8,23 +8,44 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var SourceController = (function (_ListController) {
-    _inherits(SourceController, _ListController);
+var WordsMixin = (function (_BaseMixin) {
+    _inherits(WordsMixin, _BaseMixin);
 
-    function SourceController() {
-        _classCallCheck(this, SourceController);
+    function WordsMixin() {
+        _classCallCheck(this, WordsMixin);
 
-        _get(Object.getPrototypeOf(SourceController.prototype), "constructor", this).apply(this, arguments);
+        _get(Object.getPrototypeOf(WordsMixin.prototype), "constructor", this).apply(this, arguments);
     }
 
-    _createClass(SourceController, [{
-        key: "prepare",
-        value: function prepare() {
-            var _this = this;
-
-            _get(Object.getPrototypeOf(SourceController.prototype), "prepare", this).call(this);
+    _createClass(WordsMixin, [{
+        key: "search",
+        value: function search(query) {
+            return [new Item("words"), new Item("are"), new Item("fun"), new Item("right?")];
         }
     }]);
 
-    return SourceController;
-})(ListController);
+    return WordsMixin;
+})(BaseMixin);
+
+var NumbersMixin = (function (_BaseMixin2) {
+    _inherits(NumbersMixin, _BaseMixin2);
+
+    function NumbersMixin() {
+        _classCallCheck(this, NumbersMixin);
+
+        _get(Object.getPrototypeOf(NumbersMixin.prototype), "constructor", this).apply(this, arguments);
+    }
+
+    _createClass(NumbersMixin, [{
+        key: "search",
+        value: function search(query) {
+            var results = [];
+            for (var i = 0; i < 20; i++) {
+                results.push(new Item('' + i));
+            }
+            return results;
+        }
+    }]);
+
+    return NumbersMixin;
+})(BaseMixin);

@@ -23,7 +23,7 @@ var Application = (function () {
         this.controller_stack = [];
         this.kap = new kapture.Stack();
         this.event_emitter = new Beacon();
-        this.plugin_manager = new PluginManager();
+        this.mixins = {};
 
         this.render_flag = 0;
         var _this = this;
@@ -158,7 +158,6 @@ $(document).ready(function () {
         var value = global_active_keymap[key];
         kap_handler.add_command(key, (function (v) {
             return function () {
-                console.log(v);
                 omni_app.event_emitter.fire(v, {});
             };
         })(value));
@@ -168,7 +167,6 @@ $(document).ready(function () {
         var value = global_passive_keymap[key];
         kap_handler.add_passive_command(key, (function (v) {
             return function () {
-                console.log(v);
                 omni_app.event_emitter.fire(v, {});
             };
         })(value));
@@ -178,7 +176,6 @@ $(document).ready(function () {
         var value = mvc_passive_keymap[key];
         kap_handler.add_passive_command(key, (function (v) {
             return function () {
-                console.log(v);
                 omni_app.fire_event(v, {});
             };
         })(value));
@@ -188,7 +185,6 @@ $(document).ready(function () {
         var value = mvc_active_keymap[key];
         kap_handler.add_command(key, (function (v) {
             return function () {
-                console.log(v);
                 omni_app.fire_event(v, {});
             };
         })(value));
@@ -238,8 +234,8 @@ $(document).ready(function () {
         $("#ob-input").focus();
     });
 
-    var stock_controller = new SourceController();
-    omni_app.push_controller(stock_controller);
+    var list_controller = new ListController();
+    omni_app.push_controller(list_controller);
     omni_app.event_emitter.fire('app:ready', omni_app);
 
     setTimeout(function () {
@@ -250,3 +246,66 @@ $(document).ready(function () {
         $("#ob-input").focus();
     });
 });
+
+var extension = function extension(s) {
+    return s.substr(s.lastIndexOf('.') + 1);
+};
+
+var ResourceManager = (function () {
+    function ResourceManager() {
+        _classCallCheck(this, ResourceManager);
+
+        this.resources = new Map();
+    }
+
+    _createClass(ResourceManager, [{
+        key: "update",
+        value: function update(url) {
+            this.remove_from_page(url);
+            this.add_to_page(url);
+        }
+    }, {
+        key: "add_to_page",
+        value: function add_to_page(url) {
+            var uid = this.guid();
+            var ext = extension(url);
+            var ms = new Date().getTime();
+
+            var resource = null;
+            if (ext == 'js') {
+                resource = document.createElement('script');
+                resource.src = url + '#' + ms;
+            } else if (ext == 'css') {
+                resource = document.createElement('link');
+                resource.href = url;
+                resource.rel = 'stylesheet';
+                resource.type = 'text/css';
+            } else {
+                return;
+            }
+
+            resource.id = uid;
+            this.resources.set(url, uid);
+            document.head.appendChild(resource);
+        }
+    }, {
+        key: "remove_from_page",
+        value: function remove_from_page(url) {
+            var id = this.resources.get(url);
+            if (id) {
+                var d = document.getElementById(id);
+                document.head.removeChild(d);
+            }
+        }
+    }, {
+        key: "guid",
+        value: function guid() {
+            var s4 = function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+            };
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        }
+    }]);
+
+    return ResourceManager;
+})();
