@@ -8,8 +8,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var WordsMixin = (function (_BaseMixin) {
-    _inherits(WordsMixin, _BaseMixin);
+var LinkMixin = (function (_BaseMixin) {
+    _inherits(LinkMixin, _BaseMixin);
+
+    function LinkMixin() {
+        _classCallCheck(this, LinkMixin);
+
+        _get(Object.getPrototypeOf(LinkMixin.prototype), "constructor", this).apply(this, arguments);
+    }
+
+    return LinkMixin;
+})(BaseMixin);
+
+var ImgMixin = (function (_BaseMixin2) {
+    _inherits(ImgMixin, _BaseMixin2);
+
+    function ImgMixin() {
+        _classCallCheck(this, ImgMixin);
+
+        _get(Object.getPrototypeOf(ImgMixin.prototype), "constructor", this).apply(this, arguments);
+    }
+
+    return ImgMixin;
+})(BaseMixin);
+
+var WordsMixin = (function (_BaseMixin3) {
+    _inherits(WordsMixin, _BaseMixin3);
 
     function WordsMixin() {
         _classCallCheck(this, WordsMixin);
@@ -27,8 +51,8 @@ var WordsMixin = (function (_BaseMixin) {
     return WordsMixin;
 })(BaseMixin);
 
-var NumbersMixin = (function (_BaseMixin2) {
-    _inherits(NumbersMixin, _BaseMixin2);
+var NumbersMixin = (function (_BaseMixin4) {
+    _inherits(NumbersMixin, _BaseMixin4);
 
     function NumbersMixin() {
         _classCallCheck(this, NumbersMixin);
@@ -49,3 +73,29 @@ var NumbersMixin = (function (_BaseMixin2) {
 
     return NumbersMixin;
 })(BaseMixin);
+
+var Email = (function (_BaseMixin5) {
+    _inherits(Email, _BaseMixin5);
+
+    function Email() {
+        _classCallCheck(this, Email);
+
+        _get(Object.getPrototypeOf(Email.prototype), "constructor", this).apply(this, arguments);
+    }
+
+    _createClass(Email, [{
+        key: "on_view",
+        value: function on_view(eobj, item) {
+            var p = item.parse();
+            p.entries.forEach(function (item) {
+                if (item[0] == '$' && item[1] == 'id') {
+                    window.open('https://mail.google.com/mail/u/0/#inbox/' + item[3]);
+                }
+            });
+        }
+    }]);
+
+    return Email;
+})(BaseMixin);
+
+glob_mixins['gmail'] = Email;

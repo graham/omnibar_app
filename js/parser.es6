@@ -4,7 +4,7 @@ var str_trim = function(s) {
 
 var action_chars = [
     "@",  // Exclusive group, items can only belong to one @ group.
-    "#",  // Inclusive group, items can have as many #tags as they want.
+//    "#",  // Inclusive group, items can have as many #tags as they want.
     ";",  // Type declaration (types can have custom rendering methods).
 
     "$",  // Key/Value $key=value, if no value is provided, value = true.

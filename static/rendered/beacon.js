@@ -121,7 +121,7 @@ var Promise = function Promise(fn) {
         try {
             fn(resolve, reject);
         } catch (e) {
-            console.log(e);
+            alert(e);
             reject();
         }
     });

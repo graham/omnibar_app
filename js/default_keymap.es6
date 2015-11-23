@@ -24,6 +24,7 @@ var mvc_passive_keymap = {
     'j':               'control:move_down',
     
     'h':               'control:help',
+    'e':               'control:edit',
 
     'space':           'control:select',
     'x':               'control:select',
@@ -32,45 +33,45 @@ var mvc_passive_keymap = {
     'a':               'control:select_all',
     '\\':              'control:cycle_sort',
     '`':               'control:show_sources',
-    
+
     // most common way for users to remove things from
     // the omnibox.
-    'y':               'command_multi:archive',
-    'u':               'command_multi:return',
-    'p':               'command_multi:pull',
+    'y':               'command_selected:archive',
+    'u':               'command_selected:return',
+    'p':               'command_selected:pull',
 
     // Unclear best way to use this, will look into it more.
-    'l':               'command_multi:label',
-    'o':               'command_multi:open',
-    'i':               'command_multi:info',
+    'l':               'command_selected:label',
+    'o':               'command_selected:open',
+    'i':               'command_selected:info',
 
     // Likely something that will be supported by a type.
-    '-':               'command_multi:subtract',
-    '=':               'command_multi:add',
-    '[':               'command_multi:left',
-    ']':               'command_multi:right',
+    '-':               'command_selected:subtract',
+    '=':               'command_selected:add',
+    '[':               'command_selected:left',
+    ']':               'command_selected:right',
 
     // Lets support defer/bubble/bubble_all features
-    'd':               'command_multi:defer',
-    'b':               'command_multi:bubble',
-    'shift-b':         'command_multi:bubble_all',
+    'd':               'command_selected:defer',
+    'b':               'command_selected:bubble',
+    'shift-b':         'command_selected:bubble_all',
 
     // Used to move around inside a view.
-    'control-n':       'command_single:next',
-    'control-p':       'command_single:prev',
+    'control-n':       'command_focus:next',
+    'control-p':       'command_focus:prev',
     
     // Edit singles, hard to explain but easy to understand.
-    'e':               'command_single:edit',
-    'r':               'command_single:reply',
-    'enter':           'command_single:open',
-    's':               'command_single:toggle_star',
+    'r':               'command_focus:reply',
+    'enter':           'command_focus:open',
+    's':               'command_focus:toggle_star',
+    'v':               'command_focus:view'
 };
 
 var mvc_active_keymap = { };
 
 for(var i=0; i < 10; i++) {
-    mvc_passive_keymap['' + i] = 'command_multi:add_tag_' + i;
-    mvc_passive_keymap['shift-' + i] = 'command_multi:rem_tag_' + i;
+    mvc_passive_keymap['' + i] = 'command_selected:add_tag_' + i;
+    mvc_passive_keymap['shift-' + i] = 'command_selected:rem_tag_' + i;
     mvc_passive_keymap['control-' + i] = 'control:search_tag_' + i;
     mvc_passive_keymap['control-shift-' + i] = 'control:negative_search_tag_' + i;
 }

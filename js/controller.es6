@@ -3,8 +3,13 @@ class Controller {
         this.view = view
         this.beacon = new Beacon();
     }
+
     render(is_done) {
         return this.view.render(this, is_done)
+    }
+
+    fire_event(etype, options) {
+        return this.beacon.fire(etype, options)
     }
 }
 
@@ -16,8 +21,40 @@ class ListController extends Controller {
         for(var i = 0; i < 20; i++) {
             this.add_item("item " + i)
         }
-        this.add_item("finish omnibox ;task")
+        this.add_item("finish omnibox ;task ;important ;due")
         this.cursor_index = 0
+    }
+
+    fire_event(etype, options) {
+        var sp = etype.split(':');
+
+        if (sp[0] == 'command_focus') {
+            this.map_focused((item) => {
+                item.parse_mixins().forEach((mixin) => {
+                    var m = glob_mixins[mixin]
+                    if (m) {
+                        (new m).on_event(sp[1], options, item)
+                    }
+                })
+            }).then(function() {
+                omni_app.refresh()
+            })
+            return true
+        } else if (sp[0] == 'command_selected') {
+            this.map_selected((item) => {
+                item.parse_mixins().forEach((mixin) => {
+                    var m = glob_mixins[mixin]
+                    if (m) {
+                        (new m).on_event(sp[1], options, item)
+                    }
+                })
+            }).then(function() {
+                omni_app.refresh();
+            })
+            return true
+        } else {
+            return this.beacon.fire(etype, options)
+        }
     }
 
     get_selected() {
@@ -44,13 +81,11 @@ class ListController extends Controller {
                     try {
                         result = fn(item);
                     } catch (e) {
-                        alert(e);
+                        console.log(e);
                         reject();
                     }
 
-                    console.log(result + "getting rid of" + item);
-                    
-                    if (result == false) {
+                    if (item.deleted == true) {
                         // pass we are discarding.
                     } else {
                         remaining_list.push(item);
@@ -58,10 +93,10 @@ class ListController extends Controller {
                 } else {
                     remaining_list.push(item);
                 }
-                _this.item_list = remaining_list;
-                resolve();
             })
-        });
+            _this.item_list = remaining_list
+            resolve([])
+        })
     }
     
     get_focused() {
@@ -82,13 +117,11 @@ class ListController extends Controller {
                     try {
                         result = fn(item);
                     } catch (e) {
-                        alert(e);
+                        console.log(e);
                         reject();
                     }
 
-                    console.log(result + "getting rid of" + item);
-                    
-                    if (result == false) {
+                    if (item.deleted == true) {
                         // pass we are discarding.
                     } else {
                         remaining_list.push(item);
@@ -96,9 +129,9 @@ class ListController extends Controller {
                 } else {
                     remaining_list.push(item);
                 }
-                _this.item_list = remaining_list;
-                resolve();
             })
+            _this.item_list = remaining_list
+            resolve([])
         });
     }
 
@@ -119,7 +152,6 @@ class ListController extends Controller {
             }
             
             _this.add_item(value);
-            console.log("value: " + value);
             omni_app.refresh();
             
             $("#ob-input").val('');
@@ -138,23 +170,6 @@ class ListController extends Controller {
             omni_app.refresh();
         });
 
-        _this.beacon.on('command_single:toggle_star', function(options) {
-            var index = _this.cursor_index;
-            if (options.index != undefined) {
-                index = options.index;
-            }
-            
-            var item = _this.item_list[index];
-            
-            if (item.starred == true) {
-                item.starred = false;
-            } else {
-                item.starred = true;
-            }
-            omni_app.refresh();
-        });
-
-        
         _this.beacon.on('control:deselect_all', function(options) {
             _this.item_list.forEach((item) => {
                 item.selected = false
@@ -205,51 +220,15 @@ class ListController extends Controller {
             omni_app.refresh();
         });
 
-        _this.beacon.on('command_multi:archive', function(options) {
-            _this.map_selected(function(item) {
-                return false;
-            }).then(function() {
-                omni_app.refresh();
-            });
-        });
-
-        _this.beacon.on('command_multi:info', function(options) {
-            _this.map_selected(function(item) {
-                console.log(JSON.stringify(item));
-                return false;
-            }).then(function() {
-                omni_app.refresh();
-            });
-        });
-
-        _this.beacon.on('command_multi:right', function(options) {
-            _this.map_selected(function(item) {
-                item.text = '.' + item.text;
-            }).then(function() {
-                omni_app.refresh();
-            });
-        });
-
-        _this.beacon.on('command_multi:left', function(options) {
-            _this.map_selected(function(item) {
-                if (item.text[0] == '.') {
-                    item.text = item.text.slice(1);
-                }
-            }).then(function() {
-                omni_app.refresh();
-            });
-        });
-
-        _this.beacon.on('command_single:edit', function(options) {
+        _this.beacon.on('control:edit', function(options) {
             _this.map_focused(function(item) {
                 $("#ob-input").val(item.text);
                 $("#ob-input").focus();
-                return false;
+                item.deleted = true
             }).then(function() {
                 omni_app.refresh();
             });
         });
-        
     }
 }
 

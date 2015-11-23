@@ -48,11 +48,11 @@ var Application = (function () {
 
     _createClass(Application, [{
         key: "fire_event",
-        value: function fire_event() {
+        value: function fire_event(etype, options) {
             var len = this.controller_stack.length;
             for (var index = 1; index <= len; index++) {
-                var beacon = this.controller_stack[len - index].beacon;
-                var result = beacon.fire.apply(beacon, arguments);
+                var controller = this.controller_stack[len - index];
+                var result = controller.fire_event(etype, options);
                 if (result == true) {
                     return true;
                 }

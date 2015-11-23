@@ -21,6 +21,11 @@ var Controller = (function () {
         value: function render(is_done) {
             return this.view.render(this, is_done);
         }
+    }, {
+        key: "fire_event",
+        value: function fire_event(etype, options) {
+            return this.beacon.fire(etype, options);
+        }
     }]);
 
     return Controller;
@@ -38,11 +43,44 @@ var ListController = (function (_Controller) {
         for (var i = 0; i < 20; i++) {
             this.add_item("item " + i);
         }
-        this.add_item("finish omnibox ;task");
+        this.add_item("finish omnibox ;task ;important ;due");
         this.cursor_index = 0;
     }
 
     _createClass(ListController, [{
+        key: "fire_event",
+        value: function fire_event(etype, options) {
+            var sp = etype.split(':');
+
+            if (sp[0] == 'command_focus') {
+                this.map_focused(function (item) {
+                    item.parse_mixins().forEach(function (mixin) {
+                        var m = glob_mixins[mixin];
+                        if (m) {
+                            new m().on_event(sp[1], options, item);
+                        }
+                    });
+                }).then(function () {
+                    omni_app.refresh();
+                });
+                return true;
+            } else if (sp[0] == 'command_selected') {
+                this.map_selected(function (item) {
+                    item.parse_mixins().forEach(function (mixin) {
+                        var m = glob_mixins[mixin];
+                        if (m) {
+                            new m().on_event(sp[1], options, item);
+                        }
+                    });
+                }).then(function () {
+                    omni_app.refresh();
+                });
+                return true;
+            } else {
+                return this.beacon.fire(etype, options);
+            }
+        }
+    }, {
         key: "get_selected",
         value: function get_selected() {
             var _this = this;
@@ -69,13 +107,11 @@ var ListController = (function (_Controller) {
                         try {
                             result = fn(item);
                         } catch (e) {
-                            alert(e);
+                            console.log(e);
                             reject();
                         }
 
-                        console.log(result + "getting rid of" + item);
-
-                        if (result == false) {
+                        if (item.deleted == true) {
                             // pass we are discarding.
                         } else {
                                 remaining_list.push(item);
@@ -83,9 +119,9 @@ var ListController = (function (_Controller) {
                     } else {
                         remaining_list.push(item);
                     }
-                    _this.item_list = remaining_list;
-                    resolve();
                 });
+                _this.item_list = remaining_list;
+                resolve([]);
             });
         }
     }, {
@@ -109,13 +145,11 @@ var ListController = (function (_Controller) {
                         try {
                             result = fn(item);
                         } catch (e) {
-                            alert(e);
+                            console.log(e);
                             reject();
                         }
 
-                        console.log(result + "getting rid of" + item);
-
-                        if (result == false) {
+                        if (item.deleted == true) {
                             // pass we are discarding.
                         } else {
                                 remaining_list.push(item);
@@ -123,9 +157,9 @@ var ListController = (function (_Controller) {
                     } else {
                         remaining_list.push(item);
                     }
-                    _this.item_list = remaining_list;
-                    resolve();
                 });
+                _this.item_list = remaining_list;
+                resolve([]);
             });
         }
     }, {
@@ -148,7 +182,6 @@ var ListController = (function (_Controller) {
                 }
 
                 _this.add_item(value);
-                console.log("value: " + value);
                 omni_app.refresh();
 
                 $("#ob-input").val('');
@@ -163,22 +196,6 @@ var ListController = (function (_Controller) {
                     item.selected = false;
                 } else {
                     item.selected = true;
-                }
-                omni_app.refresh();
-            });
-
-            _this.beacon.on('command_single:toggle_star', function (options) {
-                var index = _this.cursor_index;
-                if (options.index != undefined) {
-                    index = options.index;
-                }
-
-                var item = _this.item_list[index];
-
-                if (item.starred == true) {
-                    item.starred = false;
-                } else {
-                    item.starred = true;
                 }
                 omni_app.refresh();
             });
@@ -233,46 +250,11 @@ var ListController = (function (_Controller) {
                 omni_app.refresh();
             });
 
-            _this.beacon.on('command_multi:archive', function (options) {
-                _this.map_selected(function (item) {
-                    return false;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_multi:info', function (options) {
-                _this.map_selected(function (item) {
-                    console.log(JSON.stringify(item));
-                    return false;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_multi:right', function (options) {
-                _this.map_selected(function (item) {
-                    item.text = '.' + item.text;
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_multi:left', function (options) {
-                _this.map_selected(function (item) {
-                    if (item.text[0] == '.') {
-                        item.text = item.text.slice(1);
-                    }
-                }).then(function () {
-                    omni_app.refresh();
-                });
-            });
-
-            _this.beacon.on('command_single:edit', function (options) {
+            _this.beacon.on('control:edit', function (options) {
                 _this.map_focused(function (item) {
                     $("#ob-input").val(item.text);
                     $("#ob-input").focus();
-                    return false;
+                    item.deleted = true;
                 }).then(function () {
                     omni_app.refresh();
                 });

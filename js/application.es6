@@ -38,11 +38,11 @@ class Application {
         });
     }
 
-    fire_event() {
+    fire_event(etype, options) {
         var len = this.controller_stack.length;
         for(var index=1; index <= len; index++) {
-            var beacon = this.controller_stack[len-index].beacon;
-            var result = beacon.fire.apply(beacon, arguments);
+            var controller = this.controller_stack[len-index];
+            var result = controller.fire_event(etype, options)
             if (result == true) {
                 return true;
             }
@@ -161,7 +161,7 @@ $(document).ready(function() {
             };
         })(value));
     }
-    
+
     for(var key in mvc_active_keymap) {
         var value = mvc_active_keymap[key];
         kap_handler.add_command(key, (function(v) {

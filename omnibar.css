@@ -1,4 +1,7 @@
-body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif; }
+body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif;
+
+       background-color: #eef1f6;
+}
 
 
 /* first a css reset, of the meyer kind */
@@ -16,12 +19,13 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 /* end reset */
 #ob-omnibar-outer {
     /* For testing */
-    background-color: rgba(0,0,0,0.05);
+    background-color: #4f6a92;
+
 
     /* The real deal */
     position: fixed;
     top: 0px;
-    left: 160px;
+    left: 100px;
     right: 0px;
     height: 70px;
     width: auto;
@@ -40,7 +44,8 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     bottom: 10px;
     padding: 10px;
     border: 1px solid rgba(0, 0, 0, 0.2);
-
+    border-radius: 4px;
+    
     // Uncomment with fancy input.
     // text-align:right;
     // color: rgba(20, 20, 20, 0.1);
@@ -62,34 +67,35 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 #ob-omnibar-outer > .ob-inner > .ob-input-holder {
     position: absolute;
     right: 8px;
-    left: 6px;
+    left: 2px;
     top: 6px;
 }
 
-#ob-left-control-outer {
+#ob-left-control-outer { /* TOP LEFT NUGGET */
     /* The real deal */
     position:fixed;
     top: 70px;
     left: 0px;
     bottom: 0px;
-    width: 160px;
+    width: 100px;
     text-align: center;
-    font-size: 14px;
+    font-size: 10px;
     padding-top: 5px;
-    
+
     /* styling */
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #4F6A92;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-#ob-left-widget-outer {
-    /* For testing */
-    background-color: rgba(0,0,0,0.05);
-
+#ob-left-widget-outer { /* LEFT GUTTER */
+    background-color: #4F6A92;
+    color: rgba(255, 255, 255, 0.9);
+    
      /* The real deal */
     position:fixed;
     top: 0px;
     left: 0px;
-    width: 160px;
+    width: 100px;
     height: 70px;
 
     /* styling */
@@ -99,7 +105,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 #ob-content-outer {
     /* the real deal */
     position: fixed;
-    left: 160px;
+    left: 104px;
     top: 78px;
     right: 6px;
     bottom: 0px;
@@ -161,7 +167,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 }
 
 #ob-omnibar-outer > .ob-inner > .ob-input-holder > input:focus {
-    background-color: rgba(0,255,255, 0.4);
+    background-color: rgba(230,240,255,1.0);
 }
 
 tr.active > td.ob-highlight {
@@ -208,12 +214,13 @@ tr.active {
 
 .ob-line-right {
     float:right;
-    background-color: rgba(20, 222, 90, 0.3);
-    border: 1px solid rgba(20, 222, 90, 0.6);
     border-radius: 4px;
     padding: 1px;
+    padding-right: 3px;
+    padding-left: 3px;
     margin: 1px;
-    margin-top: 2px;
+    margin-top: 1px;
+    border: 1px solid rgba(20, 20, 20, 0.5);
     
     font-size: 11px;
     font-family: courier;

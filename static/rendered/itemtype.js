@@ -1,10 +1,22 @@
-'use strict';
+"use strict";
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var color_for_word = function color_for_word(word) {
+    var index = 0;
+    var colors = [0, 0, 0];
+    for (var i = 0; i < word.length; i++) {
+        var ch = word.charCodeAt(i);
+        colors[index] += ch * ch * ch;
+        index += 1;
+        index %= 3;
+    }
+    return "rgba(" + (64 + colors[0] % 224) + ", " + (64 + colors[1] % 224) + ", " + (64 + colors[2] % 224) + ", 0.85)";
+};
 
 var ItemRenderer = (function () {
     function ItemRenderer() {
@@ -14,7 +26,7 @@ var ItemRenderer = (function () {
     }
 
     _createClass(ItemRenderer, [{
-        key: 'create_base_tr',
+        key: "create_base_tr",
         value: function create_base_tr(obj) {
             var tr = document.createElement('tr');
 
@@ -56,7 +68,7 @@ var ItemRenderer = (function () {
 
             checkbox_td.appendChild(star_div);
             $(star_div).on('click', function () {
-                omni_app.fire_event("command_single:toggle_star", { "index": obj.index });
+                omni_app.fire_event("command_focus:toggle_star", { "index": obj.index });
             });
 
             var inner_div = document.createElement('div');
@@ -71,14 +83,14 @@ var ItemRenderer = (function () {
             return [tr, content_div];
         }
     }, {
-        key: 'float_right',
+        key: "float_right",
         value: function float_right() {
             var d = document.createElement('div');
             d.className = 'ob-line-right';
             return d;
         }
     }, {
-        key: 'parse',
+        key: "parse",
         value: function parse(obj) {
             var _this2 = this;
 
@@ -91,13 +103,16 @@ var ItemRenderer = (function () {
             tr = _create_base_tr2[0];
             inner_div = _create_base_tr2[1];
 
-            inner_div.innerHTML = obj.parse()['body'];
+            inner_div.innerHTML = obj.as_line();
 
             var mixins = obj.parse_mixins();
             mixins.forEach(function (item) {
-                var tag = _this2.float_right();
-                tag.innerHTML = item;
-                inner_div.appendChild(tag);
+                if (item != 'BaseMixin') {
+                    var tag = _this2.float_right();
+                    tag.innerHTML = item;
+                    tag.style.backgroundColor = color_for_word(item);
+                    inner_div.appendChild(tag);
+                }
             });
 
             return tr;
@@ -127,7 +142,7 @@ var Item = (function () {
     }
 
     _createClass(Item, [{
-        key: 'parse_mixins',
+        key: "parse_mixins",
         value: function parse_mixins() {
             var hits = [];
             var item = this.parse();
@@ -138,20 +153,20 @@ var Item = (function () {
                 }
             });
 
-            return hits;
+            return hits.concat(['BaseMixin']);
         }
     }, {
-        key: 'parse',
+        key: "parse",
         value: function parse() {
             return string_to_item(this.text, action_chars);
         }
     }, {
-        key: 'save',
+        key: "save",
         value: function save() {
             return localStorage.setItem(this.id, this.text);
         }
     }, {
-        key: 'on_event',
+        key: "on_event",
         value: function on_event(etype, event_object) {
             var _this3 = this;
 
@@ -160,8 +175,13 @@ var Item = (function () {
                 m.on_event(etype, event_object, _this3.state);
             });
         }
+    }, {
+        key: "as_line",
+        value: function as_line() {
+            return this.parse()['body'];
+        }
     }], [{
-        key: 'get_by_id',
+        key: "get_by_id",
         value: function get_by_id(id) {
             return new Item(localStorage.getItem(id));
         }
@@ -176,26 +196,58 @@ var BaseMixin = (function () {
     }
 
     _createClass(BaseMixin, [{
-        key: 'on_event',
-        value: function on_event(etype, event_object, state_object) {
-            var cb = this['on_' + event_type];
+        key: "on_event",
+        value: function on_event(etype, event_object, item) {
+            var cb = this['on_' + etype];
             if (cb != undefined) {
-                return cb(event_object, state_object);
+                return cb(event_object, item);
             } else {
-                return this.unhandled_event(event_object, state_object);
+                return this.unhandled_event(etype, event_object);
             }
         }
     }, {
-        key: 'unhandled_event',
+        key: "unhandled_event",
         value: function unhandled_event(event_object) {
-            console.log("Unhandled event " + event_object + " on " + this + ".");
+            console.log("Unhandled event " + JSON.stringify(event_object) + " on " + this + ".");
         }
     }, {
-        key: 'search',
+        key: "search",
         value: function search(query) {
             return [];
+        }
+    }, {
+        key: "save",
+        value: function save() {}
+    }, {
+        key: "load",
+        value: function load(text) {}
+    }, {
+        key: "on_archive",
+        value: function on_archive(event_object, item) {
+            item.deleted = true;
+        }
+    }, {
+        key: "on_toggle_star",
+        value: function on_toggle_star(event_object, item) {
+            item.starred = true;
+        }
+    }, {
+        key: "on_view",
+        value: function on_view(event_object, item) {
+            var body = item.parse()['body'];
+            var hit = false;
+
+            body.split(' ').forEach(function (word) {
+                if (word.slice(0, 4) == 'http' && hit == false) {
+                    window.open(word);
+                    hit = true;
+                }
+            });
         }
     }]);
 
     return BaseMixin;
 })();
+
+var glob_mixins = {};
+glob_mixins['BaseMixin'] = BaseMixin;

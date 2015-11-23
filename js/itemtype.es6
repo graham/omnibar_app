@@ -1,3 +1,18 @@
+var color_for_word = function(word) {
+    var index = 0;
+    var colors = [0, 0, 0];
+    for(var i=0; i < word.length; i++) {
+        var ch = word.charCodeAt(i);
+        colors[index] += ch * ch * ch;
+        index += 1;
+        index %= 3;
+    }
+    return "rgba(" +
+        (64 + (colors[0] % 224)) + ", " +
+        (64 + (colors[1] % 224)) + ", " +
+        (64 + (colors[2] % 224)) + ", 0.85)";
+};
+
 class ItemRenderer {
     constructor() {
         var _this = this;
@@ -44,7 +59,7 @@ class ItemRenderer {
 
         checkbox_td.appendChild(star_div)
         $(star_div).on('click', () => {
-            omni_app.fire_event("command_single:toggle_star", {"index":obj.index})
+            omni_app.fire_event("command_focus:toggle_star", {"index":obj.index})
         });
 
         var inner_div = document.createElement('div')
@@ -68,13 +83,16 @@ class ItemRenderer {
     parse(obj) {
         var tr, inner_div;
         [tr, inner_div] = this.create_base_tr(obj)
-        inner_div.innerHTML = obj.parse()['body']
+        inner_div.innerHTML = obj.as_line();
 
         var mixins = obj.parse_mixins();
         mixins.forEach((item) => {
-            var tag = this.float_right();
-            tag.innerHTML = item;
-            inner_div.appendChild(tag)
+            if (item != 'BaseMixin') {
+                var tag = this.float_right();
+                tag.innerHTML = item;
+                tag.style.backgroundColor = color_for_word(item);
+                inner_div.appendChild(tag)
+            }
         })
 
         return tr
@@ -108,7 +126,7 @@ class Item {
             }
         })
 
-        return hits;
+        return hits.concat(['BaseMixin']);
     }
     
     parse() {
@@ -129,23 +147,54 @@ class Item {
             m.on_event(etype, event_object, this.state)
         })
     }
+
+    as_line() {
+        return this.parse()['body']
+    }
 }
 
 class BaseMixin {
-    on_event(etype, event_object, state_object) {
-        let cb = this['on_' + event_type];
+    on_event(etype, event_object, item) {
+        let cb = this['on_' + etype];
         if (cb != undefined) {
-            return cb(event_object, state_object);
+            return cb(event_object, item)
         } else {
-            return this.unhandled_event(event_object, state_object);
+            return this.unhandled_event(etype, event_object)
         }
     }
 
     unhandled_event(event_object) {
-        console.log("Unhandled event " + event_object + " on " + this + ".")
+        console.log("Unhandled event " + JSON.stringify(event_object) + " on " + this + ".")
     }
 
     search(query) {
         return [];
     }
+
+    save()     {}
+    load(text) {}
+
+    on_archive(event_object, item) {
+        item.deleted = true
+    }
+
+    on_toggle_star(event_object, item) {
+        item.starred = true
+    }
+
+    on_view(event_object, item) {
+        var body = item.parse()['body']
+        var hit = false
+        
+        body.split(' ').forEach((word) => {
+            if (word.slice(0, 4) == 'http' && hit == false) {
+                window.open(word);
+                hit = true;
+            }
+        })
+    }
 }
+
+var glob_mixins = {}
+glob_mixins['BaseMixin'] = BaseMixin
+
