@@ -153,6 +153,56 @@ class ListController extends Controller {
         this.item_list = [item].concat(this.item_list);
     }
 
+    sort() {
+        var _this = this
+        var sort_style = _this.sort_styles[_this.sort_style_index]
+        console.log(sort_style)
+        
+        if (sort_style == 'text') {
+            _this.item_list.sort((a, b) => {
+                var left = a.as_line()
+                var right = b.as_line()
+                if (left < right)
+                    return -1;
+                if (left > right)
+                    return 1;
+                return 0;
+            })
+        } else if (sort_style == 'star') {
+            _this.item_list.sort((a, b) => {
+                var left = a.starred
+                var right = b.starred
+                if (left)
+                    return -1;
+                if (right)
+                    return 1;
+                return 0;
+            })
+        } else if (sort_style == 'type') {
+            _this.item_list.sort((a, b) => {
+                var left = a.parse_mixins()[0].toLowerCase()
+                var right = b.parse_mixins()[0].toLowerCase()
+                if (left == 'basemixin') { return 1 }
+                if (right == 'basemixin') { return -1 }
+                if (left < right)
+                    return -1
+                if (left > right)
+                    return 1
+                return 0
+            })
+        } else if (sort_style == 'select') {
+            _this.item_list.sort((a, b) => {
+                var left = a.selected
+                var right = b.selected
+                if (left)
+                    return -1;
+                if (right)
+                    return 1;
+                return 0;
+            })
+        }
+    }
+
     prepare() {
         var _this = this;
         
@@ -244,57 +294,17 @@ class ListController extends Controller {
         });
 
         _this.beacon.on('control:cycle_sort', function(options) {
-            var sort_style = _this.sort_styles[_this.sort_style_index]
-            console.log(sort_style)
-
-            if (sort_style == 'text') {
-                _this.item_list.sort((a, b) => {
-                    var left = a.as_line()
-                    var right = b.as_line()
-                    if (left < right)
-                        return -1;
-                    if (left > right)
-                        return 1;
-                    return 0;
-                })
-            } else if (sort_style == 'star') {
-                _this.item_list.sort((a, b) => {
-                    var left = a.starred
-                    var right = b.starred
-                    if (left)
-                        return -1;
-                    if (right)
-                        return 1;
-                    return 0;
-                })
-            } else if (sort_style == 'type') {
-                _this.item_list.sort((a, b) => {
-                    var left = a.parse_mixins()[0].toLowerCase()
-                    var right = b.parse_mixins()[0].toLowerCase()
-                    if (left == 'basemixin') { return 1 }
-                    if (right == 'basemixin') { return -1 }
-                    if (left < right)
-                        return -1
-                    if (left > right)
-                        return 1
-                    return 0
-                })
-            } else if (sort_style == 'select') {
-                _this.item_list.sort((a, b) => {
-                    var left = a.selected
-                    var right = b.selected
-                    if (left)
-                        return -1;
-                    if (right)
-                        return 1;
-                    return 0;
-                })
-            }
-
             _this.sort_style_index += 1
             _this.sort_style_index %= _this.sort_styles.length
+            _this.sort()
             omni_app.refresh()
         });
+
+        _this.beacon.on('control:re_sort', function(options) {
+            _this.sort()
+            omni_app.refresh()
+        });
+        
     }
 }
 

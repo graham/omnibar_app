@@ -32,6 +32,7 @@ var mvc_passive_keymap = {
     'z':               'control:deselect_all',
     'a':               'control:select_all',
     '\\':              'control:cycle_sort',
+    'shift-\\':        'control:re_sort',
     '`':               'control:show_sources',
 
     // most common way for users to remove things from
