@@ -1,22 +1,12 @@
-"use strict";
+// Hello
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
+'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var color_for_word = function color_for_word(word) {
-    var index = 0;
-    var colors = [0, 0, 0];
-    for (var i = 0; i < word.length; i++) {
-        var ch = word.charCodeAt(i);
-        colors[index] += ch * ch * ch;
-        index += 1;
-        index %= 3;
-    }
-    return "rgba(" + (64 + colors[0] % 224) + ", " + (64 + colors[1] % 224) + ", " + (64 + colors[2] % 224) + ", 0.85)";
-};
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var ItemRenderer = (function () {
     function ItemRenderer() {
@@ -26,7 +16,7 @@ var ItemRenderer = (function () {
     }
 
     _createClass(ItemRenderer, [{
-        key: "create_base_tr",
+        key: 'create_base_tr',
         value: function create_base_tr(obj) {
             var tr = document.createElement('tr');
 
@@ -68,7 +58,7 @@ var ItemRenderer = (function () {
 
             checkbox_td.appendChild(star_div);
             $(star_div).on('click', function () {
-                omni_app.fire_event("command_focus:toggle_star", { "index": obj.index });
+                obj.on_event('toggle_star', {});
             });
 
             var inner_div = document.createElement('div');
@@ -83,14 +73,21 @@ var ItemRenderer = (function () {
             return [tr, content_div];
         }
     }, {
-        key: "float_right",
+        key: 'float_right',
         value: function float_right() {
             var d = document.createElement('div');
             d.className = 'ob-line-right';
             return d;
         }
     }, {
-        key: "parse",
+        key: 'project_right',
+        value: function project_right() {
+            var d = document.createElement('div');
+            d.className = 'ob-project-right';
+            return d;
+        }
+    }, {
+        key: 'parse',
         value: function parse(obj) {
             var _this2 = this;
 
@@ -122,16 +119,6 @@ var ItemRenderer = (function () {
     return ItemRenderer;
 })();
 
-function generateUUID() {
-    var d = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (d + Math.random() * 16) % 16 | 0;
-        d = Math.floor(d / 16);
-        return (c == 'x' ? r : r & 0x3 | 0x8).toString(16);
-    });
-    return uuid;
-};
-
 var Item = (function () {
     function Item(init_text) {
         _classCallCheck(this, Item);
@@ -142,7 +129,7 @@ var Item = (function () {
     }
 
     _createClass(Item, [{
-        key: "parse_mixins",
+        key: 'parse_mixins',
         value: function parse_mixins() {
             var hits = [];
             var item = this.parse();
@@ -156,32 +143,41 @@ var Item = (function () {
             return hits.concat(['BaseMixin']);
         }
     }, {
-        key: "parse",
+        key: 'parse',
         value: function parse() {
             return string_to_item(this.text, action_chars);
         }
     }, {
-        key: "save",
-        value: function save() {
-            return localStorage.setItem(this.id, this.text);
-        }
-    }, {
-        key: "on_event",
+        key: 'on_event',
         value: function on_event(etype, event_object) {
-            var _this3 = this;
-
-            var mixins = this.parsed_mixins();
+            var _this = this;
+            var mixins = this.parse_mixins();
             mixins.forEach(function (m) {
-                m.on_event(etype, event_object, _this3.state);
+                var match = glob_mixins[m];
+                if (match) {
+                    new match().on_event(etype, event_object, _this);
+                }
             });
         }
     }, {
-        key: "as_line",
+        key: 'as_line',
         value: function as_line() {
             return this.parse()['body'];
         }
+    }, {
+        key: 'get_attr',
+        value: function get_attr(key) {}
+    }, {
+        key: 'set_attr',
+        value: function set_attr(key, value) {}
+    }, {
+        key: 'get_meta',
+        value: function get_meta(key) {}
+    }, {
+        key: 'set_meta',
+        value: function set_meta(key, value) {}
     }], [{
-        key: "get_by_id",
+        key: 'get_by_id',
         value: function get_by_id(id) {
             return new Item(localStorage.getItem(id));
         }
@@ -196,7 +192,7 @@ var BaseMixin = (function () {
     }
 
     _createClass(BaseMixin, [{
-        key: "on_event",
+        key: 'on_event',
         value: function on_event(etype, event_object, item) {
             var cb = this['on_' + etype];
             if (cb != undefined) {
@@ -206,33 +202,40 @@ var BaseMixin = (function () {
             }
         }
     }, {
-        key: "unhandled_event",
+        key: 'unhandled_event',
         value: function unhandled_event(event_object) {
             console.log("Unhandled event " + JSON.stringify(event_object) + " on " + this + ".");
         }
     }, {
-        key: "search",
+        key: 'search',
         value: function search(query) {
             return [];
         }
     }, {
-        key: "save",
-        value: function save() {}
+        key: 'on_update',
+        value: function on_update(event_object, item) {
+            var id = item.get_meta('uid');
+            if (id == undefined) {
+                item.set_meta('uid', id);
+            }
+            storage.setItem(id, item.text);
+        }
     }, {
-        key: "load",
-        value: function load(text) {}
-    }, {
-        key: "on_archive",
+        key: 'on_archive',
         value: function on_archive(event_object, item) {
             item.deleted = true;
         }
     }, {
-        key: "on_toggle_star",
+        key: 'on_toggle_star',
         value: function on_toggle_star(event_object, item) {
-            item.starred = true;
+            if (item.starred) {
+                item.starred = false;
+            } else {
+                item.starred = true;
+            }
         }
     }, {
-        key: "on_view",
+        key: 'on_view',
         value: function on_view(event_object, item) {
             var body = item.parse()['body'];
             var hit = false;

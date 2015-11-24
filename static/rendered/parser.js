@@ -1,12 +1,9 @@
 "use strict";
 
-var str_trim = function str_trim(s) {
-    return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
-};
-
 var action_chars = ["@", // Exclusive group, items can only belong to one @ group.
-//    "#",  // Inclusive group, items can have as many #tags as they want.
+"#", // Inclusive group, items can have as many #tags as they want.
 ";", // Type declaration (types can have custom rendering methods).
+"+", // Project
 
 "$", // Key/Value $key=value, if no value is provided, value = true.
 "%", // Internal item key=value, not visible to user, used by system.

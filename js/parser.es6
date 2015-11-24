@@ -1,11 +1,8 @@
-var str_trim = function(s) { 
-    return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
-};
-
 var action_chars = [
     "@",  // Exclusive group, items can only belong to one @ group.
-//    "#",  // Inclusive group, items can have as many #tags as they want.
+    "#",  // Inclusive group, items can have as many #tags as they want.
     ";",  // Type declaration (types can have custom rendering methods).
+    "+",  // Project
 
     "$",  // Key/Value $key=value, if no value is provided, value = true.
     "%",  // Internal item key=value, not visible to user, used by system.
@@ -24,11 +21,10 @@ var search_chars = [
     "$"   // Variable Matches
 ]
 
-var eq_cond_chars = [ '<=', '>=', '>', '<', '==', '!=', '='];
-var open_range_chars = ["(", "\"", "'", "[", "{", "<"];
+var eq_cond_chars =     ['<=', '>=', '>', '<', '==', '!=', '='];
+var open_range_chars =  ["(", "\"", "'", "[", "{", "<"];
 var close_range_chars = { "(":")", "\"":"\"", "'":"'",
                           "[":"]", "{":"}",   "<":">"};
-
 
 function string_to_item(s, match_chars) {
     s += ' ';

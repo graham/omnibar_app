@@ -225,3 +225,11 @@ tr.active {
     font-size: 11px;
     font-family: courier;
 }
+
+.ob-project-right {
+    float:right;
+    border-radius: 0px;
+    padding-right: 3px;
+    border: 1px solid rgba(20, 20, 20, 0.5);
+    font-size: 12px;
+}

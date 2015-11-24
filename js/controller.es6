@@ -1,3 +1,15 @@
+var randword = () => {
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    var buffer = []
+
+    for(var i=0; i < 10; i++) {
+        buffer.push(chars.charAt(Math.floor(Math.random() * chars.length)))
+    }
+
+    return buffer.join("")
+}
+    
+
 class Controller {
     constructor(view) {
         this.view = view
@@ -19,10 +31,21 @@ class ListController extends Controller {
         // Now some local stuff.
         this.item_list = [];
         for(var i = 0; i < 20; i++) {
-            this.add_item("item " + i)
+            if (i % 4 == 0) {
+                this.add_item("item " + i + " #" + randword())
+            } else if (i % 4 == 1) {
+                this.add_item("item " + i + " ;asdf")
+            } else if (i % 4 == 2) {
+                this.add_item("item " + i + " ;" + randword())
+            } else {
+                this.add_item("item " + i + " +project")
+            }
         }
         this.add_item("finish omnibox ;task ;important ;due")
         this.cursor_index = 0
+        
+        this.sort_styles = ['project', 'type', 'text']
+        this.sort_style_index = 0
     }
 
     fire_event(etype, options) {
@@ -30,24 +53,14 @@ class ListController extends Controller {
 
         if (sp[0] == 'command_focus') {
             this.map_focused((item) => {
-                item.parse_mixins().forEach((mixin) => {
-                    var m = glob_mixins[mixin]
-                    if (m) {
-                        (new m).on_event(sp[1], options, item)
-                    }
-                })
+                item.on_event(sp[1], options, item)
             }).then(function() {
                 omni_app.refresh()
             })
             return true
         } else if (sp[0] == 'command_selected') {
             this.map_selected((item) => {
-                item.parse_mixins().forEach((mixin) => {
-                    var m = glob_mixins[mixin]
-                    if (m) {
-                        (new m).on_event(sp[1], options, item)
-                    }
-                })
+                item.on_event(sp[1], options, item)
             }).then(function() {
                 omni_app.refresh();
             })
@@ -228,6 +241,49 @@ class ListController extends Controller {
             }).then(function() {
                 omni_app.refresh();
             });
+        });
+
+        _this.beacon.on('control:cycle_sort', function(options) {
+            var sort_style = _this.sort_styles[_this.sort_style_index]
+            console.log(sort_style)
+
+            if (sort_style == 'text') {
+                _this.item_list.sort((a, b) => {
+                    var left = a.as_line()
+                    var right = b.as_line()
+                    if (left < right)
+                        return -1;
+                    if (left > right)
+                        return 1;
+                    return 0;
+                })
+            } else if (sort_style == 'project') {
+                _this.item_list.sort((a, b) => {
+                    var left = a.parse_mixins()[0].toLowerCase()
+                    var right = b.parse_mixins()[0].toLowerCase()
+                    if (left == 'basemixin') { return 1 }
+                    if (right == 'basemixin') { return -1 }
+                    if (left < right)
+                        return -1;
+                    if (left > right)
+                        return 1;
+                    return 0;
+                })
+            } else if (sort_style == 'type') {
+                _this.item_list.sort((a, b) => {
+                    var left = a.parse_mixins()[0].toLowerCase()
+                    var right = b.parse_mixins()[0].toLowerCase()
+                    if (left < right)
+                        return -1
+                    if (left > right)
+                        return 1
+                    return 0
+                })
+            }
+
+            _this.sort_style_index += 1
+            _this.sort_style_index %= _this.sort_styles.length
+            omni_app.refresh()
         });
     }
 }

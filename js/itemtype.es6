@@ -1,17 +1,4 @@
-var color_for_word = function(word) {
-    var index = 0;
-    var colors = [0, 0, 0];
-    for(var i=0; i < word.length; i++) {
-        var ch = word.charCodeAt(i);
-        colors[index] += ch * ch * ch;
-        index += 1;
-        index %= 3;
-    }
-    return "rgba(" +
-        (64 + (colors[0] % 224)) + ", " +
-        (64 + (colors[1] % 224)) + ", " +
-        (64 + (colors[2] % 224)) + ", 0.85)";
-};
+// Hello
 
 class ItemRenderer {
     constructor() {
@@ -59,7 +46,7 @@ class ItemRenderer {
 
         checkbox_td.appendChild(star_div)
         $(star_div).on('click', () => {
-            omni_app.fire_event("command_focus:toggle_star", {"index":obj.index})
+            obj.on_event('toggle_star', {})
         });
 
         var inner_div = document.createElement('div')
@@ -79,6 +66,12 @@ class ItemRenderer {
         d.className = 'ob-line-right'
         return d;
     }
+
+    project_right() {
+        var d = document.createElement('div')
+        d.className = 'ob-project-right'
+        return d;
+    }
     
     parse(obj) {
         var tr, inner_div;
@@ -89,7 +82,7 @@ class ItemRenderer {
         mixins.forEach((item) => {
             if (item != 'BaseMixin') {
                 var tag = this.float_right();
-                tag.innerHTML = item;
+                tag.innerHTML = item
                 tag.style.backgroundColor = color_for_word(item);
                 inner_div.appendChild(tag)
             }
@@ -98,16 +91,6 @@ class ItemRenderer {
         return tr
     }
 }
-
-function generateUUID(){
-    var d = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-    return uuid;
-};
 
 class Item {
     constructor(init_text) {
@@ -128,7 +111,7 @@ class Item {
 
         return hits.concat(['BaseMixin']);
     }
-    
+
     parse() {
         return string_to_item(this.text, action_chars)
     }
@@ -137,20 +120,26 @@ class Item {
         return new Item(localStorage.getItem(id));
     }
 
-    save() {
-        return localStorage.setItem(this.id, this.text);
-    }
-
     on_event(etype, event_object) {
-        var mixins = this.parsed_mixins();
+        var _this = this;
+        var mixins = this.parse_mixins();
         mixins.forEach((m) => {
-            m.on_event(etype, event_object, this.state)
+            var match = glob_mixins[m]
+            if (match) {
+                (new match).on_event(etype, event_object, _this)
+            }
         })
     }
 
     as_line() {
         return this.parse()['body']
     }
+
+    get_attr(key) {}
+    set_attr(key, value) {}
+
+    get_meta(key) {}
+    set_meta(key, value) {}
 }
 
 class BaseMixin {
@@ -171,15 +160,24 @@ class BaseMixin {
         return [];
     }
 
-    save()     {}
-    load(text) {}
+    on_update(event_object, item) {
+        var id = item.get_meta('uid')
+        if (id == undefined) {
+            item.set_meta('uid', id)
+        }
+        storage.setItem(id, item.text)
+    }
 
     on_archive(event_object, item) {
         item.deleted = true
     }
 
     on_toggle_star(event_object, item) {
-        item.starred = true
+        if (item.starred) {
+            item.starred = false
+        } else {
+            item.starred = true
+        }
     }
 
     on_view(event_object, item) {
@@ -193,6 +191,7 @@ class BaseMixin {
             }
         })
     }
+
 }
 
 var glob_mixins = {}
