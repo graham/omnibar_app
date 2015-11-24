@@ -65,7 +65,7 @@ var ListController = (function (_Controller) {
         this.add_item("finish omnibox ;task ;important ;due");
         this.cursor_index = 0;
 
-        this.sort_styles = ['project', 'type', 'text'];
+        this.sort_styles = ['star', 'type', 'text', 'select'];
         this.sort_style_index = 0;
     }
 
@@ -284,7 +284,15 @@ var ListController = (function (_Controller) {
                         if (left > right) return 1;
                         return 0;
                     });
-                } else if (sort_style == 'project') {
+                } else if (sort_style == 'star') {
+                    _this.item_list.sort(function (a, b) {
+                        var left = a.starred;
+                        var right = b.starred;
+                        if (left) return -1;
+                        if (right) return 1;
+                        return 0;
+                    });
+                } else if (sort_style == 'type') {
                     _this.item_list.sort(function (a, b) {
                         var left = a.parse_mixins()[0].toLowerCase();
                         var right = b.parse_mixins()[0].toLowerCase();
@@ -298,12 +306,12 @@ var ListController = (function (_Controller) {
                         if (left > right) return 1;
                         return 0;
                     });
-                } else if (sort_style == 'type') {
+                } else if (sort_style == 'select') {
                     _this.item_list.sort(function (a, b) {
-                        var left = a.parse_mixins()[0].toLowerCase();
-                        var right = b.parse_mixins()[0].toLowerCase();
-                        if (left < right) return -1;
-                        if (left > right) return 1;
+                        var left = a.selected;
+                        var right = b.selected;
+                        if (left) return -1;
+                        if (right) return 1;
                         return 0;
                     });
                 }
