@@ -183,11 +183,6 @@ var ListController = (function (_Controller) {
             }
         }
     }, {
-        key: "execute_search",
-        value: function execute_search(value) {
-            // push a view controller on with search results.
-        }
-    }, {
         key: "sort",
         value: function sort() {
             var _this = this;
@@ -249,8 +244,6 @@ var ListController = (function (_Controller) {
 
                 if (startswith(value, '!')) {
                     _this.execute_command(value.slice(1));
-                } else if (startswith(value, '?')) {
-                    _this.execute_search(value.slice(1));
                 } else {
                     _this.add_item(value);
                 }
@@ -343,8 +336,25 @@ var ListController = (function (_Controller) {
                 _this.sort();
                 omni_app.refresh();
             });
+
+            _this.beacon.on('app:bar_updated', function (options) {
+                console.log('boop:', options);
+            });
         }
     }]);
 
     return ListController;
 })(Controller);
+
+var SearchController = (function (_ListController) {
+    _inherits(SearchController, _ListController);
+
+    function SearchController() {
+        _classCallCheck(this, SearchController);
+
+        _get(Object.getPrototypeOf(SearchController.prototype), "constructor", this).call(this, new ListView());
+        this.item_list = [];
+    }
+
+    return SearchController;
+})(ListController);

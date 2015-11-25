@@ -153,10 +153,6 @@ class ListController extends Controller {
         }
     }
 
-    execute_search(value) {
-        // push a view controller on with search results.
-    }
-
     sort() {
         var _this = this
         var sort_style = _this.sort_styles[_this.sort_style_index]
@@ -220,8 +216,6 @@ class ListController extends Controller {
 
             if (startswith(value, '!')) {
                 _this.execute_command(value.slice(1))
-            } else if (startswith(value, '?')) {
-                _this.execute_search(value.slice(1))
             } else {
                 _this.add_item(value);
             }
@@ -314,7 +308,17 @@ class ListController extends Controller {
             _this.sort()
             omni_app.refresh()
         });
-        
+
+        _this.beacon.on('app:bar_updated', function(options) {
+            console.log('boop:', options)
+        })
     }
 }
 
+class SearchController extends ListController {
+    constructor() {
+        super(new ListView())
+        this.item_list = [];
+    }
+
+}
