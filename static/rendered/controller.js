@@ -8,17 +8,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var randword = function randword() {
-    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    var buffer = [];
-
-    for (var i = 0; i < 10; i++) {
-        buffer.push(chars.charAt(Math.floor(Math.random() * chars.length)));
-    }
-
-    return buffer.join("");
-};
-
 var Controller = (function () {
     function Controller(view) {
         _classCallCheck(this, Controller);
@@ -181,6 +170,24 @@ var ListController = (function (_Controller) {
             this.item_list = [item].concat(this.item_list);
         }
     }, {
+        key: "execute_command",
+        value: function execute_command(value) {
+            var sp = value.split(":");
+            if (sp[0] == 'sel') {
+                this.map_selected(function (item) {
+                    var values = sp[1].split(' ');
+                    item.on_event(values[0], sp[1], item);
+                }).then(function () {
+                    omni_app.refresh();
+                });
+            }
+        }
+    }, {
+        key: "execute_search",
+        value: function execute_search(value) {
+            // push a view controller on with search results.
+        }
+    }, {
         key: "sort",
         value: function sort() {
             var _this = this;
@@ -240,7 +247,13 @@ var ListController = (function (_Controller) {
                     return;
                 }
 
-                _this.add_item(value);
+                if (startswith(value, '!')) {
+                    _this.execute_command(value.slice(1));
+                } else if (startswith(value, '?')) {
+                    _this.execute_search(value.slice(1));
+                } else {
+                    _this.add_item(value);
+                }
                 omni_app.refresh();
 
                 $("#ob-input").val('');

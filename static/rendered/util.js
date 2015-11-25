@@ -6,6 +6,14 @@ var str_trim = function str_trim(s) {
     return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
 };
 
+var startswith = function startswith(s, prefix) {
+    if (s.slice(0, prefix.length) == prefix) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
 var color_for_word = function color_for_word(word, weight) {
     if (weight == undefined) {
         weight = 0;
@@ -34,4 +42,15 @@ function uuid() {
         return (c == 'x' ? r : r & 0x3 | 0x8).toString(16);
     });
     return uuid;
+};
+
+var randword = function randword() {
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    var buffer = [];
+
+    for (var i = 0; i < 10; i++) {
+        buffer.push(chars.charAt(Math.floor(Math.random() * chars.length)));
+    }
+
+    return buffer.join("");
 };

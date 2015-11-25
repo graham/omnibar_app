@@ -1,15 +1,3 @@
-var randword = () => {
-    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    var buffer = []
-
-    for(var i=0; i < 10; i++) {
-        buffer.push(chars.charAt(Math.floor(Math.random() * chars.length)))
-    }
-
-    return buffer.join("")
-}
-    
-
 class Controller {
     constructor(view) {
         this.view = view
@@ -153,6 +141,22 @@ class ListController extends Controller {
         this.item_list = [item].concat(this.item_list);
     }
 
+    execute_command(value) {
+        var sp = value.split(":");
+        if (sp[0] == 'sel') {
+            this.map_selected((item) => {
+                var values = sp[1].split(' ')
+                item.on_event(values[0], sp[1], item)
+            }).then(function() {
+                omni_app.refresh();
+            })
+        }
+    }
+
+    execute_search(value) {
+        // push a view controller on with search results.
+    }
+
     sort() {
         var _this = this
         var sort_style = _this.sort_styles[_this.sort_style_index]
@@ -213,10 +217,16 @@ class ListController extends Controller {
                 $("#ob-input").blur();
                 return;
             }
-            
-            _this.add_item(value);
+
+            if (startswith(value, '!')) {
+                _this.execute_command(value.slice(1))
+            } else if (startswith(value, '?')) {
+                _this.execute_search(value.slice(1))
+            } else {
+                _this.add_item(value);
+            }
             omni_app.refresh();
-            
+
             $("#ob-input").val('');
             $("#ob-input").blur();
         });

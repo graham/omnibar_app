@@ -4,6 +4,15 @@ var str_trim = function(s) {
     return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
 };
 
+var startswith = function(s, prefix) {
+    if (s.slice(0, prefix.length) == prefix) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+
 var color_for_word = function(word, weight) {
     if (weight == undefined) {
         weight = 0
@@ -36,3 +45,14 @@ function uuid(){
     });
     return uuid;
 };
+
+var randword = () => {
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    var buffer = []
+
+    for(var i=0; i < 10; i++) {
+        buffer.push(chars.charAt(Math.floor(Math.random() * chars.length)))
+    }
+
+    return buffer.join("")
+}

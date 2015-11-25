@@ -4,18 +4,6 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var str_trim = function str_trim(s) {
-    return s.replace(/^\s+|\s+$/g, "").replace(/^[\n|\r]+|[\n|\r]+$/g, "");
-};
-
-var startswith = function startswith(s, prefix) {
-    if (s.slice(0, prefix.length) == prefix) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
 var Application = (function () {
     function Application() {
         _classCallCheck(this, Application);
