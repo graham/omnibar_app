@@ -8,6 +8,9 @@
     <script src='lib/genie.js'> </script>
     <script src='lib/kapture.js'> </script>
     <script src='lib/jsredis.js'></script>
+    <script src='lib/aws-sdk.min.js'></script>
+    <script src="lib/codemirror.js"> </script>
+    <link rel="stylesheet" href="lib/codemirror.css">
 
     <!--
       Now the omnibar app specifics.
@@ -21,7 +24,6 @@
     <script src='static/rendered/controller.js'></script>
     
     <script src='static/rendered/application.js'></script>
-    <script src='static/rendered/triggers.js'></script>
     <script src='static/rendered/itemtype.js'></script>
     <script src='static/rendered/extra.js'></script>    
 
@@ -30,12 +32,14 @@
     -->
 
     <link rel="stylesheet" type="text/css" href="../omnibar.css" />
-    <script src='static/rendered/main.js'></script>
 
   </head>
 
   <body>
-    
+    <div id='memo_editor_container'>
+      <div id='memo_inner_container'></div>
+    </div>
+
     <div id='ob-left-widget-outer'>
       <div class='ob-inner'>
         <div id='app_name'>baz</div>
@@ -66,11 +70,12 @@
     </div>
     
     <div id='ob-help'></div>
-    <div id='view_depth'><div>
-
-      <script>
-       var r = new ResourceManager();
-       r.add_to_page('omnibar.css');
-      </script>
+    <div id='view_depth'></div>
+      
+    <script>
+     var r = new ResourceManager();
+     r.add_to_page('omnibar.css');
+    </script>
+    
   </body>
 </html>

@@ -7,6 +7,7 @@ var global_active_keymap = {
 
 var global_passive_keymap = {
     'shift-/':         'command:search',
+    'shift-1':         'command:apply',
 };
 
 // These events get passed to the top view controller and only
@@ -25,7 +26,8 @@ var mvc_passive_keymap = {
     
     'h':               'control:help',
     'e':               'control:edit',
-
+    'shift-e':         'control:full_edit',
+    
     'space':           'control:select',
     'x':               'control:select',
 
@@ -63,16 +65,14 @@ var mvc_passive_keymap = {
     
     // Edit singles, hard to explain but easy to understand.
     'r':               'command_focus:reply',
-    'enter':           'command_focus:open',
     's':               'command_focus:toggle_star',
-    'v':               'command_focus:view'
+    'v':               'command_focus:view',
+    'n':               'command_focus:note'
 };
 
 var mvc_active_keymap = { };
 
 for(var i=0; i < 10; i++) {
     mvc_passive_keymap['' + i] = 'command_selected:add_tag_' + i;
-    mvc_passive_keymap['shift-' + i] = 'command_selected:rem_tag_' + i;
-    mvc_passive_keymap['control-' + i] = 'control:search_tag_' + i;
-    mvc_passive_keymap['control-shift-' + i] = 'control:negative_search_tag_' + i;
+    mvc_passive_keymap['control-' + i] = 'command_selected:rem_tag_' + i;
 }

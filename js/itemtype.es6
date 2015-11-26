@@ -192,6 +192,37 @@ class BaseMixin {
         })
     }
 
+    on_note(event_object, item) {
+        let editor = null
+        $("#memo_inner_container").html("<textarea id='memo_editor'></textarea>")
+        editor = CodeMirror.fromTextArea(document.getElementById('memo_editor'), {
+            indentUnit: 4,
+            lineWrapping: true,
+            extraKeys: {
+                "Tab": function(cm) {
+                    console.log("TAB");
+                },
+                "Shift-Tab":function(cm) {
+                    console.log("shift-tab");
+                },
+                "Shift-Enter":function(cm) {
+                    item.text = editor.getValue()
+                    $("#memo_editor_container").hide()
+                    $("#ob-input").focus()
+                    $("#ob-input").blur()
+                    omni_app.refresh()
+                }
+            }
+        });
+        
+        editor.setValue(item.text)
+        $("#memo_editor_container").show()
+        
+        setTimeout(() => {
+            editor.focus()
+            editor.refresh()
+        }, 10)
+    }
 }
 
 var glob_mixins = {}

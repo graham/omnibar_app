@@ -40,6 +40,7 @@ var ListController = (function (_Controller) {
         _get(Object.getPrototypeOf(ListController.prototype), "constructor", this).call(this, new ListView());
         // Now some local stuff.
         this.item_list = [];
+
         for (var i = 0; i < 20; i++) {
             if (i % 4 == 0) {
                 this.add_item("item " + i + " #" + randword());
@@ -234,7 +235,7 @@ var ListController = (function (_Controller) {
         value: function prepare() {
             var _this = this;
 
-            _this.beacon.on('command:enter', function (options) {
+            var enter_fn = function enter_fn(options) {
                 var value = $("#ob-input").val();
 
                 if (value.length == 0) {
@@ -251,7 +252,9 @@ var ListController = (function (_Controller) {
 
                 $("#ob-input").val('');
                 $("#ob-input").blur();
-            });
+            };
+
+            _this.beacon.on('command:enter', enter_fn);
 
             _this.beacon.on('control:select', function (options) {
                 var index = options.index || _this.cursor_index;
@@ -320,6 +323,42 @@ var ListController = (function (_Controller) {
                     $("#ob-input").val(item.text);
                     $("#ob-input").focus();
                     item.deleted = true;
+                }).then(function () {
+                    omni_app.refresh();
+                });
+            });
+
+            _this.beacon.on('control:full_edit', function (options) {
+                _this.map_focused(function (item) {
+                    var editor = null;
+                    $("#memo_inner_container").html("<textarea id='memo_editor'></textarea>");
+                    editor = CodeMirror.fromTextArea(document.getElementById('memo_editor'), {
+                        indentUnit: 4,
+                        lineWrapping: true,
+                        extraKeys: {
+                            "Tab": function Tab(cm) {
+                                console.log("TAB");
+                            },
+                            "Shift-Tab": function ShiftTab(cm) {
+                                console.log("shift-tab");
+                            },
+                            "Shift-Enter": function ShiftEnter(cm) {
+                                item.text = editor.getValue();
+                                $("#memo_editor_container").hide();
+                                $("#ob-input").focus();
+                                $("#ob-input").blur();
+                                omni_app.refresh();
+                            }
+                        }
+                    });
+
+                    editor.setValue(item.text);
+                    $("#memo_editor_container").show();
+
+                    setTimeout(function () {
+                        editor.focus();
+                        editor.refresh();
+                    }, 10);
                 }).then(function () {
                     omni_app.refresh();
                 });

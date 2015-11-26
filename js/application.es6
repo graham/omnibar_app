@@ -166,6 +166,9 @@ $(document).ready(function() {
     kap_handler.add_active_command('enter', function() {
         omni_app.fire_event('command:enter');
     });
+    kap_handler.add_active_command('shift-enter', function() {
+        omni_app.fire_event('command:enter');
+    });
 
     // Commands for getting to and away from the omnibar.
     kap_handler.add_command('esc', function() {
@@ -200,6 +203,11 @@ $(document).ready(function() {
 
     omni_app.event_emitter.on('command:search', function() {
         $("#ob-input").val('?');
+        $("#ob-input").focus();
+    });
+
+    omni_app.event_emitter.on('command:apply', function() {
+        $("#ob-input").val('!');
         $("#ob-input").focus();
     });
 
