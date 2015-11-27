@@ -30,6 +30,7 @@ var mvc_passive_keymap = {
     
     'space':           'control:select',
     'x':               'control:select',
+    'shift-x':         'control:select_only',
 
     'z':               'control:deselect_all',
     'a':               'control:select_all',
@@ -67,7 +68,9 @@ var mvc_passive_keymap = {
     'r':               'command_focus:reply',
     's':               'command_focus:toggle_star',
     'v':               'command_focus:view',
-    'n':               'command_focus:note'
+    'n':               'command_focus:note',
+
+    'control-d':       'command_selected:delete'
 };
 
 var mvc_active_keymap = { };

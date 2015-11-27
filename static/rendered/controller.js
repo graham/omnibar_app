@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var Controller = (function () {
     function Controller(view) {
@@ -17,12 +17,12 @@ var Controller = (function () {
     }
 
     _createClass(Controller, [{
-        key: "render",
+        key: 'render',
         value: function render(is_done) {
             return this.view.render(this, is_done);
         }
     }, {
-        key: "fire_event",
+        key: 'fire_event',
         value: function fire_event(etype, options) {
             return this.beacon.fire(etype, options);
         }
@@ -37,33 +37,23 @@ var ListController = (function (_Controller) {
     function ListController() {
         _classCallCheck(this, ListController);
 
-        _get(Object.getPrototypeOf(ListController.prototype), "constructor", this).call(this, new ListView());
+        _get(Object.getPrototypeOf(ListController.prototype), 'constructor', this).call(this, new ListView());
         // Now some local stuff.
         this.item_list = [];
-
-        for (var i = 0; i < 20; i++) {
-            if (i % 4 == 0) {
-                this.add_item("item " + i + " #" + randword());
-            } else if (i % 4 == 1) {
-                this.add_item("item " + i + " ;asdf");
-            } else if (i % 4 == 2) {
-                this.add_item("item " + i + " ;" + randword());
-            } else {
-                this.add_item("item " + i + " +project");
-            }
-        }
-        this.add_item("finish omnibox ;task ;important ;due");
         this.cursor_index = 0;
-
         this.sort_styles = ['star', 'type', 'text', 'select'];
         this.sort_style_index = 0;
     }
 
     _createClass(ListController, [{
-        key: "fire_event",
+        key: 'add_item',
+        value: function add_item(item) {
+            this.item_list = [item].concat(this.item_list);
+        }
+    }, {
+        key: 'fire_event',
         value: function fire_event(etype, options) {
             var sp = etype.split(':');
-
             if (sp[0] == 'command_focus') {
                 this.map_focused(function (item) {
                     item.on_event(sp[1], options, item);
@@ -83,7 +73,7 @@ var ListController = (function (_Controller) {
             }
         }
     }, {
-        key: "get_selected",
+        key: 'get_selected',
         value: function get_selected() {
             var _this = this;
             return new Promise(function (resolve, reject) {
@@ -97,7 +87,7 @@ var ListController = (function (_Controller) {
             });
         }
     }, {
-        key: "map_selected",
+        key: 'map_selected',
         value: function map_selected(fn) {
             var _this = this;
             return new Promise(function (resolve, reject) {
@@ -105,14 +95,12 @@ var ListController = (function (_Controller) {
                 _this.item_list.forEach(function (item, index) {
                     if (item.selected) {
                         var result = true;
-
                         try {
                             result = fn(item);
                         } catch (e) {
                             console.log(e);
                             reject();
                         }
-
                         if (item.deleted == true) {
                             // pass we are discarding.
                         } else {
@@ -127,7 +115,7 @@ var ListController = (function (_Controller) {
             });
         }
     }, {
-        key: "get_focused",
+        key: 'get_focused',
         value: function get_focused() {
             var _this = this;
             return new Promise(function (resolve, reject) {
@@ -135,7 +123,7 @@ var ListController = (function (_Controller) {
             });
         }
     }, {
-        key: "map_focused",
+        key: 'map_focused',
         value: function map_focused(fn) {
             var _this = this;
             return new Promise(function (resolve, reject) {
@@ -143,14 +131,12 @@ var ListController = (function (_Controller) {
                 _this.item_list.forEach(function (item, index) {
                     if (index == _this.cursor_index) {
                         var result = true;
-
                         try {
                             result = fn(item);
                         } catch (e) {
                             console.log(e);
                             reject();
                         }
-
                         if (item.deleted == true) {
                             // pass we are discarding.
                         } else {
@@ -165,15 +151,12 @@ var ListController = (function (_Controller) {
             });
         }
     }, {
-        key: "add_item",
-        value: function add_item(text) {
-            var item = new Item(text);
-            this.item_list = [item].concat(this.item_list);
-        }
-    }, {
-        key: "execute_command",
+        key: 'execute_command',
         value: function execute_command(value) {
             var sp = value.split(":");
+            if (sp.length == 1) {
+                sp = ['sel', value];
+            }
             if (sp[0] == 'sel') {
                 this.map_selected(function (item) {
                     var values = sp[1].split(' ');
@@ -184,7 +167,7 @@ var ListController = (function (_Controller) {
             }
         }
     }, {
-        key: "sort",
+        key: 'sort',
         value: function sort() {
             var _this = this;
             var sort_style = _this.sort_styles[_this.sort_style_index];
@@ -231,7 +214,7 @@ var ListController = (function (_Controller) {
             }
         }
     }, {
-        key: "prepare",
+        key: 'prepare',
         value: function prepare() {
             var _this = this;
 
@@ -246,7 +229,9 @@ var ListController = (function (_Controller) {
                 if (startswith(value, '!')) {
                     _this.execute_command(value.slice(1));
                 } else {
-                    _this.add_item(value);
+                    var item = new Item(value);
+                    item.on_event('create', {});
+                    _this.add_item(item);
                 }
                 omni_app.refresh();
 
@@ -265,6 +250,18 @@ var ListController = (function (_Controller) {
                 } else {
                     item.selected = true;
                 }
+                omni_app.refresh();
+            });
+
+            _this.beacon.on('control:select_only', function (options) {
+                var index = options.index || _this.cursor_index;
+                _this.item_list.forEach(function (item, _index) {
+                    if (index == _index) {
+                        item.selected = true;
+                    } else {
+                        item.selected = false;
+                    }
+                });
                 omni_app.refresh();
             });
 
@@ -384,16 +381,3 @@ var ListController = (function (_Controller) {
 
     return ListController;
 })(Controller);
-
-var SearchController = (function (_ListController) {
-    _inherits(SearchController, _ListController);
-
-    function SearchController() {
-        _classCallCheck(this, SearchController);
-
-        _get(Object.getPrototypeOf(SearchController.prototype), "constructor", this).call(this, new ListView());
-        this.item_list = [];
-    }
-
-    return SearchController;
-})(ListController);

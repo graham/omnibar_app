@@ -213,11 +213,26 @@ $(document).ready(function() {
 
     var list_controller = new ListController();
     omni_app.push_controller(list_controller);
-    omni_app.event_emitter.fire('app:ready', omni_app);
 
+    let bm = glob_mixins['BaseMixin']
+    
+    bm.scan().then((items) => {
+        items.forEach(([key, value]) => {
+            let item = new Item(value)
+            item.uid = bm.key(key)
+            list_controller.add_item(item)
+        })
+    })
+
+    omni_app.event_emitter.fire('app:ready', omni_app);
+    
     setTimeout(() => {
         $("#ob-input").focus();
     }, 0);
+
+    setTimeout(() => {
+        omni_app.refresh()
+    }, 100);
 
     $("#fancy_input").on('click', function() {
         $("#ob-input").focus();

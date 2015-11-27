@@ -18,28 +18,17 @@ class ListController extends Controller {
         super(new ListView())
         // Now some local stuff.
         this.item_list = [];
-
-        for(var i = 0; i < 20; i++) {
-            if (i % 4 == 0) {
-                this.add_item("item " + i + " #" + randword())
-            } else if (i % 4 == 1) {
-                this.add_item("item " + i + " ;asdf")
-            } else if (i % 4 == 2) {
-                this.add_item("item " + i + " ;" + randword())
-            } else {
-                this.add_item("item " + i + " +project")
-            }
-        }
-        this.add_item("finish omnibox ;task ;important ;due")
         this.cursor_index = 0
-        
         this.sort_styles = ['star', 'type', 'text', 'select']
         this.sort_style_index = 0
     }
 
+    add_item(item) {
+        this.item_list = [item].concat(this.item_list)
+    }
+
     fire_event(etype, options) {
         var sp = etype.split(':');
-
         if (sp[0] == 'command_focus') {
             this.map_focused((item) => {
                 item.on_event(sp[1], options, item)
@@ -79,14 +68,12 @@ class ListController extends Controller {
             _this.item_list.forEach((item, index) => {
                 if (item.selected) {
                     var result = true;
-
                     try {
                         result = fn(item);
                     } catch (e) {
                         console.log(e);
                         reject();
                     }
-
                     if (item.deleted == true) {
                         // pass we are discarding.
                     } else {
@@ -100,7 +87,7 @@ class ListController extends Controller {
             resolve([])
         })
     }
-    
+
     get_focused() {
         var _this = this;
         return new Promise(function(resolve, reject) {
@@ -115,14 +102,12 @@ class ListController extends Controller {
             _this.item_list.forEach((item, index) => {
                 if (index == _this.cursor_index) {
                     var result = true;
-
                     try {
                         result = fn(item);
                     } catch (e) {
                         console.log(e);
                         reject();
                     }
-
                     if (item.deleted == true) {
                         // pass we are discarding.
                     } else {
@@ -137,13 +122,11 @@ class ListController extends Controller {
         });
     }
 
-    add_item(text) {
-        var item = new Item(text);
-        this.item_list = [item].concat(this.item_list);
-    }
-
     execute_command(value) {
         var sp = value.split(":");
+        if (sp.length == 1) {
+            sp = ['sel', value]
+        }
         if (sp[0] == 'sel') {
             this.map_selected((item) => {
                 var values = sp[1].split(' ')
@@ -218,7 +201,9 @@ class ListController extends Controller {
             if (startswith(value, '!')) {
                 _this.execute_command(value.slice(1))
             } else {
-                _this.add_item(value);
+                var item = new Item(value)
+                item.on_event('create', {})
+                _this.add_item(item)
             }
             omni_app.refresh();
 
@@ -237,6 +222,18 @@ class ListController extends Controller {
             } else {
                 item.selected = true;
             }
+            omni_app.refresh();
+        });
+
+        _this.beacon.on('control:select_only', function(options) {
+            var index = options.index || _this.cursor_index;
+            _this.item_list.forEach((item, _index) => {
+                if (index == _index) {
+                    item.selected = true
+                } else {
+                    item.selected = false
+                }
+            })
             omni_app.refresh();
         });
 
@@ -352,12 +349,4 @@ class ListController extends Controller {
             console.log('boop:', options)
         })
     }
-}
-
-class SearchController extends ListController {
-    constructor() {
-        super(new ListView())
-        this.item_list = [];
-    }
-
 }
