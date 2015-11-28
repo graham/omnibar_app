@@ -291,7 +291,6 @@ class ListController extends Controller {
             _this.map_focused(function(item) {
                 $("#ob-input").val(item.text);
                 $("#ob-input").focus();
-                item.deleted = true
             }).then(function() {
                 omni_app.refresh();
             });
