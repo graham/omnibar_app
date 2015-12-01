@@ -36,7 +36,6 @@ class CoreRole extends EmptyRole {
 
     on_update(event_object, item) {
         this.on_create(event_object, item)
-        this.set_meta('flash')
     }
 
     on_delete(event_object, item) {

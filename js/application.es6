@@ -224,8 +224,9 @@ $(document).ready(function() {
                 "an email $id=1515c49e0782c93a ;email",
                 "a config option ;config (star me!)",
                 "tags got me like #fuckyeah ;tag",
-                "http://news.ycombinator.com/ ;link",
-                "http://lobste.rs ;link"
+                "http://news.ycombinator.com/",
+                "http://lobste.rs",
+                "focus on me and hit v to see the code. https://github.com/graham/omnibar_app/blob/master/js/extra.es6"
             ]
 
             new_items.forEach((text) => {
@@ -240,6 +241,17 @@ $(document).ready(function() {
                 }
             })
         }
+    })
+
+    addEvent(window, 'storage', function (event) {
+        console.log('storage change')
+        bm.storage.scan().then((items) => {
+            list_controller.item_list = []
+            items.forEach(([key, item]) => {
+                list_controller.add_item(item)
+            })
+            omni_app.refresh()
+        })
     })
 
     omni_app.event_emitter.fire('app:ready', omni_app);

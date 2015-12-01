@@ -242,7 +242,7 @@ $(document).ready(function () {
 
     bm.storage.scan().then(function (items) {
         if (items.length == 0) {
-            var new_items = ["an email $id=1515c49e0782c93a ;email", "a config option ;config (star me!)", "tags got me like #fuckyeah ;tag", "http://news.ycombinator.com/ ;link", "http://lobste.rs ;link"];
+            var new_items = ["an email $id=1515c49e0782c93a ;email", "a config option ;config (star me!)", "tags got me like #fuckyeah ;tag", "http://news.ycombinator.com/", "http://lobste.rs", "focus on me and hit v to see the code. https://github.com/graham/omnibar_app/blob/master/js/extra.es6"];
 
             new_items.forEach(function (text) {
                 var item = Item.from_text(text);
@@ -261,6 +261,22 @@ $(document).ready(function () {
                 }
             });
         }
+    });
+
+    addEvent(window, 'storage', function (event) {
+        console.log('storage change');
+        bm.storage.scan().then(function (items) {
+            list_controller.item_list = [];
+            items.forEach(function (_ref3) {
+                var _ref32 = _slicedToArray(_ref3, 2);
+
+                var key = _ref32[0];
+                var item = _ref32[1];
+
+                list_controller.add_item(item);
+            });
+            omni_app.refresh();
+        });
     });
 
     omni_app.event_emitter.fire('app:ready', omni_app);

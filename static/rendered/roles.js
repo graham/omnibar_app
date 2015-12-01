@@ -61,7 +61,6 @@ var CoreRole = (function (_EmptyRole) {
         key: "on_update",
         value: function on_update(event_object, item) {
             this.on_create(event_object, item);
-            this.set_meta('flash');
         }
     }, {
         key: "on_delete",
