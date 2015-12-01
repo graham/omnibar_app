@@ -1,4 +1,4 @@
-0// Hello
+// Hello
 
 class ItemRenderer {
     constructor() {
@@ -39,7 +39,7 @@ class ItemRenderer {
         var star_div = document.createElement('div')
         star_div.className = 'ob-star'
         
-        if (obj.flagged) {
+        if (obj.get_meta('flagged')) {
             if (parsed.attr.flagged_class_on) {
                 star_div.className += ' ' + parsed.attr.flagged_class_on
             } else {
@@ -55,7 +55,7 @@ class ItemRenderer {
 
         checkbox_td.appendChild(star_div)
         $(star_div).on('click', () => {
-            obj.on_event('toggle_star', {})
+            obj.on_event('toggle_flag', {})
         });
 
         var inner_div = document.createElement('div')

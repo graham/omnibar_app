@@ -152,8 +152,17 @@ var Item = (function () {
         key: 'from_json',
         value: function from_json(text) {
             var data = JSON.parse(text);
-            this.text = data['text'];
-            this.meta = data['meta'];
+            var item = new Item('');
+            item.text = data['text'];
+            item.meta = data['meta'];
+            return item;
+        }
+    }, {
+        key: 'from_text',
+        value: function from_text(text) {
+            var item = new Item(text);
+            item.uid = uuid();
+            return item;
         }
     }]);
 

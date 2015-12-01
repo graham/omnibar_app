@@ -1,4 +1,4 @@
-// This keymap is a key-combo to event mapping.
+// This keymap is a key-combo to evnet mapping.
 
 'use strict';
 
@@ -68,7 +68,7 @@ var mvc_passive_keymap = {
 
     // Edit singles, hard to explain but easy to understand.
     'r': 'command_focus:reply',
-    's': 'command_focus:toggle_star',
+    's': 'command_focus:toggle_flag',
     'v': 'command_focus:view',
     'n': 'command_focus:note',
 

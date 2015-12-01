@@ -159,8 +159,8 @@ class ListController extends Controller {
             })
         } else if (sort_style == 'star') {
             _this.item_list.sort((a, b) => {
-                var left = a.flagged
-                var right = b.flagged
+                var left = a.get_meta('flagged')
+                var right = b.get_meta('flagged')
                 if (left)
                     return -1;
                 if (right)
@@ -221,9 +221,9 @@ class ListController extends Controller {
                     item.text = value
                     item.on_event('update', {})
                 } else {
-                    item = new Item(value)
-                    item.uid = uuid()
+                    item = Item.from_text(value)
                     item.on_event('create', {})
+                    _this.add_item(item)
                 }
             }
 
@@ -339,8 +339,7 @@ class ListController extends Controller {
                             editor.getValue().split('\n').forEach((line) => {
                                 line = str_trim(line)
                                 if (line.length) {
-                                    let newitem = new Item(line + ' ' + roles.join(' '))
-                                    newitem.uid = uuid()
+                                    let newitem = Item.from_text(line + ' ' + roles.join(' '))
                                     newitem.on_event('create', {})
                                     _this.add_item(newitem)
                                 }

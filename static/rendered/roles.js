@@ -1,7 +1,5 @@
 "use strict";
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
-
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -10,25 +8,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var CoreRole = (function () {
-    function CoreRole() {
-        _classCallCheck(this, CoreRole);
+var EmptyRole = (function () {
+    function EmptyRole() {
+        _classCallCheck(this, EmptyRole);
     }
 
-    _createClass(CoreRole, [{
+    _createClass(EmptyRole, [{
         key: "on_event",
         value: function on_event(etype, event_object, item) {
             var cb = this['on_' + etype];
             if (cb != undefined) {
-                return cb.apply(this, [event_object, item]);
+                try {
+                    return cb.apply(this, [event_object, item]);
+                } catch (e) {
+                    console.log(" Failed during on_event(" + etype + ") on item => " + this.constructor.name + "\n" + e);
+                }
             } else {
                 return this.unhandled_event.apply(this, [etype, event_object]);
             }
         }
     }, {
         key: "unhandled_event",
-        value: function unhandled_event(event_object) {
-            console.log("Unhandled event " + JSON.stringify(event_object) + " on " + this + ".");
+        value: function unhandled_event(etype, event_object) {
+            console.log("Unhandled event " + etype + " " + JSON.stringify(event_object) + " on " + this + ".");
         }
     }, {
         key: "render",
@@ -37,143 +39,44 @@ var CoreRole = (function () {
         }
     }]);
 
-    return CoreRole;
+    return EmptyRole;
 })();
 
-var StorageRole = (function (_CoreRole) {
-    _inherits(StorageRole, _CoreRole);
+var CoreRole = (function (_EmptyRole) {
+    _inherits(CoreRole, _EmptyRole);
 
-    function StorageRole() {
-        _classCallCheck(this, StorageRole);
+    function CoreRole() {
+        _classCallCheck(this, CoreRole);
 
-        _get(Object.getPrototypeOf(StorageRole.prototype), "constructor", this).apply(this, arguments);
+        _get(Object.getPrototypeOf(CoreRole.prototype), "constructor", this).call(this);
+        this.storage = LocalItemStorage;
     }
 
-    _createClass(StorageRole, [{
-        key: "key",
-        value: function key(uid) {
-            return uid;
-        }
-    }, {
+    _createClass(CoreRole, [{
         key: "on_create",
         value: function on_create(event_object, item) {
-            this.put_item(this.key(item.uid), item.text);
+            this.storage.put_item(item.uid, item.as_json());
         }
     }, {
         key: "on_update",
         value: function on_update(event_object, item) {
             this.on_create(event_object, item);
+            this.set_meta('flash');
         }
     }, {
         key: "on_delete",
         value: function on_delete(event_object, item) {
-            console.log('lets delete ' + this.key(item.uid));
-            this.delete_item(this.key(item.uid));
+            console.log('lets delete ' + item.uid);
+            this.storage.delete_item(item.uid);
             item.archived = true;
-        }
-    }, {
-        key: "delete_item",
-        value: function delete_item(uid) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                localStorage.removeItem(key);
-                resolve();
-            });
-        }
-    }, {
-        key: "get_item",
-        value: function get_item(uid) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                resolve(localStorage.getItem(key));
-            });
-        }
-    }, {
-        key: "put_item",
-        value: function put_item(uid, value) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                localStorage.setItem(key, value);
-                resolve();
-            });
-        }
-    }, {
-        key: "update_item",
-        value: function update_item(uid, new_value) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                var old_value = localStorage.getItem(key);
-                localStorage.setItem(key, value);
-                resolve(old_value);
-            });
-        }
-    }, {
-        key: "batch_get_item",
-        value: function batch_get_item(list_of_keys) {
-            var _this = this;
-
-            return new Promise(function (resolve, reject) {
-                var results = [];
-                list_of_keys.forEach(function (uid) {
-                    var key = _this.key(uid);
-                    results.push(localStorage.getItem(key));
-                });
-                resolve(results);
-            });
-        }
-    }, {
-        key: "batch_write_item",
-        value: function batch_write_item(list_of_pairs) {
-            var _this2 = this;
-
-            return new Promise(function (resolve, reject) {
-                var results = [];
-                list_of_keys.forEach(function (item) {
-                    var _item = _slicedToArray(item, 2);
-
-                    var uid = _item[0];
-                    var value = _item[1];
-
-                    var key = _this2.key(uid);
-                    localStorage.setItem(key, value);
-                });
-                resolve();
-            });
-        }
-    }, {
-        key: "scan",
-        value: function scan(options) {
-            if (options == undefined) {
-                options = {};
-            }
-            var results = [];
-            var key_filter_function = options['key_filter'] || function () {
-                return true;
-            };
-
-            return new Promise(function (resolve, reject) {
-                var keys = [];
-                for (var i = 0, len = localStorage.length; i < len; ++i) {
-                    keys.push(localStorage.key(i));
-                }
-
-                keys.forEach(function (key) {
-                    var temp_value = localStorage.getItem(key);
-                    var include_item = key_filter_function(temp_value);
-                    if (include_item) {
-                        results.push([key, temp_value]);
-                    }
-                });
-                resolve(results);
-            });
         }
     }]);
 
-    return StorageRole;
-})(CoreRole);
+    return CoreRole;
+})(EmptyRole);
 
-var BaseRole = (function (_StorageRole) {
-    _inherits(BaseRole, _StorageRole);
+var BaseRole = (function (_CoreRole) {
+    _inherits(BaseRole, _CoreRole);
 
     function BaseRole() {
         _classCallCheck(this, BaseRole);
@@ -184,17 +87,17 @@ var BaseRole = (function (_StorageRole) {
     _createClass(BaseRole, [{
         key: "on_archive",
         value: function on_archive(event_object, item) {
-            if (item.flagged != true) {
+            if (item.get_meta('flagged') != true) {
                 item.archived = true;
             }
         }
     }, {
-        key: "on_toggle_star",
-        value: function on_toggle_star(event_object, item) {
-            if (item.flagged) {
-                item.flagged = false;
+        key: "on_toggle_flag",
+        value: function on_toggle_flag(event_object, item) {
+            if (item.get_meta('flagged') == true) {
+                item.set_meta('flagged', false);
             } else {
-                item.flagged = true;
+                item.set_meta('flagged', true);
             }
         }
     }, {
@@ -210,9 +113,14 @@ var BaseRole = (function (_StorageRole) {
                 }
             });
         }
+    }, {
+        key: "on_view",
+        value: function on_view(event_object, item) {
+            this.on_open(event_object, item);
+        }
     }]);
 
     return BaseRole;
-})(StorageRole);
+})(CoreRole);
 
 omni_app.register_role('_base', BaseRole);

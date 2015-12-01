@@ -5,3 +5,5 @@ all:
 
 clean:
 	rm static/rendered/*
+
+build: clean all

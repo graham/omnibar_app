@@ -240,19 +240,27 @@ $(document).ready(function () {
 
     var bm = omni_app.roles['_base'];
 
-    bm.scan().then(function (items) {
-        items.forEach(function (_ref) {
-            var _ref2 = _slicedToArray(_ref, 2);
+    bm.storage.scan().then(function (items) {
+        if (items.length == 0) {
+            var new_items = ["an email $id=1515c49e0782c93a ;email", "a config option ;config (star me!)", "tags got me like #fuckyeah ;tag", "http://news.ycombinator.com/ ;link", "http://lobste.rs ;link"];
 
-            var key = _ref2[0];
-            var value = _ref2[1];
-
-            var item = new Item(value);
-            if (item.parse()['attr']['archived'] != true) {
-                item.uid = bm.key(key);
+            new_items.forEach(function (text) {
+                var item = Item.from_text(text);
+                item.on_event('create', {});
                 list_controller.add_item(item);
-            }
-        });
+            });
+        } else {
+            items.forEach(function (_ref) {
+                var _ref2 = _slicedToArray(_ref, 2);
+
+                var key = _ref2[0];
+                var item = _ref2[1];
+
+                if (item.parse()['attr']['archived'] != true) {
+                    list_controller.add_item(item);
+                }
+            });
+        }
     });
 
     omni_app.event_emitter.fire('app:ready', omni_app);

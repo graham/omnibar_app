@@ -218,14 +218,28 @@ $(document).ready(function() {
 
     let bm = omni_app.roles['_base']
     
-    bm.scan().then((items) => {
-        items.forEach(([key, value]) => {
-            let item = new Item(value)
-            if (item.parse()['attr']['archived'] != true) {
-                item.uid = bm.key(key)
+    bm.storage.scan().then((items) => {
+        if (items.length == 0) {
+            let new_items = [
+                "an email $id=1515c49e0782c93a ;email",
+                "a config option ;config (star me!)",
+                "tags got me like #fuckyeah ;tag",
+                "http://news.ycombinator.com/ ;link",
+                "http://lobste.rs ;link"
+            ]
+
+            new_items.forEach((text) => {
+                var item = Item.from_text(text)
+                item.on_event('create', {})
                 list_controller.add_item(item)
-            }
-        })
+            })
+        } else {
+            items.forEach(([key, item]) => {
+                if (item.parse()['attr']['archived'] != true) {
+                    list_controller.add_item(item)
+                }
+            })
+        }
     })
 
     omni_app.event_emitter.fire('app:ready', omni_app);

@@ -15,8 +15,16 @@ class Item {
 
     static from_json(text) {
         let data = JSON.parse(text)
-        this.text = data['text']
-        this.meta = data['meta']
+        let item = new Item('')
+        item.text = data['text']
+        item.meta = data['meta']
+        return item
+    }
+
+    static from_text(text) {
+        let item = new Item(text)
+        item.uid = uuid()
+        return item
     }
     
     on_event(etype, event_object) {

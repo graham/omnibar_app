@@ -8,8 +8,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var EmailRole = (function (_BaseRole) {
-    _inherits(EmailRole, _BaseRole);
+var EmailRole = (function (_CoreRole) {
+    _inherits(EmailRole, _CoreRole);
 
     function EmailRole() {
         _classCallCheck(this, EmailRole);
@@ -18,22 +18,22 @@ var EmailRole = (function (_BaseRole) {
     }
 
     _createClass(EmailRole, [{
-        key: 'on_open',
-        value: function on_open(eobj, item) {
+        key: 'on_view',
+        value: function on_view(eobj, item) {
             var p = item.parse();
             if (p.attr.id != undefined) {
-                window.open('https://mail.google.com/mail/u/0/#inbox/' + id);
+                window.open('https://mail.google.com/mail/u/0/#inbox/' + p.attr.id);
             }
         }
     }]);
 
     return EmailRole;
-})(BaseRole);
+})(CoreRole);
 
 omni_app.register_role('email', EmailRole);
 
-var ConfigRole = (function (_StorageRole) {
-    _inherits(ConfigRole, _StorageRole);
+var ConfigRole = (function (_CoreRole2) {
+    _inherits(ConfigRole, _CoreRole2);
 
     function ConfigRole() {
         _classCallCheck(this, ConfigRole);
@@ -44,7 +44,7 @@ var ConfigRole = (function (_StorageRole) {
     _createClass(ConfigRole, [{
         key: 'render',
         value: function render(parsed, item) {
-            if (item.flagged) {
+            if (item.get_meta('flagged')) {
                 parsed.body += ' <span style="color: green;">ON<span> ';
             } else {
                 parsed.body += ' <span style="color: rgba(255,0,0,0.5);">OFF</span> ';
@@ -55,6 +55,27 @@ var ConfigRole = (function (_StorageRole) {
     }]);
 
     return ConfigRole;
-})(StorageRole);
+})(CoreRole);
 
 omni_app.register_role('config', ConfigRole);
+
+var NiceTag = (function (_CoreRole3) {
+    _inherits(NiceTag, _CoreRole3);
+
+    function NiceTag() {
+        _classCallCheck(this, NiceTag);
+
+        _get(Object.getPrototypeOf(NiceTag.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(NiceTag, [{
+        key: 'render',
+        value: function render(parsed, item) {
+            parsed.body = parsed.body.replace(/(#\w+)/g, "<span class='is_tag'>$1</span>");
+        }
+    }]);
+
+    return NiceTag;
+})(CoreRole);
+
+omni_app.register_role('tag', NiceTag);
