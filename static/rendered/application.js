@@ -245,8 +245,10 @@ $(document).ready(function () {
             var value = _ref2[1];
 
             var item = new Item(value);
-            item.uid = bm.key(key);
-            list_controller.add_item(item);
+            if (!item.parse()['attr']['archive']) {
+                item.uid = bm.key(key);
+                list_controller.add_item(item);
+            }
         });
     });
 

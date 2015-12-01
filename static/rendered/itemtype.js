@@ -104,9 +104,9 @@ var ItemRenderer = (function () {
             tr = _create_base_tr2[0];
             inner_div = _create_base_tr2[1];
 
-            inner_div.innerHTML = obj.as_line();
+            inner_div.innerHTML = obj.parse()['body'];
 
-            var mixins = obj.parse_mixins();
+            var mixins = obj.parse()['mixins'];
             mixins.forEach(function (item) {
                 if (item != 'BaseMixin') {
                     var tag = _this2.float_right();
@@ -123,82 +123,15 @@ var ItemRenderer = (function () {
     return ItemRenderer;
 })();
 
-var Item = (function () {
-    function Item(init_text) {
-        _classCallCheck(this, Item);
-
-        this.uid = uuid();
-        this.text = init_text;
-    }
-
-    _createClass(Item, [{
-        key: 'parse_mixins',
-        value: function parse_mixins() {
-            var hits = [];
-            var item = this.parse();
-
-            item['entries'].forEach(function (item) {
-                if (item[0] == ';') {
-                    hits.push(item[1]);
-                }
-            });
-
-            return hits.concat(['BaseMixin']);
-        }
-    }, {
-        key: 'parse',
-        value: function parse() {
-            return string_to_item(this.text, action_chars);
-        }
-    }, {
-        key: 'on_event',
-        value: function on_event(etype, event_object) {
-            var _this = this;
-            var mixins = this.parse_mixins();
-            mixins.forEach(function (m) {
-                var match = glob_mixins[m];
-                if (match) {
-                    match.on_event(etype, event_object, _this);
-                }
-            });
-        }
-    }, {
-        key: 'as_line',
-        value: function as_line() {
-            return this.parse()['body'];
-        }
-    }, {
-        key: 'get_attr',
-        value: function get_attr(key) {}
-    }, {
-        key: 'set_attr',
-        value: function set_attr(key, value) {}
-    }, {
-        key: 'get_meta',
-        value: function get_meta(key) {}
-    }, {
-        key: 'set_meta',
-        value: function set_meta(key, value) {}
-    }]);
-
-    return Item;
-})();
-
 var StorageMixin = (function () {
     function StorageMixin() {
         _classCallCheck(this, StorageMixin);
-
-        this.prefix = '';
     }
 
     _createClass(StorageMixin, [{
         key: 'key',
         value: function key(uid) {
-            if (startswith(uid, this.prefix)) {
-                return uid;
-            } else {
-                return this.prefix + uid;
-            }
+            return uid;
         }
     }, {
         key: 'on_create',
@@ -206,11 +139,16 @@ var StorageMixin = (function () {
             this.put_item(this.key(item.uid), item.text);
         }
     }, {
+        key: 'on_update',
+        value: function on_update(event_object, item) {
+            this.on_create(event_object, item);
+        }
+    }, {
         key: 'on_delete',
         value: function on_delete(event_object, item) {
             console.log('lets delete ' + this.key(item.uid));
             this.delete_item(this.key(item.uid));
-            item.deleted = true;
+            item.archived = true;
         }
     }, {
         key: 'delete_item',
@@ -319,8 +257,7 @@ var BaseMixin = (function (_StorageMixin) {
     function BaseMixin() {
         _classCallCheck(this, BaseMixin);
 
-        _get(Object.getPrototypeOf(BaseMixin.prototype), 'constructor', this).call(this);
-        this.beacon = new Beacon();
+        _get(Object.getPrototypeOf(BaseMixin.prototype), 'constructor', this).apply(this, arguments);
     }
 
     _createClass(BaseMixin, [{
@@ -342,7 +279,7 @@ var BaseMixin = (function (_StorageMixin) {
         key: 'on_archive',
         value: function on_archive(event_object, item) {
             if (item.starred != true) {
-                item.deleted = true;
+                item.archived = true;
             }
         }
     }, {
@@ -372,18 +309,19 @@ var BaseMixin = (function (_StorageMixin) {
     return BaseMixin;
 })(StorageMixin);
 
+var glob_mixins = {};
+glob_mixins['BaseMixin'] = new BaseMixin();
+
 var ConfigMixin = (function (_BaseMixin) {
     _inherits(ConfigMixin, _BaseMixin);
 
     function ConfigMixin() {
         _classCallCheck(this, ConfigMixin);
 
-        _get(Object.getPrototypeOf(ConfigMixin.prototype), 'constructor', this).call(this);
+        _get(Object.getPrototypeOf(ConfigMixin.prototype), 'constructor', this).apply(this, arguments);
     }
 
     return ConfigMixin;
 })(BaseMixin);
 
-var glob_mixins = {};
-glob_mixins['BaseMixin'] = new BaseMixin();
 glob_mixins['config'] = new ConfigMixin();

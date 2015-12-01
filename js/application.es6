@@ -219,8 +219,10 @@ $(document).ready(function() {
     bm.scan().then((items) => {
         items.forEach(([key, value]) => {
             let item = new Item(value)
-            item.uid = bm.key(key)
-            list_controller.add_item(item)
+            if (!item.parse()['attr']['archive']) {
+                item.uid = bm.key(key)
+                list_controller.add_item(item)
+            }
         })
     })
 

@@ -43,6 +43,7 @@ var ListController = (function (_Controller) {
         this.cursor_index = 0;
         this.sort_styles = ['star', 'type', 'text', 'select'];
         this.sort_style_index = 0;
+        this.current_edit = null;
     }
 
     _createClass(ListController, [{
@@ -101,7 +102,7 @@ var ListController = (function (_Controller) {
                             console.log(e);
                             reject();
                         }
-                        if (item.deleted == true) {
+                        if (item.archived == true) {
                             // pass we are discarding.
                         } else {
                                 remaining_list.push(item);
@@ -137,7 +138,7 @@ var ListController = (function (_Controller) {
                             console.log(e);
                             reject();
                         }
-                        if (item.deleted == true) {
+                        if (item.archived == true) {
                             // pass we are discarding.
                         } else {
                                 remaining_list.push(item);
@@ -175,8 +176,8 @@ var ListController = (function (_Controller) {
 
             if (sort_style == 'text') {
                 _this.item_list.sort(function (a, b) {
-                    var left = a.as_line();
-                    var right = b.as_line();
+                    var left = a.parse()['body'];
+                    var right = b.parse()['body'];
                     if (left < right) return -1;
                     if (left > right) return 1;
                     return 0;
@@ -191,8 +192,8 @@ var ListController = (function (_Controller) {
                 });
             } else if (sort_style == 'type') {
                 _this.item_list.sort(function (a, b) {
-                    var left = a.parse_mixins()[0].toLowerCase();
-                    var right = b.parse_mixins()[0].toLowerCase();
+                    var left = a.parse()['mixins'][0].toLowerCase();
+                    var right = b.parse()['mixins'][0].toLowerCase();
                     if (left == 'basemixin') {
                         return 1;
                     }
@@ -214,6 +215,17 @@ var ListController = (function (_Controller) {
             }
         }
     }, {
+        key: 'get_item',
+        value: function get_item(id) {
+            var hit = null;
+            this.item_list.forItem(function (item) {
+                if (item.uid == id) {
+                    hit = item;
+                }
+            });
+            return hit;
+        }
+    }, {
         key: 'prepare',
         value: function prepare() {
             var _this = this;
@@ -229,8 +241,17 @@ var ListController = (function (_Controller) {
                 if (startswith(value, '!')) {
                     _this.execute_command(value.slice(1));
                 } else {
-                    var item = new Item(value);
-                    item.on_event('create', {});
+                    var item = null;
+                    if (_this.current_edit) {
+                        item = _this.current_edit;
+                        _this.current_edit = null;
+                        item.text = value;
+                        item.on_event('update', {});
+                    } else {
+                        item = new Item(value);
+                        item.uid = uuid();
+                        item.on_event('create', {});
+                    }
                     _this.add_item(item);
                 }
                 omni_app.refresh();
@@ -317,8 +338,10 @@ var ListController = (function (_Controller) {
 
             _this.beacon.on('control:edit', function (options) {
                 _this.map_focused(function (item) {
+                    _this.current_edit = item;
                     $("#ob-input").val(item.text);
                     $("#ob-input").focus();
+                    item.archived = true;
                 }).then(function () {
                     omni_app.refresh();
                 });
@@ -327,6 +350,14 @@ var ListController = (function (_Controller) {
             _this.beacon.on('control:full_edit', function (options) {
                 _this.map_focused(function (item) {
                     var editor = null;
+                    var mixins = [];
+
+                    item.parse()['mixins'].forEach(function (mixin) {
+                        if (mixin != 'BaseMixin') {
+                            mixins.push(';' + mixin);
+                        }
+                    });
+
                     $("#memo_inner_container").html("<textarea id='memo_editor'></textarea>");
                     editor = CodeMirror.fromTextArea(document.getElementById('memo_editor'), {
                         indentUnit: 4,
@@ -339,7 +370,19 @@ var ListController = (function (_Controller) {
                                 console.log("shift-tab");
                             },
                             "Shift-Enter": function ShiftEnter(cm) {
-                                item.text = editor.getValue();
+                                editor.getValue().split('\n').forEach(function (line) {
+                                    line = str_trim(line);
+                                    if (line.length) {
+                                        var newitem = new Item(line + ' ' + mixins.join(' '));
+                                        newitem.uid = uuid();
+                                        newitem.on_event('create', {});
+                                        _this.add_item(newitem);
+                                    }
+                                });
+
+                                item.text += ' $archive';
+                                item.on_event('update', {});
+
                                 $("#memo_editor_container").hide();
                                 $("#ob-input").focus();
                                 $("#ob-input").blur();
@@ -355,6 +398,7 @@ var ListController = (function (_Controller) {
                         editor.focus();
                         editor.refresh();
                     }, 10);
+                    item.archived = true;
                 }).then(function () {
                     omni_app.refresh();
                 });
@@ -373,7 +417,7 @@ var ListController = (function (_Controller) {
             });
 
             _this.beacon.on('app:bar_updated', function (options) {
-                console.log('boop:', options);
+                //console.log('boop:', options)
             });
         }
     }]);

@@ -76,9 +76,9 @@ class ItemRenderer {
     parse(obj) {
         var tr, inner_div;
         [tr, inner_div] = this.create_base_tr(obj)
-        inner_div.innerHTML = obj.as_line();
+        inner_div.innerHTML = obj.parse()['body']
 
-        var mixins = obj.parse_mixins();
+        var mixins = obj.parse()['mixins']
         mixins.forEach((item) => {
             if (item != 'BaseMixin') {
                 var tag = this.float_right();
@@ -92,72 +92,23 @@ class ItemRenderer {
     }
 }
 
-class Item {
-    constructor(init_text) {
-        this.uid = uuid()
-        this.text = init_text
-    }
-
-    parse_mixins() {
-        var hits = [];
-        var item = this.parse();
-
-        item['entries'].forEach((item) => {
-            if (item[0] == ';') {
-                hits.push(item[1])
-            }
-        })
-
-        return hits.concat(['BaseMixin']);
-    }
-
-    parse() {
-        return string_to_item(this.text, action_chars)
-    }
-
-    on_event(etype, event_object) {
-        var _this = this;
-        var mixins = this.parse_mixins();
-        mixins.forEach((m) => {
-            var match = glob_mixins[m]
-            if (match) {
-                match.on_event(etype, event_object, _this)
-            }
-        })
-    }
-
-    as_line() {
-        return this.parse()['body']
-    }
-
-    get_attr(key) {}
-    set_attr(key, value) {}
-
-    get_meta(key) {}
-    set_meta(key, value) {}
-}
-
 class StorageMixin {
-    constructor() {
-        this.prefix = ''
-    }
-
     key(uid) {
-        if (startswith(uid, this.prefix)) {
-            return uid
-        } else {
-            return this.prefix + uid
-        }
+        return uid
     }
 
     on_create(event_object, item) {
         this.put_item(this.key(item.uid), item.text)
     }
 
+    on_update(event_object, item) {
+        this.on_create(event_object, item)
+    }
+
     on_delete(event_object, item) {
         console.log('lets delete ' + this.key(item.uid))
         this.delete_item(this.key(item.uid))
-        item.deleted = true
+        item.archived = true
     }
 
     delete_item(uid) {
@@ -239,11 +190,6 @@ class StorageMixin {
 }
 
 class BaseMixin extends StorageMixin {
-    constructor() {
-        super()
-        this.beacon = new Beacon()
-    }
-   
     on_event(etype, event_object, item) {
         let cb = this['on_' + etype];
         if (cb != undefined) {
@@ -259,7 +205,7 @@ class BaseMixin extends StorageMixin {
 
     on_archive(event_object, item) {
         if (item.starred != true) {
-            item.deleted = true
+            item.archived = true
         }
     }
 
@@ -284,12 +230,9 @@ class BaseMixin extends StorageMixin {
     }
 }
 
-class ConfigMixin extends BaseMixin {
-    constructor() {
-        super()
-    }
-}
-
 var glob_mixins = {}
 glob_mixins['BaseMixin'] = new BaseMixin()
+
+class ConfigMixin extends BaseMixin {}
 glob_mixins['config'] = new ConfigMixin()
+

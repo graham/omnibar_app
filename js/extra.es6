@@ -1,26 +1,8 @@
-class LinkMixin extends BaseMixin {}
-class ImgMixin extends BaseMixin {}
+class ExecMixin extends BaseMixin {}
+class PeopleMixin extends BaseMixin {}
 
-class WordsMixin extends BaseMixin {
-    search(query) {
-        return [
-            new Item("words"),
-            new Item("are"),
-            new Item("fun"),
-            new Item("right?")
-        ]
-    }
-}
-
-class NumbersMixin extends BaseMixin {
-    search(query) {
-        var results = [];
-        for(var i=0; i < 20; i++) {
-            results.push(new Item(''+ i));
-        }
-        return results;
-    }
-}
+glob_mixins['exec'] = new ExecMixin()
+glob_mixins['person'] = new PeopleMixin()
 
 class Email extends BaseMixin {
     on_view(eobj, item) {
