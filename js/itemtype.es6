@@ -1,4 +1,4 @@
-// Hello
+0// Hello
 
 class ItemRenderer {
     constructor() {
@@ -6,6 +6,7 @@ class ItemRenderer {
     }
 
     create_base_tr(obj) {
+        var parsed = obj.parse()
         var tr = document.createElement('tr')
 
         if (obj.active) {
@@ -38,10 +39,18 @@ class ItemRenderer {
         var star_div = document.createElement('div')
         star_div.className = 'ob-star'
         
-        if (obj.starred) {
-            star_div.className += ' is_starred'
+        if (obj.flagged) {
+            if (parsed.attr.flagged_class_on) {
+                star_div.className += ' ' + parsed.attr.flagged_class_on
+            } else {
+                star_div.className += ' is_flagged'
+            }
         } else {
-            // boop
+            if (parsed.attr.flagged_class_off) {
+                star_div.className += ' ' + parsed.attr.flagged_class_off
+            } else {
+                star_div.className += ' is_not_flagged'
+            }
         }
 
         checkbox_td.appendChild(star_div)
@@ -76,163 +85,18 @@ class ItemRenderer {
     parse(obj) {
         var tr, inner_div;
         [tr, inner_div] = this.create_base_tr(obj)
-        inner_div.innerHTML = obj.parse()['body']
+        inner_div.innerHTML = obj.as_line()
 
-        var mixins = obj.parse()['mixins']
-        mixins.forEach((item) => {
-            if (item != 'BaseMixin') {
+        var roles = obj.parse()['roles']
+        roles.forEach((item) => {
+            //if (item[0] != '_') {
                 var tag = this.float_right();
                 tag.innerHTML = item
                 tag.style.backgroundColor = color_for_word(item);
                 inner_div.appendChild(tag)
-            }
+            //}
         })
 
         return tr
     }
 }
-
-class StorageMixin {
-    key(uid) {
-        return uid
-    }
-
-    on_create(event_object, item) {
-        this.put_item(this.key(item.uid), item.text)
-    }
-
-    on_update(event_object, item) {
-        this.on_create(event_object, item)
-    }
-
-    on_delete(event_object, item) {
-        console.log('lets delete ' + this.key(item.uid))
-        this.delete_item(this.key(item.uid))
-        item.archived = true
-    }
-
-    delete_item(uid) {
-        let key = this.key(uid)
-        return new Promise((resolve, reject) => {
-            localStorage.removeItem(key)
-            resolve()
-        })
-    }
-
-    get_item(uid) {
-        let key = this.key(uid)
-        return new Promise((resolve, reject) => {
-            resolve(localStorage.getItem(key))
-        })
-    }
-    
-    put_item(uid, value) {
-        let key = this.key(uid)
-        return new Promise((resolve, reject) => {
-            localStorage.setItem(key, value)
-            resolve()
-        })
-    }
-
-    update_item(uid, new_value) {
-        let key = this.key(uid)
-        return new Promise((resolve, reject) => {
-            let old_value = localStorage.getItem(key)
-            localStorage.setItem(key, value)
-            resolve(old_value)
-        })
-    }
-
-    batch_get_item(list_of_keys) {
-        return new Promise((resolve, reject) => {
-            let results = []
-            list_of_keys.forEach((uid) => {
-                let key = this.key(uid)
-                results.push(localStorage.getItem(key))
-            })
-            resolve(results)
-        })
-    }
-
-    batch_write_item(list_of_pairs) {
-        return new Promise((resolve, reject) => {
-            let results = []
-            list_of_keys.forEach((item) => {
-                let [uid, value] = item
-                let key = this.key(uid)
-                localStorage.setItem(key, value)
-            })
-            resolve()
-        })
-    }
-
-    scan(options) {
-        if (options == undefined) { options = {} }
-        let results = [];
-        let key_filter_function = options['key_filter'] || () => true
-
-        return new Promise((resolve, reject) => {
-            let keys = []
-            for (let i = 0, len = localStorage.length; i < len; ++i) {
-                keys.push(localStorage.key(i))
-            }
-
-            keys.forEach((key) => {
-                let temp_value = localStorage.getItem(key)
-                let include_item = key_filter_function(temp_value)
-                if (include_item) {
-                    results.push([key, temp_value])
-                }
-            })
-            resolve(results)
-        })
-    }
-}
-
-class BaseMixin extends StorageMixin {
-    on_event(etype, event_object, item) {
-        let cb = this['on_' + etype];
-        if (cb != undefined) {
-            return cb.apply(this, [event_object, item])
-        } else {
-            return this.unhandled_event(etype, event_object)
-        }
-    }
-
-    unhandled_event(event_object) {
-        console.log("Unhandled event " + JSON.stringify(event_object) + " on " + this + ".")
-    }
-
-    on_archive(event_object, item) {
-        if (item.starred != true) {
-            item.archived = true
-        }
-    }
-
-    on_toggle_star(event_object, item) {
-        if (item.starred) {
-            item.starred = false
-        } else {
-            item.starred = true
-        }
-    }
-
-    on_view(event_object, item) {
-        var body = item.parse()['body']
-        var hit = false
-
-        body.split(' ').forEach((word) => {
-            if (word.slice(0, 4) == 'http' && hit == false) {
-                window.open(word);
-                hit = true;
-            }
-        })
-    }
-}
-
-var glob_mixins = {}
-glob_mixins['BaseMixin'] = new BaseMixin()
-
-class ConfigMixin extends BaseMixin {}
-glob_mixins['config'] = new ConfigMixin()
-

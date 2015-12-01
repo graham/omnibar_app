@@ -103,12 +103,16 @@ class ListController extends Controller {
             _this.item_list.forEach((item, index) => {
                 if (index == _this.cursor_index) {
                     var result = true;
+                    
                     try {
                         result = fn(item);
                     } catch (e) {
                         console.log(e);
                         reject();
                     }
+
+                    console.log(item)
+                    
                     if (item.archived == true) {
                         // pass we are discarding.
                     } else {
@@ -145,8 +149,8 @@ class ListController extends Controller {
         
         if (sort_style == 'text') {
             _this.item_list.sort((a, b) => {
-                var left = a.parse()['body']
-                var right = b.parse()['body']
+                var left = a.as_line()
+                var right = b.as_line()
                 if (left < right)
                     return -1;
                 if (left > right)
@@ -155,8 +159,8 @@ class ListController extends Controller {
             })
         } else if (sort_style == 'star') {
             _this.item_list.sort((a, b) => {
-                var left = a.starred
-                var right = b.starred
+                var left = a.flagged
+                var right = b.flagged
                 if (left)
                     return -1;
                 if (right)
@@ -165,10 +169,8 @@ class ListController extends Controller {
             })
         } else if (sort_style == 'type') {
             _this.item_list.sort((a, b) => {
-                var left = a.parse()['mixins'][0].toLowerCase()
-                var right = b.parse()['mixins'][0].toLowerCase()
-                if (left == 'basemixin') { return 1 }
-                if (right == 'basemixin') { return -1 }
+                var left = a.parse()['roles'][0].toLowerCase()
+                var right = b.parse()['roles'][0].toLowerCase()
                 if (left < right)
                     return -1
                 if (left > right)
@@ -223,8 +225,8 @@ class ListController extends Controller {
                     item.uid = uuid()
                     item.on_event('create', {})
                 }
-                _this.add_item(item)
             }
+
             omni_app.refresh();
 
             $("#ob-input").val('');
@@ -312,7 +314,6 @@ class ListController extends Controller {
                 _this.current_edit = item
                 $("#ob-input").val(item.text);
                 $("#ob-input").focus();
-                item.archived = true
             }).then(function() {
                 omni_app.refresh();
             });
@@ -321,13 +322,7 @@ class ListController extends Controller {
         _this.beacon.on('control:full_edit', function(options) {
             _this.map_focused(function(item) {
                 let editor = null
-                let mixins = []
-                
-                item.parse()['mixins'].forEach((mixin) => {
-                    if (mixin != 'BaseMixin') {
-                        mixins.push(';' + mixin)
-                    }
-                })
+                let roles = item.parse()['roles']
                 
                 $("#memo_inner_container").html("<textarea id='memo_editor'></textarea>")
                 editor = CodeMirror.fromTextArea(document.getElementById('memo_editor'), {
@@ -344,7 +339,7 @@ class ListController extends Controller {
                             editor.getValue().split('\n').forEach((line) => {
                                 line = str_trim(line)
                                 if (line.length) {
-                                    let newitem = new Item(line + ' ' + mixins.join(' '))
+                                    let newitem = new Item(line + ' ' + roles.join(' '))
                                     newitem.uid = uuid()
                                     newitem.on_event('create', {})
                                     _this.add_item(newitem)

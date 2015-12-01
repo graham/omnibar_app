@@ -1,18 +1,25 @@
-class ExecMixin extends BaseMixin {}
-class PeopleMixin extends BaseMixin {}
-
-glob_mixins['exec'] = new ExecMixin()
-glob_mixins['person'] = new PeopleMixin()
-
-class Email extends BaseMixin {
-    on_view(eobj, item) {
+class EmailRole extends BaseRole {
+    on_open(eobj, item) {
         var p = item.parse()
-        p.entries.forEach((item) => {
-            if (item[0] == '$' && item[1] == 'id') {
-                window.open('https://mail.google.com/mail/u/0/#inbox/' + item[3])
-            }
-        })
+        if (p.attr.id != undefined) {
+            window.open('https://mail.google.com/mail/u/0/#inbox/' + id)
+        }
     }
 }
 
-glob_mixins['gmail'] = Email
+omni_app.register_role('email', EmailRole)
+
+class ConfigRole extends StorageRole {
+    render(parsed, item) {
+        if (item.flagged) {
+            parsed.body += ' <span style="color: green;">ON<span> '
+        } else {
+            parsed.body += ' <span style="color: rgba(255,0,0,0.5);">OFF</span> '
+        }
+
+        parsed.attr['flagged_class_on'] = 'is_gear'
+    }
+}
+
+omni_app.register_role('config', ConfigRole)
+

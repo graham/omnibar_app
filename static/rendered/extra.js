@@ -8,55 +8,53 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var ExecMixin = (function (_BaseMixin) {
-    _inherits(ExecMixin, _BaseMixin);
+var EmailRole = (function (_BaseRole) {
+    _inherits(EmailRole, _BaseRole);
 
-    function ExecMixin() {
-        _classCallCheck(this, ExecMixin);
+    function EmailRole() {
+        _classCallCheck(this, EmailRole);
 
-        _get(Object.getPrototypeOf(ExecMixin.prototype), 'constructor', this).apply(this, arguments);
+        _get(Object.getPrototypeOf(EmailRole.prototype), 'constructor', this).apply(this, arguments);
     }
 
-    return ExecMixin;
-})(BaseMixin);
-
-var PeopleMixin = (function (_BaseMixin2) {
-    _inherits(PeopleMixin, _BaseMixin2);
-
-    function PeopleMixin() {
-        _classCallCheck(this, PeopleMixin);
-
-        _get(Object.getPrototypeOf(PeopleMixin.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    return PeopleMixin;
-})(BaseMixin);
-
-glob_mixins['exec'] = new ExecMixin();
-glob_mixins['person'] = new PeopleMixin();
-
-var Email = (function (_BaseMixin3) {
-    _inherits(Email, _BaseMixin3);
-
-    function Email() {
-        _classCallCheck(this, Email);
-
-        _get(Object.getPrototypeOf(Email.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(Email, [{
-        key: 'on_view',
-        value: function on_view(eobj, item) {
+    _createClass(EmailRole, [{
+        key: 'on_open',
+        value: function on_open(eobj, item) {
             var p = item.parse();
-            p.entries.forEach(function (item) {
-                if (item[0] == '$' && item[1] == 'id') {
-                    window.open('https://mail.google.com/mail/u/0/#inbox/' + item[3]);
-                }
-            });
+            if (p.attr.id != undefined) {
+                window.open('https://mail.google.com/mail/u/0/#inbox/' + id);
+            }
         }
     }]);
 
-    return Email;
-})(BaseMixin);
+    return EmailRole;
+})(BaseRole);
 
-glob_mixins['gmail'] = Email;
+omni_app.register_role('email', EmailRole);
+
+var ConfigRole = (function (_StorageRole) {
+    _inherits(ConfigRole, _StorageRole);
+
+    function ConfigRole() {
+        _classCallCheck(this, ConfigRole);
+
+        _get(Object.getPrototypeOf(ConfigRole.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(ConfigRole, [{
+        key: 'render',
+        value: function render(parsed, item) {
+            if (item.flagged) {
+                parsed.body += ' <span style="color: green;">ON<span> ';
+            } else {
+                parsed.body += ' <span style="color: rgba(255,0,0,0.5);">OFF</span> ';
+            }
+
+            parsed.attr['flagged_class_on'] = 'is_gear';
+        }
+    }]);
+
+    return ConfigRole;
+})(StorageRole);
+
+omni_app.register_role('config', ConfigRole);

@@ -132,12 +132,16 @@ var ListController = (function (_Controller) {
                 _this.item_list.forEach(function (item, index) {
                     if (index == _this.cursor_index) {
                         var result = true;
+
                         try {
                             result = fn(item);
                         } catch (e) {
                             console.log(e);
                             reject();
                         }
+
+                        console.log(item);
+
                         if (item.archived == true) {
                             // pass we are discarding.
                         } else {
@@ -176,30 +180,24 @@ var ListController = (function (_Controller) {
 
             if (sort_style == 'text') {
                 _this.item_list.sort(function (a, b) {
-                    var left = a.parse()['body'];
-                    var right = b.parse()['body'];
+                    var left = a.as_line();
+                    var right = b.as_line();
                     if (left < right) return -1;
                     if (left > right) return 1;
                     return 0;
                 });
             } else if (sort_style == 'star') {
                 _this.item_list.sort(function (a, b) {
-                    var left = a.starred;
-                    var right = b.starred;
+                    var left = a.flagged;
+                    var right = b.flagged;
                     if (left) return -1;
                     if (right) return 1;
                     return 0;
                 });
             } else if (sort_style == 'type') {
                 _this.item_list.sort(function (a, b) {
-                    var left = a.parse()['mixins'][0].toLowerCase();
-                    var right = b.parse()['mixins'][0].toLowerCase();
-                    if (left == 'basemixin') {
-                        return 1;
-                    }
-                    if (right == 'basemixin') {
-                        return -1;
-                    }
+                    var left = a.parse()['roles'][0].toLowerCase();
+                    var right = b.parse()['roles'][0].toLowerCase();
                     if (left < right) return -1;
                     if (left > right) return 1;
                     return 0;
@@ -252,8 +250,8 @@ var ListController = (function (_Controller) {
                         item.uid = uuid();
                         item.on_event('create', {});
                     }
-                    _this.add_item(item);
                 }
+
                 omni_app.refresh();
 
                 $("#ob-input").val('');
@@ -341,7 +339,6 @@ var ListController = (function (_Controller) {
                     _this.current_edit = item;
                     $("#ob-input").val(item.text);
                     $("#ob-input").focus();
-                    item.archived = true;
                 }).then(function () {
                     omni_app.refresh();
                 });
@@ -350,13 +347,7 @@ var ListController = (function (_Controller) {
             _this.beacon.on('control:full_edit', function (options) {
                 _this.map_focused(function (item) {
                     var editor = null;
-                    var mixins = [];
-
-                    item.parse()['mixins'].forEach(function (mixin) {
-                        if (mixin != 'BaseMixin') {
-                            mixins.push(';' + mixin);
-                        }
-                    });
+                    var roles = item.parse()['roles'];
 
                     $("#memo_inner_container").html("<textarea id='memo_editor'></textarea>");
                     editor = CodeMirror.fromTextArea(document.getElementById('memo_editor'), {
@@ -373,7 +364,7 @@ var ListController = (function (_Controller) {
                                 editor.getValue().split('\n').forEach(function (line) {
                                     line = str_trim(line);
                                     if (line.length) {
-                                        var newitem = new Item(line + ' ' + mixins.join(' '));
+                                        var newitem = new Item(line + ' ' + roles.join(' '));
                                         newitem.uid = uuid();
                                         newitem.on_event('create', {});
                                         _this.add_item(newitem);

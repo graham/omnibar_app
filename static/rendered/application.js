@@ -13,7 +13,7 @@ var Application = (function () {
         this.controller_stack = [];
         this.kap = new kapture.Stack();
         this.event_emitter = new Beacon();
-        this.mixins = {};
+        this.roles = {};
 
         this.render_flag = 0;
         var _this = this;
@@ -37,6 +37,11 @@ var Application = (function () {
     }
 
     _createClass(Application, [{
+        key: "register_role",
+        value: function register_role(key, klass) {
+            this.roles[key] = new klass();
+        }
+    }, {
         key: "fire_event",
         value: function fire_event(etype, options) {
             var len = this.controller_stack.length;
@@ -123,7 +128,7 @@ var Application = (function () {
     return Application;
 })();
 
-var omni_app = null;
+var omni_app = new Application();
 
 // TODO refactor this into something reasonable.
 $(document).ready(function () {
@@ -135,8 +140,6 @@ $(document).ready(function () {
                 document.location = 'https:' + document.location.href.slice(6);
             }
         }
-
-    omni_app = new Application();
 
     //
     // Key Commands
@@ -235,7 +238,7 @@ $(document).ready(function () {
     var list_controller = new ListController();
     omni_app.push_controller(list_controller);
 
-    var bm = glob_mixins['BaseMixin'];
+    var bm = omni_app.roles['_base'];
 
     bm.scan().then(function (items) {
         items.forEach(function (_ref) {
@@ -245,7 +248,7 @@ $(document).ready(function () {
             var value = _ref2[1];
 
             var item = new Item(value);
-            if (!item.parse()['attr']['archive']) {
+            if (item.parse()['attr']['archived'] != true) {
                 item.uid = bm.key(key);
                 list_controller.add_item(item);
             }

@@ -1,8 +1,8 @@
 class Item {
     constructor(init_text) {
+        this.uid = null
         this.meta = {}
         this.text = init_text
-        this.uid = null
         this.dirty = false
     }
 
@@ -21,9 +21,9 @@ class Item {
     
     on_event(etype, event_object) {
         var _this = this;
-        var mixins = this.parse()['mixins']
-        mixins.forEach((m) => {
-            var match = glob_mixins[m]
+        var roles = this.parse()['roles']
+        roles.forEach((m) => {
+            var match = omni_app.roles[m]
             if (match) {
                 match.on_event(etype, event_object, _this)
             }
@@ -39,17 +39,31 @@ class Item {
         this.meta[key] = value
     }
 
-    _raw_mixins(mixin_expression) {
-        let mixins = []
-        let matches = this.text.match(mixin_expression)
+    set_text(text) {
+        this.dirty = true
+        this.text = text
+    }
+
+    _raw_roles(role_expression) {
+        let exclude_hit = false
+        let roles = []
+        let matches = this.text.match(role_expression)
 
         if (matches != undefined) {
-            matches.forEach((mixin) => {
-                mixins.push(str_trim(mixin.slice(1)))
+            matches.forEach((role) => {
+                role = str_trim(role)
+                if (role == ';;') {
+                    exclude_hit = true
+                }
+                roles.push(role.slice(1))
             })
-            return mixins
+            if (exclude_hit == false) {
+                return ['_base'].concat(roles)
+            } else {
+                return roles
+            }
         } else {
-            return []
+            return ['_base']
         }
     }
 
@@ -77,29 +91,46 @@ class Item {
             })
             return attrs
         } else {
-            return {}
+            return attrs
         }
     }
 
     parse() {
+        let d = this.clean_parse()
+
+        d['roles'].forEach((role) => {
+            if (omni_app.roles[role]) {
+                try {
+                    omni_app.roles[role].render(d, this)
+                } catch (e) {
+                    console.log("Role " + role + " failed during render() on item => " + this.constructor.name + "\n" + e)
+                }
+            }
+        })
+
+        return d
+    }
+
+    clean_parse() {
         let d = {}
-        let mixin_expression = /;(\S+)(?:\s+)? ?/g
-        let attr_expression = /\$(?:[\w-]+)(?:=[\w]+|=["`].*["`])? ?/g
+        let role_expression = /;(\S+)(?:\s+)? ?/g
+        let attr_expression = /\$(?:[\w-]+)(?:=[\w\/]+|=["`].*["`])? ?/g
         let body = this.text
 
-        // lets parse mixins.
-        d['mixins'] = this._raw_mixins(mixin_expression)
-        body = body.replace(mixin_expression, '')
+        // lets parse roles.
+        d['roles'] = this._raw_roles(role_expression)
+        body = body.replace(role_expression, '')
 
         // lets parse attributes
         d['attr'] = this._raw_attrs(attr_expression)
         body = body.replace(attr_expression, '')
 
         d['body'] = body
+
         return d
     }
 
-    rev() {
-        return ''
+    as_line() {
+        return this.parse().body
     }
 }

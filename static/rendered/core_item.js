@@ -8,9 +8,9 @@ var Item = (function () {
     function Item(init_text) {
         _classCallCheck(this, Item);
 
+        this.uid = null;
         this.meta = {};
         this.text = init_text;
-        this.uid = null;
         this.dirty = false;
     }
 
@@ -26,9 +26,9 @@ var Item = (function () {
         key: 'on_event',
         value: function on_event(etype, event_object) {
             var _this = this;
-            var mixins = this.parse()['mixins'];
-            mixins.forEach(function (m) {
-                var match = glob_mixins[m];
+            var roles = this.parse()['roles'];
+            roles.forEach(function (m) {
+                var match = omni_app.roles[m];
                 if (match) {
                     match.on_event(etype, event_object, _this);
                 }
@@ -46,18 +46,33 @@ var Item = (function () {
             this.meta[key] = value;
         }
     }, {
-        key: '_raw_mixins',
-        value: function _raw_mixins(mixin_expression) {
-            var mixins = [];
-            var matches = this.text.match(mixin_expression);
+        key: 'set_text',
+        value: function set_text(text) {
+            this.dirty = true;
+            this.text = text;
+        }
+    }, {
+        key: '_raw_roles',
+        value: function _raw_roles(role_expression) {
+            var exclude_hit = false;
+            var roles = [];
+            var matches = this.text.match(role_expression);
 
             if (matches != undefined) {
-                matches.forEach(function (mixin) {
-                    mixins.push(str_trim(mixin.slice(1)));
+                matches.forEach(function (role) {
+                    role = str_trim(role);
+                    if (role == ';;') {
+                        exclude_hit = true;
+                    }
+                    roles.push(role.slice(1));
                 });
-                return mixins;
+                if (exclude_hit == false) {
+                    return ['_base'].concat(roles);
+                } else {
+                    return roles;
+                }
             } else {
-                return [];
+                return ['_base'];
             }
         }
     }, {
@@ -86,32 +101,52 @@ var Item = (function () {
                 });
                 return attrs;
             } else {
-                return {};
+                return attrs;
             }
         }
     }, {
         key: 'parse',
         value: function parse() {
+            var _this2 = this;
+
+            var d = this.clean_parse();
+
+            d['roles'].forEach(function (role) {
+                if (omni_app.roles[role]) {
+                    try {
+                        omni_app.roles[role].render(d, _this2);
+                    } catch (e) {
+                        console.log("Role " + role + " failed during render() on item => " + _this2.constructor.name + "\n" + e);
+                    }
+                }
+            });
+
+            return d;
+        }
+    }, {
+        key: 'clean_parse',
+        value: function clean_parse() {
             var d = {};
-            var mixin_expression = /;(\S+)(?:\s+)? ?/g;
-            var attr_expression = /\$(?:[\w-]+)(?:=[\w]+|=["`].*["`])? ?/g;
+            var role_expression = /;(\S+)(?:\s+)? ?/g;
+            var attr_expression = /\$(?:[\w-]+)(?:=[\w\/]+|=["`].*["`])? ?/g;
             var body = this.text;
 
-            // lets parse mixins.
-            d['mixins'] = this._raw_mixins(mixin_expression);
-            body = body.replace(mixin_expression, '');
+            // lets parse roles.
+            d['roles'] = this._raw_roles(role_expression);
+            body = body.replace(role_expression, '');
 
             // lets parse attributes
             d['attr'] = this._raw_attrs(attr_expression);
             body = body.replace(attr_expression, '');
 
             d['body'] = body;
+
             return d;
         }
     }, {
-        key: 'rev',
-        value: function rev() {
-            return '';
+        key: 'as_line',
+        value: function as_line() {
+            return this.parse().body;
         }
     }], [{
         key: 'from_json',

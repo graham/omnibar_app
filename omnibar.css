@@ -202,14 +202,21 @@ tr.active {
     height: 18px;
     margin-left: 1px;
     margin-right: 2px;
-    background-image:url("static/icons/StarOff.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-.is_starred {
+.is_flagged {
     background-image:url("static/icons/Star.png");
+}
+
+.is_not_flagged {
+    background-image:url("static/icons/StarOff.png");
+}
+
+.is_gear {
+    background-image:url("static/icons/Gear.png");
 }
 
 .ob-line-right {

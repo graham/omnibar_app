@@ -1,14 +1,10 @@
-// Hello
-
 'use strict';
+
+0; // Hello
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -22,6 +18,7 @@ var ItemRenderer = (function () {
     _createClass(ItemRenderer, [{
         key: 'create_base_tr',
         value: function create_base_tr(obj) {
+            var parsed = obj.parse();
             var tr = document.createElement('tr');
 
             if (obj.active) {
@@ -54,10 +51,18 @@ var ItemRenderer = (function () {
             var star_div = document.createElement('div');
             star_div.className = 'ob-star';
 
-            if (obj.starred) {
-                star_div.className += ' is_starred';
+            if (obj.flagged) {
+                if (parsed.attr.flagged_class_on) {
+                    star_div.className += ' ' + parsed.attr.flagged_class_on;
+                } else {
+                    star_div.className += ' is_flagged';
+                }
             } else {
-                // boop
+                if (parsed.attr.flagged_class_off) {
+                    star_div.className += ' ' + parsed.attr.flagged_class_off;
+                } else {
+                    star_div.className += ' is_not_flagged';
+                }
             }
 
             checkbox_td.appendChild(star_div);
@@ -104,16 +109,16 @@ var ItemRenderer = (function () {
             tr = _create_base_tr2[0];
             inner_div = _create_base_tr2[1];
 
-            inner_div.innerHTML = obj.parse()['body'];
+            inner_div.innerHTML = obj.as_line();
 
-            var mixins = obj.parse()['mixins'];
-            mixins.forEach(function (item) {
-                if (item != 'BaseMixin') {
-                    var tag = _this2.float_right();
-                    tag.innerHTML = item;
-                    tag.style.backgroundColor = color_for_word(item);
-                    inner_div.appendChild(tag);
-                }
+            var roles = obj.parse()['roles'];
+            roles.forEach(function (item) {
+                //if (item[0] != '_') {
+                var tag = _this2.float_right();
+                tag.innerHTML = item;
+                tag.style.backgroundColor = color_for_word(item);
+                inner_div.appendChild(tag);
+                //}
             });
 
             return tr;
@@ -122,206 +127,3 @@ var ItemRenderer = (function () {
 
     return ItemRenderer;
 })();
-
-var StorageMixin = (function () {
-    function StorageMixin() {
-        _classCallCheck(this, StorageMixin);
-    }
-
-    _createClass(StorageMixin, [{
-        key: 'key',
-        value: function key(uid) {
-            return uid;
-        }
-    }, {
-        key: 'on_create',
-        value: function on_create(event_object, item) {
-            this.put_item(this.key(item.uid), item.text);
-        }
-    }, {
-        key: 'on_update',
-        value: function on_update(event_object, item) {
-            this.on_create(event_object, item);
-        }
-    }, {
-        key: 'on_delete',
-        value: function on_delete(event_object, item) {
-            console.log('lets delete ' + this.key(item.uid));
-            this.delete_item(this.key(item.uid));
-            item.archived = true;
-        }
-    }, {
-        key: 'delete_item',
-        value: function delete_item(uid) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                localStorage.removeItem(key);
-                resolve();
-            });
-        }
-    }, {
-        key: 'get_item',
-        value: function get_item(uid) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                resolve(localStorage.getItem(key));
-            });
-        }
-    }, {
-        key: 'put_item',
-        value: function put_item(uid, value) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                localStorage.setItem(key, value);
-                resolve();
-            });
-        }
-    }, {
-        key: 'update_item',
-        value: function update_item(uid, new_value) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                var old_value = localStorage.getItem(key);
-                localStorage.setItem(key, value);
-                resolve(old_value);
-            });
-        }
-    }, {
-        key: 'batch_get_item',
-        value: function batch_get_item(list_of_keys) {
-            var _this3 = this;
-
-            return new Promise(function (resolve, reject) {
-                var results = [];
-                list_of_keys.forEach(function (uid) {
-                    var key = _this3.key(uid);
-                    results.push(localStorage.getItem(key));
-                });
-                resolve(results);
-            });
-        }
-    }, {
-        key: 'batch_write_item',
-        value: function batch_write_item(list_of_pairs) {
-            var _this4 = this;
-
-            return new Promise(function (resolve, reject) {
-                var results = [];
-                list_of_keys.forEach(function (item) {
-                    var _item = _slicedToArray(item, 2);
-
-                    var uid = _item[0];
-                    var value = _item[1];
-
-                    var key = _this4.key(uid);
-                    localStorage.setItem(key, value);
-                });
-                resolve();
-            });
-        }
-    }, {
-        key: 'scan',
-        value: function scan(options) {
-            if (options == undefined) {
-                options = {};
-            }
-            var results = [];
-            var key_filter_function = options['key_filter'] || function () {
-                return true;
-            };
-
-            return new Promise(function (resolve, reject) {
-                var keys = [];
-                for (var i = 0, len = localStorage.length; i < len; ++i) {
-                    keys.push(localStorage.key(i));
-                }
-
-                keys.forEach(function (key) {
-                    var temp_value = localStorage.getItem(key);
-                    var include_item = key_filter_function(temp_value);
-                    if (include_item) {
-                        results.push([key, temp_value]);
-                    }
-                });
-                resolve(results);
-            });
-        }
-    }]);
-
-    return StorageMixin;
-})();
-
-var BaseMixin = (function (_StorageMixin) {
-    _inherits(BaseMixin, _StorageMixin);
-
-    function BaseMixin() {
-        _classCallCheck(this, BaseMixin);
-
-        _get(Object.getPrototypeOf(BaseMixin.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(BaseMixin, [{
-        key: 'on_event',
-        value: function on_event(etype, event_object, item) {
-            var cb = this['on_' + etype];
-            if (cb != undefined) {
-                return cb.apply(this, [event_object, item]);
-            } else {
-                return this.unhandled_event(etype, event_object);
-            }
-        }
-    }, {
-        key: 'unhandled_event',
-        value: function unhandled_event(event_object) {
-            console.log("Unhandled event " + JSON.stringify(event_object) + " on " + this + ".");
-        }
-    }, {
-        key: 'on_archive',
-        value: function on_archive(event_object, item) {
-            if (item.starred != true) {
-                item.archived = true;
-            }
-        }
-    }, {
-        key: 'on_toggle_star',
-        value: function on_toggle_star(event_object, item) {
-            if (item.starred) {
-                item.starred = false;
-            } else {
-                item.starred = true;
-            }
-        }
-    }, {
-        key: 'on_view',
-        value: function on_view(event_object, item) {
-            var body = item.parse()['body'];
-            var hit = false;
-
-            body.split(' ').forEach(function (word) {
-                if (word.slice(0, 4) == 'http' && hit == false) {
-                    window.open(word);
-                    hit = true;
-                }
-            });
-        }
-    }]);
-
-    return BaseMixin;
-})(StorageMixin);
-
-var glob_mixins = {};
-glob_mixins['BaseMixin'] = new BaseMixin();
-
-var ConfigMixin = (function (_BaseMixin) {
-    _inherits(ConfigMixin, _BaseMixin);
-
-    function ConfigMixin() {
-        _classCallCheck(this, ConfigMixin);
-
-        _get(Object.getPrototypeOf(ConfigMixin.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    return ConfigMixin;
-})(BaseMixin);
-
-glob_mixins['config'] = new ConfigMixin();
