@@ -15,19 +15,13 @@ class LocalItemStorage {
         let key = this.key(uid)
         return new Promise((resolve, reject) => {
             var item = Item.from_json(localStorage.getItem(key))
+            item.uid = uid
             resolve(item)
         })
     }
     
     static put_item(uid, value) {
-        let key = this.key(uid)
-        return new Promise((resolve, reject) => {
-            localStorage.setItem(key, value)
-            resolve()
-        })
-    }
-
-    static update_item(uid, new_value) {
+        console.log('save -> ' + uid + " => " + value)
         let key = this.key(uid)
         return new Promise((resolve, reject) => {
             localStorage.setItem(key, value)
@@ -62,21 +56,14 @@ class S3Storage {
         return new Promise((resolve, reject) => {
             $.get('/storage/get', {key:uid}).then((data) => {
                 var item = Item.from_json(data)
+                item.uid = uid
                 resolve(item)
             })
         })
     }
     
     static put_item(uid, value) {
-        let key = this.key(uid)
-        return new Promise((resolve, reject) => {
-            $.post('/storage/put', {key:uid, value:value}).then((done) => {
-                resolve()
-            })
-        })
-    }
-
-    static update_item(uid, new_value) {
+        console.log('S3 save -> ' + uid + " => " + value)
         let key = this.key(uid)
         return new Promise((resolve, reject) => {
             $.post('/storage/put', {key:uid, value:value}).then((done) => {

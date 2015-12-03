@@ -13,12 +13,8 @@ class Item {
         })
     }
 
-    static from_data(data) {
-        console.log("FROM HERE" + data)
-        let item = new Item('')
-        item.text = data['text']
-        item.meta = data['meta']
-        return item
+    touch() {
+        this.dirty = true
     }
 
     static from_json(text) {
@@ -34,7 +30,7 @@ class Item {
         item.uid = uuid()
         return item
     }
-    
+
     on_event(etype, event_object) {
         var _this = this;
         var roles = this.parse()['roles']
@@ -58,57 +54,6 @@ class Item {
     set_text(text) {
         this.dirty = true
         this.text = text
-    }
-
-    _raw_roles(role_expression) {
-        let exclude_hit = false
-        let roles = []
-        let matches = this.text.match(role_expression)
-
-        if (matches != undefined) {
-            matches.forEach((role) => {
-                role = str_trim(role)
-                if (role == ';;') {
-                    exclude_hit = true
-                }
-                roles.push(role.slice(1))
-            })
-            if (exclude_hit == false && this.get_meta('is_search_result') != true) {
-                return ['_base'].concat(roles)
-            } else {
-                return roles
-            }
-        } else {
-            return ['_base']
-        }
-    }
-
-    _raw_attrs(attr_expression) {
-        let attrs = {}
-        let matches = this.text.match(attr_expression)
-
-        if (matches != undefined) {
-            matches.forEach((match) => {
-                match = match.slice(1)
-                if (match.indexOf('=') == -1) {
-                    let key = str_trim(match)
-                    attrs[key] = true
-                } else {
-                    let sp = match.split('=')
-                    if (sp[1][0] == '`') {
-                        let value = sp[1].slice(1, sp[1].length-2)
-                        attrs[sp[0]] = JSON.parse(str_trim(value))
-                    } else if (sp[1][0] == '"') {
-                        attrs[sp[0]] = JSON.parse(str_trim(sp[1]))
-                    } else {
-                        attrs[sp[0]] = str_trim(sp[1])
-                    }
-                }
-            })
-            return attrs
-        } else {
-            return attrs
-        }
     }
 
     parse() {
@@ -147,11 +92,61 @@ class Item {
     }
 
     as_line() {
-        return this.parse().body
+        if (this.dirty) {
+            return this.parse().body + "*"
+        } else {
+            return this.parse().body
+        }
     }
 
-    has_role(role) {}
-    add_role(role) {}
-    remove_role(role) {}
-    
+    _raw_roles(role_expression) {
+        let exclude_hit = false
+        let roles = []
+        let matches = this.text.match(role_expression)
+
+        if (matches != undefined) {
+            matches.forEach((role) => {
+                role = str_trim(role)
+                if (role == ';;') {
+                    exclude_hit = true
+                }
+                roles.push(role.slice(1))
+            })
+            if (exclude_hit == false && this.get_meta('is_search_result') != true) {
+                return roles.concat(['_base'])
+            } else {
+                return roles
+            }
+        } else {
+            return ['_base']
+        }
+    }
+
+    _raw_attrs(attr_expression) {
+        let attrs = {}
+        let matches = this.text.match(attr_expression)
+
+        if (matches != undefined) {
+            matches.forEach((match) => {
+                match = match.slice(1)
+                if (match.indexOf('=') == -1) {
+                    let key = str_trim(match)
+                    attrs[key] = true
+                } else {
+                    let sp = match.split('=')
+                    if (sp[1][0] == '`') {
+                        let value = sp[1].slice(1, sp[1].length-2)
+                        attrs[sp[0]] = JSON.parse(str_trim(value))
+                    } else if (sp[1][0] == '"') {
+                        attrs[sp[0]] = JSON.parse(str_trim(sp[1]))
+                    } else {
+                        attrs[sp[0]] = str_trim(sp[1])
+                    }
+                }
+            })
+            return attrs
+        } else {
+            return attrs
+        }
+    }
 }

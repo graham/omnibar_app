@@ -21,16 +21,13 @@ class AbstractRole {
         console.log("Unhandled event " + etype + " " +
                     JSON.stringify(event_object) + " on " + this + ".")
     }
-    
+
     render(parsed, item) {
         // pass
     }
 }
 
-class CoreRole extends AbstractRole {
-    // Only subclass from here if you plan on storing the item somewhere.
-    // If you dont change this.storage it will be stored locally.
-
+class StorageRole extends AbstractRole {
     constructor() {
         super()
         this.storage = LocalItemStorage
@@ -47,15 +44,17 @@ class CoreRole extends AbstractRole {
     on_delete(event_object, item) {
         console.log('lets delete ' + item.uid)
         this.storage.delete_item(item.uid)
-        item.archived = true
+        item.set_meta('archived', true)
     }
-
 }
- 
-class BaseRole extends CoreRole {
+
+class BaseRole extends StorageRole {
+    // Only subclass from here if you plan on storing the item somewhere.
+    // If you dont change this.storage it will be stored locally.
+
     on_archive(event_object, item) {
         if (item.get_meta('flagged') != true) {
-            item.archived = true
+            item.set_meta('archived', true)
         }
     }
 
@@ -66,7 +65,7 @@ class BaseRole extends CoreRole {
             item.set_meta('flagged', true)
         }
     }
-
+ 
     on_open(event_object, item) {
         var body = item.as_line()
         var hit = false
@@ -81,14 +80,27 @@ class BaseRole extends CoreRole {
     on_view(event_object, item) {
         this.on_open(event_object, item)
     }
+    on_quote(event_object, item) {
+        console.log([item.uid, item.as_json()])
+    }
 }
 
 omni_app.register_role('_base', BaseRole)
 
-class S3Role extends CoreRole {
+class S3Role extends StorageRole {
     constructor() {
         super()
         this.storage = S3Storage
+    }
+
+    on_sync(event_object, item) {
+        // If the user requests a sync, update the local version.
+        this.storage.get_item(item.uid).then((newItem) => {
+            console.log(newItem)
+            item.text = newItem.text
+            item.meta = newItem.meta
+            omni_app.refresh()
+        })
     }
 }
 

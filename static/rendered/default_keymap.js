@@ -72,7 +72,7 @@ var mvc_passive_keymap = {
     's': 'focused:toggle_flag',
     'v': 'focused:view',
     'n': 'focused:note',
-
+    'q': 'focused:quote',
     'control-d': 'selected:delete'
 };
 

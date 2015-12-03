@@ -29,21 +29,14 @@ var LocalItemStorage = (function () {
             var key = this.key(uid);
             return new Promise(function (resolve, reject) {
                 var item = Item.from_json(localStorage.getItem(key));
+                item.uid = uid;
                 resolve(item);
             });
         }
     }, {
         key: 'put_item',
         value: function put_item(uid, value) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                localStorage.setItem(key, value);
-                resolve();
-            });
-        }
-    }, {
-        key: 'update_item',
-        value: function update_item(uid, new_value) {
+            console.log('save -> ' + uid + " => " + value);
             var key = this.key(uid);
             return new Promise(function (resolve, reject) {
                 localStorage.setItem(key, value);
@@ -89,6 +82,7 @@ var S3Storage = (function () {
             return new Promise(function (resolve, reject) {
                 $.get('/storage/get', { key: uid }).then(function (data) {
                     var item = Item.from_json(data);
+                    item.uid = uid;
                     resolve(item);
                 });
             });
@@ -96,16 +90,7 @@ var S3Storage = (function () {
     }, {
         key: 'put_item',
         value: function put_item(uid, value) {
-            var key = this.key(uid);
-            return new Promise(function (resolve, reject) {
-                $.post('/storage/put', { key: uid, value: value }).then(function (done) {
-                    resolve();
-                });
-            });
-        }
-    }, {
-        key: 'update_item',
-        value: function update_item(uid, new_value) {
+            console.log('S3 save -> ' + uid + " => " + value);
             var key = this.key(uid);
             return new Promise(function (resolve, reject) {
                 $.post('/storage/put', { key: uid, value: value }).then(function (done) {

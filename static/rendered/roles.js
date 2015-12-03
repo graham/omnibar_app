@@ -46,20 +46,17 @@ var AbstractRole = (function () {
     return AbstractRole;
 })();
 
-var CoreRole = (function (_AbstractRole) {
-    _inherits(CoreRole, _AbstractRole);
+var StorageRole = (function (_AbstractRole) {
+    _inherits(StorageRole, _AbstractRole);
 
-    // Only subclass from here if you plan on storing the item somewhere.
-    // If you dont change this.storage it will be stored locally.
+    function StorageRole() {
+        _classCallCheck(this, StorageRole);
 
-    function CoreRole() {
-        _classCallCheck(this, CoreRole);
-
-        _get(Object.getPrototypeOf(CoreRole.prototype), "constructor", this).call(this);
+        _get(Object.getPrototypeOf(StorageRole.prototype), "constructor", this).call(this);
         this.storage = LocalItemStorage;
     }
 
-    _createClass(CoreRole, [{
+    _createClass(StorageRole, [{
         key: "on_create",
         value: function on_create(event_object, item) {
             this.storage.put_item(item.uid, item.as_json());
@@ -74,15 +71,15 @@ var CoreRole = (function (_AbstractRole) {
         value: function on_delete(event_object, item) {
             console.log('lets delete ' + item.uid);
             this.storage.delete_item(item.uid);
-            item.archived = true;
+            item.set_meta('archived', true);
         }
     }]);
 
-    return CoreRole;
+    return StorageRole;
 })(AbstractRole);
 
-var BaseRole = (function (_CoreRole) {
-    _inherits(BaseRole, _CoreRole);
+var BaseRole = (function (_StorageRole) {
+    _inherits(BaseRole, _StorageRole);
 
     function BaseRole() {
         _classCallCheck(this, BaseRole);
@@ -92,9 +89,13 @@ var BaseRole = (function (_CoreRole) {
 
     _createClass(BaseRole, [{
         key: "on_archive",
+
+        // Only subclass from here if you plan on storing the item somewhere.
+        // If you dont change this.storage it will be stored locally.
+
         value: function on_archive(event_object, item) {
             if (item.get_meta('flagged') != true) {
-                item.archived = true;
+                item.set_meta('archived', true);
             }
         }
     }, {
@@ -124,15 +125,20 @@ var BaseRole = (function (_CoreRole) {
         value: function on_view(event_object, item) {
             this.on_open(event_object, item);
         }
+    }, {
+        key: "on_quote",
+        value: function on_quote(event_object, item) {
+            console.log([item.uid, item.as_json()]);
+        }
     }]);
 
     return BaseRole;
-})(CoreRole);
+})(StorageRole);
 
 omni_app.register_role('_base', BaseRole);
 
-var S3Role = (function (_CoreRole2) {
-    _inherits(S3Role, _CoreRole2);
+var S3Role = (function (_StorageRole2) {
+    _inherits(S3Role, _StorageRole2);
 
     function S3Role() {
         _classCallCheck(this, S3Role);
@@ -141,7 +147,20 @@ var S3Role = (function (_CoreRole2) {
         this.storage = S3Storage;
     }
 
+    _createClass(S3Role, [{
+        key: "on_sync",
+        value: function on_sync(event_object, item) {
+            // If the user requests a sync, update the local version.
+            this.storage.get_item(item.uid).then(function (newItem) {
+                console.log(newItem);
+                item.text = newItem.text;
+                item.meta = newItem.meta;
+                omni_app.refresh();
+            });
+        }
+    }]);
+
     return S3Role;
-})(CoreRole);
+})(StorageRole);
 
 omni_app.register_role('s3', S3Role);

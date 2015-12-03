@@ -1,7 +1,5 @@
 "use strict";
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34,9 +32,103 @@ var Application = (function () {
                 }, 0);
             }
         });
+
+        //
+        // Key Commands
+        //
+
+        var kap_handler = this.kap.get_root_handler();
+
+        for (var key in global_active_keymap) {
+            var value = global_active_keymap[key];
+            kap_handler.add_command(key, (function (v) {
+                return function () {
+                    omni_app.event_emitter.fire(v, {});
+                };
+            })(value));
+        }
+
+        for (var key in global_passive_keymap) {
+            var value = global_passive_keymap[key];
+            kap_handler.add_passive_command(key, (function (v) {
+                return function () {
+                    omni_app.event_emitter.fire(v, {});
+                };
+            })(value));
+        }
+
+        for (var key in mvc_passive_keymap) {
+            var value = mvc_passive_keymap[key];
+            kap_handler.add_passive_command(key, (function (v) {
+                return function () {
+                    omni_app.fire_event(v, {});
+                };
+            })(value));
+        }
+
+        for (var key in mvc_active_keymap) {
+            var value = mvc_active_keymap[key];
+            kap_handler.add_command(key, (function (v) {
+                return function () {
+                    omni_app.fire_event(v, {});
+                };
+            })(value));
+        }
+
+        kap_handler.add_push('control-b');
+
+        kap_handler.add_passive_command('control-b a', function () {
+            alert("Written by Graham Abbott");
+        });
+
+        // When you hit enter.
+        kap_handler.add_active_command('enter', function () {
+            omni_app.fire_event('command:enter');
+        });
+        kap_handler.add_active_command('shift-enter', function () {
+            omni_app.fire_event('command:enter');
+        });
+
+        // Commands for getting to and away from the omnibar.
+        kap_handler.add_command('esc', function () {
+            $("#ob-input").blur();
+        });
+
+        kap_handler.add_passive_command('/', function () {
+            $("#ob-input").focus();
+        });
     }
 
     _createClass(Application, [{
+        key: "storage_update",
+        value: function storage_update() {
+            var _this2 = this;
+
+            var list_controller = this.peek_controller();
+            var bm = this.roles['_base'];
+            bm.storage.keys().then(function (items) {
+                if (items.length == 0) {
+                    var new_items = ["an email $id=1515c49e0782c93a ;email", "a config option ;config (star me!)", "tags got me like #fuckyeah ;tag", "http://news.ycombinator.com/", "http://lobste.rs", "focus on me and hit v to see the code. https://github.com/graham/omnibar_app/blob/master/js/extra.es6"];
+
+                    new_items.forEach(function (text) {
+                        var item = Item.from_text(text);
+                        item.uid = uuid();
+                        item.on_event('create', {});
+                        list_controller.add_item(item);
+                    });
+                } else {
+                    items.forEach(function (key) {
+                        bm.storage.get_item(key).then(function (item) {
+                            list_controller.add_item(item);
+                        });
+                    });
+                }
+            });
+            setTimeout(function () {
+                _this2.refresh();
+            }, 200);
+        }
+    }, {
         key: "register_role",
         value: function register_role(key, klass) {
             this.roles[key] = new klass();
@@ -62,12 +154,12 @@ var Application = (function () {
     }, {
         key: "ready",
         value: function ready(cb) {
-            var _this2 = this;
+            var _this3 = this;
 
             var _this = this;
             this.event_emitter.once('app:ready', cb);
             setTimeout(function () {
-                _this2.refresh();
+                _this3.refresh();
             }, 0);
         }
     }, {
@@ -123,168 +215,14 @@ var Application = (function () {
                 return true;
             }
         }
+    }, {
+        key: "peek_controller",
+        value: function peek_controller(options) {
+            return this.controller_stack[this.controller_stack.length - 1];
+        }
     }]);
 
     return Application;
 })();
 
 var omni_app = new Application();
-
-// TODO refactor this into something reasonable.
-$(document).ready(function () {
-    var hostname = window.location.hostname;
-    if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        // pass, easier to understand formatted this way.
-    } else {
-            if (document.location.href.slice(0, 5) == 'http:') {
-                document.location = 'https:' + document.location.href.slice(6);
-            }
-        }
-
-    //
-    // Key Commands
-    //
-
-    var kap_handler = omni_app.kap.get_root_handler();
-
-    for (var key in global_active_keymap) {
-        var value = global_active_keymap[key];
-        kap_handler.add_command(key, (function (v) {
-            return function () {
-                omni_app.event_emitter.fire(v, {});
-            };
-        })(value));
-    }
-
-    for (var key in global_passive_keymap) {
-        var value = global_passive_keymap[key];
-        kap_handler.add_passive_command(key, (function (v) {
-            return function () {
-                omni_app.event_emitter.fire(v, {});
-            };
-        })(value));
-    }
-
-    for (var key in mvc_passive_keymap) {
-        var value = mvc_passive_keymap[key];
-        kap_handler.add_passive_command(key, (function (v) {
-            return function () {
-                omni_app.fire_event(v, {});
-            };
-        })(value));
-    }
-
-    for (var key in mvc_active_keymap) {
-        var value = mvc_active_keymap[key];
-        kap_handler.add_command(key, (function (v) {
-            return function () {
-                omni_app.fire_event(v, {});
-            };
-        })(value));
-    }
-
-    // Moving the cursor, whatever the controller is.
-    kap_handler.add_push('control-x');
-
-    // When you hit enter.
-    kap_handler.add_active_command('enter', function () {
-        omni_app.fire_event('command:enter');
-    });
-    kap_handler.add_active_command('shift-enter', function () {
-        omni_app.fire_event('command:enter');
-    });
-
-    // Commands for getting to and away from the omnibar.
-    kap_handler.add_command('esc', function () {
-        $("#ob-input").blur();
-    });
-
-    kap_handler.add_passive_command('/', function () {
-        $("#ob-input").focus();
-    });
-
-    //
-    // End of Key Commands
-    //
-
-    // listen.
-    omni_app.event_emitter.on('app:render', function () {
-        var stack_length = omni_app.controller_stack.length;
-        var current_controller = omni_app.controller_stack[stack_length - 1];
-        omni_app.present_controller(current_controller);
-    });
-
-    omni_app.event_emitter.on('app:bar_updated', function () {
-        var value = $("#ob-input").val();
-        $("#fancy_input").html(value);
-        omni_app.fire_event('app:bar_updated');
-    });
-
-    omni_app.event_emitter.on('command:cancel', function () {
-        $("#ob-input").val('');
-        $("#ob-input").blur();
-    });
-
-    omni_app.event_emitter.on('command:search', function () {
-        $("#ob-input").val('?');
-        $("#ob-input").focus();
-    });
-
-    omni_app.event_emitter.on('command:apply', function () {
-        $("#ob-input").val('!');
-        $("#ob-input").focus();
-    });
-
-    var list_controller = new ListController();
-    omni_app.push_controller(list_controller);
-
-    var bm = omni_app.roles['_base'];
-
-    bm.storage.keys().then(function (items) {
-        if (items.length == 0) {
-            var new_items = ["an email $id=1515c49e0782c93a ;email", "a config option ;config (star me!)", "tags got me like #fuckyeah ;tag", "http://news.ycombinator.com/", "http://lobste.rs", "focus on me and hit v to see the code. https://github.com/graham/omnibar_app/blob/master/js/extra.es6"];
-
-            new_items.forEach(function (text) {
-                var item = Item.from_text(text);
-                item.on_event('create', {});
-                list_controller.add_item(item);
-            });
-        } else {
-            items.forEach(function (key) {
-                bm.storage.get_item(key).then(function (item) {
-                    list_controller.add_item(item);
-                });
-            });
-        }
-    });
-
-    addEvent(window, 'storage', function (event) {
-        console.log('storage change');
-        bm.storage.scan().then(function (items) {
-            list_controller.item_list = [];
-            items.forEach(function (_ref) {
-                var _ref2 = _slicedToArray(_ref, 2);
-
-                var key = _ref2[0];
-                var item = _ref2[1];
-
-                list_controller.add_item(item);
-            });
-            omni_app.refresh();
-        });
-    });
-
-    omni_app.event_emitter.fire('app:ready', omni_app);
-
-    setTimeout(function () {
-        $("#ob-input").focus();
-    }, 0);
-
-    setTimeout(function () {
-        omni_app.refresh();
-    }, 100);
-
-    $("#fancy_input").on('click', function () {
-        $("#ob-input").focus();
-    });
-});

@@ -66,9 +66,6 @@ var ItemRenderer = (function () {
             }
 
             checkbox_td.appendChild(star_div);
-            $(star_div).on('click', function () {
-                obj.on_event('toggle_flag', {});
-            });
 
             var inner_div = document.createElement('div');
             inner_div.className = 'ob-inner';
@@ -112,6 +109,7 @@ var ItemRenderer = (function () {
             inner_div.innerHTML = obj.as_line();
 
             var roles = obj.parse()['roles'];
+            roles.reverse();
             roles.forEach(function (item) {
                 //if (item[0] != '_') {
                 var tag = _this2.float_right();

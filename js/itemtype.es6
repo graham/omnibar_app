@@ -54,9 +54,6 @@ class ItemRenderer {
         }
 
         checkbox_td.appendChild(star_div)
-        $(star_div).on('click', () => {
-            obj.on_event('toggle_flag', {})
-        });
 
         var inner_div = document.createElement('div')
         inner_div.className = 'ob-inner'
@@ -88,6 +85,7 @@ class ItemRenderer {
         inner_div.innerHTML = obj.as_line()
 
         var roles = obj.parse()['roles']
+        roles.reverse()
         roles.forEach((item) => {
             //if (item[0] != '_') {
                 var tag = this.float_right();

@@ -18,14 +18,32 @@ class ListController extends Controller {
         super(new ListView())
         // Now some local stuff.
         this.item_list = [];
+
         this.cursor_index = 0
         this.sort_styles = ['star', 'type', 'text', 'select']
         this.sort_style_index = 0
         this.current_edit = null
+        setInterval(() => {
+            this.item_list.forEach((item) => {
+                if (item.dirty) {
+                    //console.log(item)
+                }
+            })
+        }, 1000)
     }
 
     add_item(item) {
         this.item_list = [item].concat(this.item_list)
+    }
+
+    get_item(id) {
+        var hit = null
+        this.item_list.forItem((item) => {
+            if (item.uid == id) {
+                hit = item
+            }
+        })
+        return hit
     }
 
     fire_event(etype, options) {
@@ -63,7 +81,7 @@ class ListController extends Controller {
                         console.log(e);
                         reject();
                     }
-                    if (item.archived == true) {
+                    if (item.get_meta('archived') == true) {
                         // pass we are discarding.
                     } else {
                         remaining_list.push(item);
@@ -99,9 +117,7 @@ class ListController extends Controller {
                         reject();
                     }
 
-                    console.log(item)
-                    
-                    if (item.archived == true) {
+                    if (item.get_meta('archived', true)) {
                         // pass we are discarding.
                     } else {
                         remaining_list.push(item);
@@ -182,16 +198,7 @@ class ListController extends Controller {
         }
     }
 
-    get_item(id) {
-        var hit = null
-        this.item_list.forItem((item) => {
-            if (item.uid == id) {
-                hit = item
-            }
-        })
-        return hit
-    }
-
+    // this kind of sucks.
     prepare() {
         var _this = this;
 
@@ -337,7 +344,6 @@ class ListController extends Controller {
                                 }
                             })
 
-                            item.text += ' $archive'
                             item.on_event('update', {})
                             
                             $("#memo_editor_container").hide()
@@ -355,7 +361,7 @@ class ListController extends Controller {
                     editor.focus()
                     editor.refresh()
                 }, 10)
-                item.archived = true
+                item.get_meta('archived', true)
             }).then(function() {
                 omni_app.refresh();
             });

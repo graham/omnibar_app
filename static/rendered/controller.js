@@ -35,21 +35,42 @@ var ListController = (function (_Controller) {
     _inherits(ListController, _Controller);
 
     function ListController() {
+        var _this2 = this;
+
         _classCallCheck(this, ListController);
 
         _get(Object.getPrototypeOf(ListController.prototype), 'constructor', this).call(this, new ListView());
         // Now some local stuff.
         this.item_list = [];
+
         this.cursor_index = 0;
         this.sort_styles = ['star', 'type', 'text', 'select'];
         this.sort_style_index = 0;
         this.current_edit = null;
+        setInterval(function () {
+            _this2.item_list.forEach(function (item) {
+                if (item.dirty) {
+                    //console.log(item)
+                }
+            });
+        }, 1000);
     }
 
     _createClass(ListController, [{
         key: 'add_item',
         value: function add_item(item) {
             this.item_list = [item].concat(this.item_list);
+        }
+    }, {
+        key: 'get_item',
+        value: function get_item(id) {
+            var hit = null;
+            this.item_list.forItem(function (item) {
+                if (item.uid == id) {
+                    hit = item;
+                }
+            });
+            return hit;
         }
     }, {
         key: 'fire_event',
@@ -90,7 +111,7 @@ var ListController = (function (_Controller) {
                             console.log(e);
                             reject();
                         }
-                        if (item.archived == true) {
+                        if (item.get_meta('archived') == true) {
                             // pass we are discarding.
                         } else {
                                 remaining_list.push(item);
@@ -128,9 +149,7 @@ var ListController = (function (_Controller) {
                             reject();
                         }
 
-                        console.log(item);
-
-                        if (item.archived == true) {
+                        if (item.get_meta('archived', true)) {
                             // pass we are discarding.
                         } else {
                                 remaining_list.push(item);
@@ -204,17 +223,8 @@ var ListController = (function (_Controller) {
                 });
             }
         }
-    }, {
-        key: 'get_item',
-        value: function get_item(id) {
-            var hit = null;
-            this.item_list.forItem(function (item) {
-                if (item.uid == id) {
-                    hit = item;
-                }
-            });
-            return hit;
-        }
+
+        // this kind of sucks.
     }, {
         key: 'prepare',
         value: function prepare() {
@@ -362,7 +372,6 @@ var ListController = (function (_Controller) {
                                     }
                                 });
 
-                                item.text += ' $archive';
                                 item.on_event('update', {});
 
                                 $("#memo_editor_container").hide();
@@ -380,7 +389,7 @@ var ListController = (function (_Controller) {
                         editor.focus();
                         editor.refresh();
                     }, 10);
-                    item.archived = true;
+                    item.get_meta('archived', true);
                 }).then(function () {
                     omni_app.refresh();
                 });

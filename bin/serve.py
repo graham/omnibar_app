@@ -41,8 +41,9 @@ def get_key():
     if result is None:
         return ""
     else:
-        return result['Body'].read()
-
+        item = json.loads(result['Body'].read())
+        item['meta']['last_modified'] = int(result.get('LastModified').strftime('%s'))
+        return json.dumps(item)
 
 @route('/storage/put', method='any')
 def put_key():
@@ -65,8 +66,7 @@ def list_keys():
 
     for i in result.get('Contents', []):
         keys.append([i.get('Key'),
-                     i.get('LastModified').strftime('%s'),
-                     i.get('ETag')[1:-1]])
+                     i.get('LastModified').strftime('%s')])
 
     return json.dumps(keys)
 

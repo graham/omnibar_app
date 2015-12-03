@@ -23,6 +23,11 @@ var Item = (function () {
             });
         }
     }, {
+        key: 'touch',
+        value: function touch() {
+            this.dirty = true;
+        }
+    }, {
         key: 'on_event',
         value: function on_event(etype, event_object) {
             var _this = this;
@@ -50,59 +55,6 @@ var Item = (function () {
         value: function set_text(text) {
             this.dirty = true;
             this.text = text;
-        }
-    }, {
-        key: '_raw_roles',
-        value: function _raw_roles(role_expression) {
-            var exclude_hit = false;
-            var roles = [];
-            var matches = this.text.match(role_expression);
-
-            if (matches != undefined) {
-                matches.forEach(function (role) {
-                    role = str_trim(role);
-                    if (role == ';;') {
-                        exclude_hit = true;
-                    }
-                    roles.push(role.slice(1));
-                });
-                if (exclude_hit == false && this.get_meta('is_search_result') != true) {
-                    return ['_base'].concat(roles);
-                } else {
-                    return roles;
-                }
-            } else {
-                return ['_base'];
-            }
-        }
-    }, {
-        key: '_raw_attrs',
-        value: function _raw_attrs(attr_expression) {
-            var attrs = {};
-            var matches = this.text.match(attr_expression);
-
-            if (matches != undefined) {
-                matches.forEach(function (match) {
-                    match = match.slice(1);
-                    if (match.indexOf('=') == -1) {
-                        var key = str_trim(match);
-                        attrs[key] = true;
-                    } else {
-                        var sp = match.split('=');
-                        if (sp[1][0] == '`') {
-                            var value = sp[1].slice(1, sp[1].length - 2);
-                            attrs[sp[0]] = JSON.parse(str_trim(value));
-                        } else if (sp[1][0] == '"') {
-                            attrs[sp[0]] = JSON.parse(str_trim(sp[1]));
-                        } else {
-                            attrs[sp[0]] = str_trim(sp[1]);
-                        }
-                    }
-                });
-                return attrs;
-            } else {
-                return attrs;
-            }
         }
     }, {
         key: 'parse',
@@ -146,27 +98,66 @@ var Item = (function () {
     }, {
         key: 'as_line',
         value: function as_line() {
-            return this.parse().body;
+            if (this.dirty) {
+                return this.parse().body + "*";
+            } else {
+                return this.parse().body;
+            }
         }
     }, {
-        key: 'has_role',
-        value: function has_role(role) {}
+        key: '_raw_roles',
+        value: function _raw_roles(role_expression) {
+            var exclude_hit = false;
+            var roles = [];
+            var matches = this.text.match(role_expression);
+
+            if (matches != undefined) {
+                matches.forEach(function (role) {
+                    role = str_trim(role);
+                    if (role == ';;') {
+                        exclude_hit = true;
+                    }
+                    roles.push(role.slice(1));
+                });
+                if (exclude_hit == false && this.get_meta('is_search_result') != true) {
+                    return roles.concat(['_base']);
+                } else {
+                    return roles;
+                }
+            } else {
+                return ['_base'];
+            }
+        }
     }, {
-        key: 'add_role',
-        value: function add_role(role) {}
-    }, {
-        key: 'remove_role',
-        value: function remove_role(role) {}
+        key: '_raw_attrs',
+        value: function _raw_attrs(attr_expression) {
+            var attrs = {};
+            var matches = this.text.match(attr_expression);
+
+            if (matches != undefined) {
+                matches.forEach(function (match) {
+                    match = match.slice(1);
+                    if (match.indexOf('=') == -1) {
+                        var key = str_trim(match);
+                        attrs[key] = true;
+                    } else {
+                        var sp = match.split('=');
+                        if (sp[1][0] == '`') {
+                            var value = sp[1].slice(1, sp[1].length - 2);
+                            attrs[sp[0]] = JSON.parse(str_trim(value));
+                        } else if (sp[1][0] == '"') {
+                            attrs[sp[0]] = JSON.parse(str_trim(sp[1]));
+                        } else {
+                            attrs[sp[0]] = str_trim(sp[1]);
+                        }
+                    }
+                });
+                return attrs;
+            } else {
+                return attrs;
+            }
+        }
     }], [{
-        key: 'from_data',
-        value: function from_data(data) {
-            console.log("FROM HERE" + data);
-            var item = new Item('');
-            item.text = data['text'];
-            item.meta = data['meta'];
-            return item;
-        }
-    }, {
         key: 'from_json',
         value: function from_json(text) {
             var data = JSON.parse(text);
