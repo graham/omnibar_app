@@ -218,7 +218,7 @@ $(document).ready(function() {
 
     let bm = omni_app.roles['_base']
     
-    bm.storage.scan().then((items) => {
+    bm.storage.keys().then((items) => {
         if (items.length == 0) {
             let new_items = [
                 "an email $id=1515c49e0782c93a ;email",
@@ -235,10 +235,10 @@ $(document).ready(function() {
                 list_controller.add_item(item)
             })
         } else {
-            items.forEach(([key, item]) => {
-                if (item.parse()['attr']['archived'] != true) {
+            items.forEach((key) => {
+                bm.storage.get_item(key).then((item) => {
                     list_controller.add_item(item)
-                }
+                })
             })
         }
     })

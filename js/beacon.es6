@@ -96,10 +96,8 @@ class Beacon {
     
 }
 
-var SafePromise = Promise;
-
-var Promise = function(fn) {
-    return new SafePromise(function(resolve, reject) {
+var SafePromise = function(fn) {
+    return new Promise(function(resolve, reject) {
         try {
             fn(resolve, reject)
         } catch (e) {

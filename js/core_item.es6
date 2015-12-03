@@ -13,6 +13,14 @@ class Item {
         })
     }
 
+    static from_data(data) {
+        console.log("FROM HERE" + data)
+        let item = new Item('')
+        item.text = data['text']
+        item.meta = data['meta']
+        return item
+    }
+
     static from_json(text) {
         let data = JSON.parse(text)
         let item = new Item('')
@@ -65,7 +73,7 @@ class Item {
                 }
                 roles.push(role.slice(1))
             })
-            if (exclude_hit == false) {
+            if (exclude_hit == false && this.get_meta('is_search_result') != true) {
                 return ['_base'].concat(roles)
             } else {
                 return roles
@@ -141,4 +149,9 @@ class Item {
     as_line() {
         return this.parse().body
     }
+
+    has_role(role) {}
+    add_role(role) {}
+    remove_role(role) {}
+    
 }

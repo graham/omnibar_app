@@ -8,8 +8,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var EmailRole = (function (_CoreRole) {
-    _inherits(EmailRole, _CoreRole);
+var EmailRole = (function (_AbstractRole) {
+    _inherits(EmailRole, _AbstractRole);
 
     function EmailRole() {
         _classCallCheck(this, EmailRole);
@@ -28,12 +28,12 @@ var EmailRole = (function (_CoreRole) {
     }]);
 
     return EmailRole;
-})(CoreRole);
+})(AbstractRole);
 
 omni_app.register_role('email', EmailRole);
 
-var ConfigRole = (function (_CoreRole2) {
-    _inherits(ConfigRole, _CoreRole2);
+var ConfigRole = (function (_AbstractRole2) {
+    _inherits(ConfigRole, _AbstractRole2);
 
     function ConfigRole() {
         _classCallCheck(this, ConfigRole);
@@ -55,12 +55,12 @@ var ConfigRole = (function (_CoreRole2) {
     }]);
 
     return ConfigRole;
-})(CoreRole);
+})(AbstractRole);
 
 omni_app.register_role('config', ConfigRole);
 
-var NiceTag = (function (_CoreRole3) {
-    _inherits(NiceTag, _CoreRole3);
+var NiceTag = (function (_AbstractRole3) {
+    _inherits(NiceTag, _AbstractRole3);
 
     function NiceTag() {
         _classCallCheck(this, NiceTag);
@@ -76,6 +76,6 @@ var NiceTag = (function (_CoreRole3) {
     }]);
 
     return NiceTag;
-})(CoreRole);
+})(AbstractRole);
 
 omni_app.register_role('tag', NiceTag);

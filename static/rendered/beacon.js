@@ -114,10 +114,8 @@ var Beacon = (function () {
     return Beacon;
 })();
 
-var SafePromise = Promise;
-
-var Promise = function Promise(fn) {
-    return new SafePromise(function (resolve, reject) {
+var SafePromise = function SafePromise(fn) {
+    return new Promise(function (resolve, reject) {
         try {
             fn(resolve, reject);
         } catch (e) {

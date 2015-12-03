@@ -66,7 +66,7 @@ var Item = (function () {
                     }
                     roles.push(role.slice(1));
                 });
-                if (exclude_hit == false) {
+                if (exclude_hit == false && this.get_meta('is_search_result') != true) {
                     return ['_base'].concat(roles);
                 } else {
                     return roles;
@@ -148,7 +148,25 @@ var Item = (function () {
         value: function as_line() {
             return this.parse().body;
         }
+    }, {
+        key: 'has_role',
+        value: function has_role(role) {}
+    }, {
+        key: 'add_role',
+        value: function add_role(role) {}
+    }, {
+        key: 'remove_role',
+        value: function remove_role(role) {}
     }], [{
+        key: 'from_data',
+        value: function from_data(data) {
+            console.log("FROM HERE" + data);
+            var item = new Item('');
+            item.text = data['text'];
+            item.meta = data['meta'];
+            return item;
+        }
+    }, {
         key: 'from_json',
         value: function from_json(text) {
             var data = JSON.parse(text);

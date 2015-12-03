@@ -1,4 +1,4 @@
-class EmailRole extends CoreRole {
+class EmailRole extends AbstractRole {
     on_view(eobj, item) {
         var p = item.parse()
         if (p.attr.id != undefined) {
@@ -9,7 +9,7 @@ class EmailRole extends CoreRole {
 
 omni_app.register_role('email', EmailRole)
 
-class ConfigRole extends CoreRole {
+class ConfigRole extends AbstractRole {
     render(parsed, item) {
         if (item.get_meta('flagged')) {
             parsed.body += ' <span style="color: green;">ON<span> '
@@ -23,10 +23,11 @@ class ConfigRole extends CoreRole {
 
 omni_app.register_role('config', ConfigRole)
 
-class NiceTag extends CoreRole {
+class NiceTag extends AbstractRole {
     render(parsed, item) {
         parsed.body = parsed.body.replace(/(#\w+)/g, "<span class='is_tag'>$1</span>")
     }
 }
 
 omni_app.register_role('tag', NiceTag)
+

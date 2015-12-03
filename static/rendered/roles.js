@@ -8,13 +8,17 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var EmptyRole = (function () {
-    function EmptyRole() {
-        _classCallCheck(this, EmptyRole);
+var AbstractRole = (function () {
+    function AbstractRole() {
+        _classCallCheck(this, AbstractRole);
     }
 
-    _createClass(EmptyRole, [{
+    _createClass(AbstractRole, [{
         key: "on_event",
+
+        // You should use this if you want to represent an item in a list
+        // but it doesnt do any storage.
+
         value: function on_event(etype, event_object, item) {
             var cb = this['on_' + etype];
             if (cb != undefined) {
@@ -34,16 +38,19 @@ var EmptyRole = (function () {
         }
     }, {
         key: "render",
-        value: function render(item, parsed) {
+        value: function render(parsed, item) {
             // pass
         }
     }]);
 
-    return EmptyRole;
+    return AbstractRole;
 })();
 
-var CoreRole = (function (_EmptyRole) {
-    _inherits(CoreRole, _EmptyRole);
+var CoreRole = (function (_AbstractRole) {
+    _inherits(CoreRole, _AbstractRole);
+
+    // Only subclass from here if you plan on storing the item somewhere.
+    // If you dont change this.storage it will be stored locally.
 
     function CoreRole() {
         _classCallCheck(this, CoreRole);
@@ -72,7 +79,7 @@ var CoreRole = (function (_EmptyRole) {
     }]);
 
     return CoreRole;
-})(EmptyRole);
+})(AbstractRole);
 
 var BaseRole = (function (_CoreRole) {
     _inherits(BaseRole, _CoreRole);
@@ -123,3 +130,18 @@ var BaseRole = (function (_CoreRole) {
 })(CoreRole);
 
 omni_app.register_role('_base', BaseRole);
+
+var S3Role = (function (_CoreRole2) {
+    _inherits(S3Role, _CoreRole2);
+
+    function S3Role() {
+        _classCallCheck(this, S3Role);
+
+        _get(Object.getPrototypeOf(S3Role.prototype), "constructor", this).call(this);
+        this.storage = S3Storage;
+    }
+
+    return S3Role;
+})(CoreRole);
+
+omni_app.register_role('s3', S3Role);

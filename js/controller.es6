@@ -30,20 +30,8 @@ class ListController extends Controller {
 
     fire_event(etype, options) {
         var sp = etype.split(':');
-        if (sp[0] == 'command_focus') {
-            this.map_focused((item) => {
-                item.on_event(sp[1], options, item)
-            }).then(function() {
-                omni_app.refresh()
-            })
-            return true
-        } else if (sp[0] == 'command_selected') {
-            this.map_selected((item) => {
-                item.on_event(sp[1], options, item)
-            }).then(function() {
-                omni_app.refresh();
-            })
-            return true
+        if (sp[0] == 'selected' || sp[0] == 'focused') {
+            this.execute_command(etype)
         } else {
             return this.beacon.fire(etype, options)
         }
@@ -129,11 +117,16 @@ class ListController extends Controller {
 
     execute_command(value) {
         var sp = value.split(":");
-        if (sp.length == 1) {
-            sp = ['sel', value]
-        }
-        if (sp[0] == 'sel') {
+
+        if (sp[0] == 'selected') {
             this.map_selected((item) => {
+                var values = sp[1].split(' ')
+                item.on_event(values[0], sp[1], item)
+            }).then(function() {
+                omni_app.refresh();
+            })
+        } else if (sp[0] == 'focused') {
+            this.map_focused((item) => {
                 var values = sp[1].split(' ')
                 item.on_event(values[0], sp[1], item)
             }).then(function() {
@@ -145,7 +138,6 @@ class ListController extends Controller {
     sort() {
         var _this = this
         var sort_style = _this.sort_styles[_this.sort_style_index]
-        console.log(sort_style)
         
         if (sort_style == 'text') {
             _this.item_list.sort((a, b) => {

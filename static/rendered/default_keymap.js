@@ -38,46 +38,47 @@ var mvc_passive_keymap = {
     'a': 'control:select_all',
     '\\': 'control:cycle_sort',
     'shift-\\': 'control:re_sort',
-    '`': 'control:show_sources',
+    'f1': 'control:roles_toggle',
 
     // most common way for users to remove things from
     // the omnibox.
-    'y': 'command_selected:archive',
-    'u': 'command_selected:return',
-    'p': 'command_selected:pull',
+    '`': 'selected:sync',
+    'y': 'selected:archive',
+    'u': 'selected:return',
+    'p': 'selected:pull',
 
     // Unclear best way to use this, will look into it more.
-    'l': 'command_selected:label',
-    'o': 'command_selected:open',
-    'i': 'command_selected:info',
+    'l': 'selected:label',
+    'o': 'selected:open',
+    'i': 'selected:info',
 
     // Likely something that will be supported by a type.
-    '-': 'command_selected:subtract',
-    '=': 'command_selected:add',
-    '[': 'command_selected:left',
-    ']': 'command_selected:right',
+    '-': 'selected:subtract',
+    '=': 'selected:add',
+    '[': 'selected:left',
+    ']': 'selected:right',
 
     // Lets support defer/bubble/bubble_all features
-    'd': 'command_selected:defer',
-    'b': 'command_selected:bubble',
-    'shift-b': 'command_selected:bubble_all',
+    'd': 'selected:defer',
+    'b': 'selected:bubble',
+    'shift-b': 'selected:bubble_all',
 
     // Used to move around inside a view.
-    'control-n': 'command_focus:next',
-    'control-p': 'command_focus:prev',
+    'control-n': 'focused:next',
+    'control-p': 'focused:prev',
 
     // Edit singles, hard to explain but easy to understand.
-    'r': 'command_focus:reply',
-    's': 'command_focus:toggle_flag',
-    'v': 'command_focus:view',
-    'n': 'command_focus:note',
+    'r': 'focused:reply',
+    's': 'focused:toggle_flag',
+    'v': 'focused:view',
+    'n': 'focused:note',
 
-    'control-d': 'command_selected:delete'
+    'control-d': 'selected:delete'
 };
 
 var mvc_active_keymap = {};
 
 for (var i = 0; i < 10; i++) {
-    mvc_passive_keymap['' + i] = 'command_selected:add_tag_' + i;
-    mvc_passive_keymap['control-' + i] = 'command_selected:rem_tag_' + i;
+    mvc_passive_keymap['' + i] = 'selected:add_tag_' + i;
+    mvc_passive_keymap['control-' + i] = 'selected:rem_tag_' + i;
 }

@@ -1,4 +1,7 @@
-class EmptyRole {
+class AbstractRole {
+    // You should use this if you want to represent an item in a list
+    // but it doesnt do any storage.
+
     on_event(etype, event_object, item) {
         let cb = this['on_' + etype];
         if (cb != undefined) {
@@ -18,13 +21,16 @@ class EmptyRole {
         console.log("Unhandled event " + etype + " " +
                     JSON.stringify(event_object) + " on " + this + ".")
     }
-
-    render(item, parsed) {
+    
+    render(parsed, item) {
         // pass
     }
 }
 
-class CoreRole extends EmptyRole {
+class CoreRole extends AbstractRole {
+    // Only subclass from here if you plan on storing the item somewhere.
+    // If you dont change this.storage it will be stored locally.
+
     constructor() {
         super()
         this.storage = LocalItemStorage
@@ -78,3 +84,12 @@ class BaseRole extends CoreRole {
 }
 
 omni_app.register_role('_base', BaseRole)
+
+class S3Role extends CoreRole {
+    constructor() {
+        super()
+        this.storage = S3Storage
+    }
+}
+
+omni_app.register_role('s3', S3Role)
