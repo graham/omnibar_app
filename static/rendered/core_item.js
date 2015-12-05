@@ -12,6 +12,7 @@ var Item = (function () {
         this.meta = {};
         this.text = init_text;
         this.dirty = false;
+        this.pipeline = new PromiseAccumulator();
     }
 
     _createClass(Item, [{
@@ -28,16 +29,43 @@ var Item = (function () {
             this.dirty = true;
         }
     }, {
+        key: 'on_event_end',
+        value: function on_event_end(etype) {
+            console.log('event end -> ' + etype);
+        }
+    }, {
         key: 'on_event',
         value: function on_event(etype, event_object) {
+            var _this2 = this;
+
             var _this = this;
             var roles = this.parse()['roles'];
+            var return_promises = [];
+
             roles.forEach(function (m) {
                 var match = omni_app.roles[m];
                 if (match) {
-                    match.on_event(etype, event_object, _this);
+                    _this2.pipeline.queue(function (resolve, reject) {
+                        var prom = match.on_event(etype, event_object, _this);
+                        if (prom != undefined) {
+                            return_promises.push(prom);
+                            prom.then(function () {
+                                resolve();
+                            }, function (error) {
+                                console.log(error);
+                            });
+                        } else {
+                            resolve();
+                        }
+                    });
                 }
             });
+
+            var all_promise = Promise.all(return_promises);
+            all_promise.then(function () {
+                _this2.on_event_end(etype);
+            });
+            return all_promise;
         }
     }, {
         key: 'get_meta',
@@ -59,16 +87,16 @@ var Item = (function () {
     }, {
         key: 'parse',
         value: function parse() {
-            var _this2 = this;
+            var _this3 = this;
 
             var d = this.clean_parse();
 
             d['roles'].forEach(function (role) {
                 if (omni_app.roles[role]) {
                     try {
-                        omni_app.roles[role].render(d, _this2);
+                        omni_app.roles[role].render(d, _this3);
                     } catch (e) {
-                        console.log("Role " + role + " failed during render() on item => " + _this2.constructor.name + "\n" + e);
+                        console.log("Role " + role + " failed during render() on item => " + _this3.constructor.name + "\n" + e);
                     }
                 }
             });
@@ -160,6 +188,7 @@ var Item = (function () {
     }], [{
         key: 'from_json',
         value: function from_json(text) {
+            console.log("ITEMLOAD: " + text);
             var data = JSON.parse(text);
             var item = new Item('');
             item.text = data['text'];

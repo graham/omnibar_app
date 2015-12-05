@@ -42,7 +42,6 @@ class StorageRole extends AbstractRole {
     }
 
     on_delete(event_object, item) {
-        console.log('lets delete ' + item.uid)
         this.storage.delete_item(item.uid)
         item.set_meta('archived', true)
     }
@@ -77,11 +76,18 @@ class BaseRole extends StorageRole {
             }
         })
     }
+
     on_view(event_object, item) {
         this.on_open(event_object, item)
     }
+
     on_quote(event_object, item) {
         console.log([item.uid, item.as_json()])
+    }
+
+    on_sync(event_object, item) {
+        console.log('on sync base class')
+        this.on_update(event_object, item)
     }
 }
 
@@ -94,12 +100,15 @@ class S3Role extends StorageRole {
     }
 
     on_sync(event_object, item) {
+        console.log('start s3 sync')
         // If the user requests a sync, update the local version.
-        this.storage.get_item(item.uid).then((newItem) => {
-            console.log(newItem)
-            item.text = newItem.text
-            item.meta = newItem.meta
-            omni_app.refresh()
+        return new Promise((resolve, reject) => {
+            this.storage.get_item(item.uid).then((newItem) => {
+                console.log("loading new item from s3")
+                item.text = newItem.text
+                item.meta = newItem.meta
+                resolve()
+            })
         })
     }
 }

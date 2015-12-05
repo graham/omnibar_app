@@ -97,19 +97,31 @@ var ListController = (function (_Controller) {
             });
         }
     }, {
+        key: 'get_focused',
+        value: function get_focused() {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                resolve(_this.item_list[_this.cursor_index]);
+            });
+        }
+    }, {
         key: 'map_selected',
         value: function map_selected(fn) {
             var _this = this;
             return new Promise(function (resolve, reject) {
+                var return_promises = [];
                 var remaining_list = [];
                 _this.item_list.forEach(function (item, index) {
                     if (item.selected) {
-                        var result = true;
+                        var result = undefined;
                         try {
                             result = fn(item);
                         } catch (e) {
                             console.log(e);
                             reject();
+                        }
+                        if (result != undefined) {
+                            return_promises.push(result);
                         }
                         if (item.get_meta('archived') == true) {
                             // pass we are discarding.
@@ -121,15 +133,9 @@ var ListController = (function (_Controller) {
                     }
                 });
                 _this.item_list = remaining_list;
-                resolve([]);
-            });
-        }
-    }, {
-        key: 'get_focused',
-        value: function get_focused() {
-            var _this = this;
-            return new Promise(function (resolve, reject) {
-                resolve(_this.item_list[_this.cursor_index]);
+                Promise.all(return_promises).then(function () {
+                    resolve([]);
+                });
             });
         }
     }, {
@@ -137,11 +143,11 @@ var ListController = (function (_Controller) {
         value: function map_focused(fn) {
             var _this = this;
             return new Promise(function (resolve, reject) {
+                var return_promises = [];
                 var remaining_list = [];
                 _this.item_list.forEach(function (item, index) {
                     if (index == _this.cursor_index) {
-                        var result = true;
-
+                        var result = undefined;
                         try {
                             result = fn(item);
                         } catch (e) {
@@ -149,6 +155,9 @@ var ListController = (function (_Controller) {
                             reject();
                         }
 
+                        if (result != undefined) {
+                            return_promises.push(result);
+                        }
                         if (item.get_meta('archived', true)) {
                             // pass we are discarding.
                         } else {
@@ -159,7 +168,9 @@ var ListController = (function (_Controller) {
                     }
                 });
                 _this.item_list = remaining_list;
-                resolve([]);
+                Promise.all(return_promises).then(function () {
+                    resolve([]);
+                });
             });
         }
     }, {
@@ -170,14 +181,14 @@ var ListController = (function (_Controller) {
             if (sp[0] == 'selected') {
                 this.map_selected(function (item) {
                     var values = sp[1].split(' ');
-                    item.on_event(values[0], sp[1], item);
+                    return item.on_event(values[0], sp[1], item);
                 }).then(function () {
                     omni_app.refresh();
                 });
             } else if (sp[0] == 'focused') {
                 this.map_focused(function (item) {
                     var values = sp[1].split(' ');
-                    item.on_event(values[0], sp[1], item);
+                    return item.on_event(values[0], sp[1], item);
                 }).then(function () {
                     omni_app.refresh();
                 });

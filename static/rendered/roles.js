@@ -69,7 +69,6 @@ var StorageRole = (function (_AbstractRole) {
     }, {
         key: "on_delete",
         value: function on_delete(event_object, item) {
-            console.log('lets delete ' + item.uid);
             this.storage.delete_item(item.uid);
             item.set_meta('archived', true);
         }
@@ -130,6 +129,12 @@ var BaseRole = (function (_StorageRole) {
         value: function on_quote(event_object, item) {
             console.log([item.uid, item.as_json()]);
         }
+    }, {
+        key: "on_sync",
+        value: function on_sync(event_object, item) {
+            console.log('on sync base class');
+            this.on_update(event_object, item);
+        }
     }]);
 
     return BaseRole;
@@ -150,12 +155,17 @@ var S3Role = (function (_StorageRole2) {
     _createClass(S3Role, [{
         key: "on_sync",
         value: function on_sync(event_object, item) {
+            var _this = this;
+
+            console.log('start s3 sync');
             // If the user requests a sync, update the local version.
-            this.storage.get_item(item.uid).then(function (newItem) {
-                console.log(newItem);
-                item.text = newItem.text;
-                item.meta = newItem.meta;
-                omni_app.refresh();
+            return new Promise(function (resolve, reject) {
+                _this.storage.get_item(item.uid).then(function (newItem) {
+                    console.log("loading new item from s3");
+                    item.text = newItem.text;
+                    item.meta = newItem.meta;
+                    resolve();
+                });
             });
         }
     }]);

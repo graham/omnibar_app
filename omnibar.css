@@ -25,9 +25,9 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     /* The real deal */
     position: fixed;
     top: 0px;
-    left: 100px;
+    left: 0px;
     right: 0px;
-    height: 70px;
+    height: 66px;
     width: auto;
 
     /* styling */
@@ -45,7 +45,7 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
     padding: 10px;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 4px;
-    
+    height: 55px; // this is something weird with safari.
     // Uncomment with fancy input.
     // text-align:right;
     // color: rgba(20, 20, 20, 0.1);
@@ -66,18 +66,18 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 
 #ob-omnibar-outer > .ob-inner > .ob-input-holder {
     position: absolute;
-    right: 8px;
-    left: 2px;
+    right: 4px;
+    left: 4px;
     top: 6px;
 }
 
 #ob-left-control-outer { /* TOP LEFT NUGGET */
     /* The real deal */
     position:fixed;
-    top: 70px;
+    top: 66px;
     left: 0px;
     bottom: 0px;
-    width: 100px;
+    width: 50px;
     text-align: center;
     font-size: 10px;
     padding-top: 5px;
@@ -88,9 +88,9 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 }
 
 #ob-left-widget-outer { /* LEFT GUTTER */
+    display:none;
     background-color: #4F6A92;
     color: rgba(255, 255, 255, 0.9);
-    
      /* The real deal */
     position:fixed;
     top: 0px;
@@ -105,8 +105,8 @@ body { font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco",
 #ob-content-outer {
     /* the real deal */
     position: fixed;
-    left: 104px;
-    top: 78px;
+    left: 52px;
+    top: 74px;
     right: 6px;
     bottom: 0px;
 }
@@ -192,7 +192,7 @@ tr.active {
 
 .ob-checkbox-holder {
     text-align: right;
-    width: 40px;
+    width: 41px;
     padding:0px;
 }
 

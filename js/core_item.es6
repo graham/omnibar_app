@@ -4,6 +4,7 @@ class Item {
         this.meta = {}
         this.text = init_text
         this.dirty = false
+        this.pipeline = new PromiseAccumulator()
     }
 
     as_json() {
@@ -18,6 +19,7 @@ class Item {
     }
 
     static from_json(text) {
+        console.log("ITEMLOAD: " + text)
         let data = JSON.parse(text)
         let item = new Item('')
         item.text = data['text']
@@ -31,15 +33,39 @@ class Item {
         return item
     }
 
+    on_event_end(etype) {
+        console.log('event end -> ' + etype)
+    }
+
     on_event(etype, event_object) {
         var _this = this;
         var roles = this.parse()['roles']
+        var return_promises = []
+
         roles.forEach((m) => {
             var match = omni_app.roles[m]
             if (match) {
-                match.on_event(etype, event_object, _this)
+                this.pipeline.queue((resolve, reject) => {
+                    var prom = match.on_event(etype, event_object, _this)
+                    if (prom != undefined) {
+                        return_promises.push(prom)
+                        prom.then(() => {
+                            resolve()
+                        }, (error) => {
+                            console.log(error)
+                        })
+                    } else {
+                        resolve()
+                    }
+                })
             }
         })
+
+        var all_promise = Promise.all(return_promises)
+        all_promise.then(() => {
+            this.on_event_end(etype)
+        })
+        return all_promise
     }
 
     get_meta(key) {

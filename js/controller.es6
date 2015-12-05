@@ -68,18 +68,29 @@ class ListController extends Controller {
         });
     }
 
+    get_focused() {
+        var _this = this;
+        return new Promise(function(resolve, reject) {
+            resolve(_this.item_list[_this.cursor_index]);
+        });
+    }
+
     map_selected(fn) {
         var _this = this;
         return new Promise(function(resolve, reject) {
-            var remaining_list = [];
+            var return_promises = []
+            var remaining_list = []
             _this.item_list.forEach((item, index) => {
                 if (item.selected) {
-                    var result = true;
+                    var result = undefined
                     try {
                         result = fn(item);
                     } catch (e) {
                         console.log(e);
                         reject();
+                    }
+                    if (result != undefined) {
+                        return_promises.push(result)
                     }
                     if (item.get_meta('archived') == true) {
                         // pass we are discarding.
@@ -91,25 +102,20 @@ class ListController extends Controller {
                 }
             })
             _this.item_list = remaining_list
-            resolve([])
+            Promise.all(return_promises).then(() => {
+                resolve([])
+            })
         })
     }
 
-    get_focused() {
-        var _this = this;
-        return new Promise(function(resolve, reject) {
-            resolve(_this.item_list[_this.cursor_index]);
-        });
-    }
-    
     map_focused(fn) {
         var _this = this;
         return new Promise(function(resolve, reject) {
-            var remaining_list = [];
+            var return_promises = []
+            var remaining_list = []
             _this.item_list.forEach((item, index) => {
                 if (index == _this.cursor_index) {
-                    var result = true;
-                    
+                    var result = undefined
                     try {
                         result = fn(item);
                     } catch (e) {
@@ -117,6 +123,9 @@ class ListController extends Controller {
                         reject();
                     }
 
+                    if (result != undefined) {
+                        return_promises.push(result)
+                    }
                     if (item.get_meta('archived', true)) {
                         // pass we are discarding.
                     } else {
@@ -127,7 +136,9 @@ class ListController extends Controller {
                 }
             })
             _this.item_list = remaining_list
-            resolve([])
+            Promise.all(return_promises).then(() => {
+                resolve([])
+            })
         });
     }
 
@@ -137,14 +148,14 @@ class ListController extends Controller {
         if (sp[0] == 'selected') {
             this.map_selected((item) => {
                 var values = sp[1].split(' ')
-                item.on_event(values[0], sp[1], item)
+                return item.on_event(values[0], sp[1], item)
             }).then(function() {
                 omni_app.refresh();
             })
         } else if (sp[0] == 'focused') {
             this.map_focused((item) => {
                 var values = sp[1].split(' ')
-                item.on_event(values[0], sp[1], item)
+                return item.on_event(values[0], sp[1], item)
             }).then(function() {
                 omni_app.refresh();
             })
