@@ -66,7 +66,7 @@ var ListController = (function (_Controller) {
         value: function get_item(id) {
             var hit = null;
             this.item_list.forItem(function (item) {
-                if (item.uid == id) {
+                if (item.get_meta('uid') == id) {
                     hit = item;
                 }
             });
@@ -121,19 +121,27 @@ var ListController = (function (_Controller) {
                             reject();
                         }
                         if (result != undefined) {
+                            result.then(function () {
+                                if (item.get_meta('archived') || item.get_meta('deleted')) {
+                                    // pass we are discarding.
+                                } else {
+                                        remaining_list.push(item);
+                                    }
+                            });
                             return_promises.push(result);
-                        }
-                        if (item.get_meta('archived') == true) {
-                            // pass we are discarding.
                         } else {
-                                remaining_list.push(item);
-                            }
+                            if (item.get_meta('archived') || item.get_meta('deleted')) {
+                                // pass we are discarding.
+                            } else {
+                                    remaining_list.push(item);
+                                }
+                        }
                     } else {
                         remaining_list.push(item);
                     }
                 });
-                _this.item_list = remaining_list;
                 Promise.all(return_promises).then(function () {
+                    _this.item_list = remaining_list;
                     resolve([]);
                 });
             });
@@ -156,19 +164,27 @@ var ListController = (function (_Controller) {
                         }
 
                         if (result != undefined) {
+                            result.then(function () {
+                                if (item.get_meta('archived') || item.get_meta('deleted')) {
+                                    // pass we are discarding.
+                                } else {
+                                        remaining_list.push(item);
+                                    }
+                            });
                             return_promises.push(result);
-                        }
-                        if (item.get_meta('archived', true)) {
-                            // pass we are discarding.
                         } else {
-                                remaining_list.push(item);
-                            }
+                            if (item.get_meta('archived') || item.get_meta('deleted')) {
+                                // pass we are discarding.
+                            } else {
+                                    remaining_list.push(item);
+                                }
+                        }
                     } else {
                         remaining_list.push(item);
                     }
                 });
-                _this.item_list = remaining_list;
                 Promise.all(return_promises).then(function () {
+                    _this.item_list = remaining_list;
                     resolve([]);
                 });
             });
@@ -400,7 +416,6 @@ var ListController = (function (_Controller) {
                         editor.focus();
                         editor.refresh();
                     }, 10);
-                    item.get_meta('archived', true);
                 }).then(function () {
                     omni_app.refresh();
                 });

@@ -15,7 +15,7 @@ class LocalItemStorage {
         let key = this.key(uid)
         return new Promise((resolve, reject) => {
             var item = Item.from_json(localStorage.getItem(key))
-            item.uid = uid
+            item.set_meta("uid", uid)
             resolve(item)
         })
     }
@@ -56,7 +56,7 @@ class S3Storage {
         return new Promise((resolve, reject) => {
             $.get('/storage/get', {key:uid}).then((data) => {
                 var item = Item.from_json(data)
-                item.uid = uid
+                item.set_meta("uid", uid)
                 resolve(item)
             })
         })

@@ -1,6 +1,5 @@
 class Item {
     constructor(init_text) {
-        this.uid = null
         this.meta = {}
         this.text = init_text
         this.dirty = false
@@ -29,7 +28,7 @@ class Item {
 
     static from_text(text) {
         let item = new Item(text)
-        item.uid = uuid()
+        item.set_meta('uid', uuid())
         return item
     }
 
@@ -41,12 +40,13 @@ class Item {
         var _this = this;
         var roles = this.parse()['roles']
         var return_promises = []
+        var new_state = Item.from_json(this.as_json())
 
         roles.forEach((m) => {
             var match = omni_app.roles[m]
             if (match) {
                 this.pipeline.queue((resolve, reject) => {
-                    var prom = match.on_event(etype, event_object, _this)
+                    var prom = match.on_event(etype, event_object, new_state, _this)
                     if (prom != undefined) {
                         return_promises.push(prom)
                         prom.then(() => {
@@ -63,6 +63,9 @@ class Item {
 
         var all_promise = Promise.all(return_promises)
         all_promise.then(() => {
+            this.meta = new_state.meta
+            this.text = new_state.text
+            this.dirty = new_state.dirty
             this.on_event_end(etype)
         })
         return all_promise

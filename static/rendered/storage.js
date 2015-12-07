@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var LocalItemStorage = (function () {
     function LocalItemStorage() {
@@ -10,12 +10,12 @@ var LocalItemStorage = (function () {
     }
 
     _createClass(LocalItemStorage, null, [{
-        key: 'key',
+        key: "key",
         value: function key(uid) {
             return uid;
         }
     }, {
-        key: 'delete_item',
+        key: "delete_item",
         value: function delete_item(uid) {
             var key = this.key(uid);
             return new Promise(function (resolve, reject) {
@@ -24,17 +24,17 @@ var LocalItemStorage = (function () {
             });
         }
     }, {
-        key: 'get_item',
+        key: "get_item",
         value: function get_item(uid) {
             var key = this.key(uid);
             return new Promise(function (resolve, reject) {
                 var item = Item.from_json(localStorage.getItem(key));
-                item.uid = uid;
+                item.set_meta("uid", uid);
                 resolve(item);
             });
         }
     }, {
-        key: 'put_item',
+        key: "put_item",
         value: function put_item(uid, value) {
             console.log('save -> ' + uid + " => " + value);
             var key = this.key(uid);
@@ -44,7 +44,7 @@ var LocalItemStorage = (function () {
             });
         }
     }, {
-        key: 'keys',
+        key: "keys",
         value: function keys() {
             return new Promise(function (resolve, reject) {
                 var keys = [];
@@ -65,30 +65,30 @@ var S3Storage = (function () {
     }
 
     _createClass(S3Storage, null, [{
-        key: 'key',
+        key: "key",
         value: function key(uid) {
             return uid;
         }
     }, {
-        key: 'delete_item',
+        key: "delete_item",
         value: function delete_item(uid) {
             var key = this.key(uid);
             return new Promise(function (resolve, reject) {});
         }
     }, {
-        key: 'get_item',
+        key: "get_item",
         value: function get_item(uid) {
             var key = this.key(uid);
             return new Promise(function (resolve, reject) {
                 $.get('/storage/get', { key: uid }).then(function (data) {
                     var item = Item.from_json(data);
-                    item.uid = uid;
+                    item.set_meta("uid", uid);
                     resolve(item);
                 });
             });
         }
     }, {
-        key: 'put_item',
+        key: "put_item",
         value: function put_item(uid, value) {
             console.log('S3 save -> ' + uid + " => " + value);
             var key = this.key(uid);
@@ -99,7 +99,7 @@ var S3Storage = (function () {
             });
         }
     }, {
-        key: 'keys',
+        key: "keys",
         value: function keys() {
             return new Promise(function (resolve, reject) {
                 var response = [];

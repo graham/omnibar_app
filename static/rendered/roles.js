@@ -19,11 +19,11 @@ var AbstractRole = (function () {
         // You should use this if you want to represent an item in a list
         // but it doesnt do any storage.
 
-        value: function on_event(etype, event_object, item) {
+        value: function on_event(etype, event_object, new_state, old_state) {
             var cb = this['on_' + etype];
             if (cb != undefined) {
                 try {
-                    return cb.apply(this, [event_object, item]);
+                    return cb.apply(this, [event_object, new_state, old_state]);
                 } catch (e) {
                     console.log(" Failed during on_event(" + etype + ") on item => " + this.constructor.name + "\n" + e);
                 }
@@ -58,19 +58,22 @@ var StorageRole = (function (_AbstractRole) {
 
     _createClass(StorageRole, [{
         key: "on_create",
-        value: function on_create(event_object, item) {
-            this.storage.put_item(item.uid, item.as_json());
+        value: function on_create(event_object, newstate, oldstate) {
+            this.storage.put_item(newstate.get_meta('uid'), newstate.as_json());
+            console.log("Saved, localStorage.");
         }
     }, {
         key: "on_update",
-        value: function on_update(event_object, item) {
-            this.on_create(event_object, item);
+        value: function on_update(event_object, newstate, oldstate) {
+            this.on_create(event_object, newstate, oldstate);
         }
     }, {
         key: "on_delete",
-        value: function on_delete(event_object, item) {
-            this.storage.delete_item(item.uid);
-            item.set_meta('archived', true);
+        value: function on_delete(event_object, newstate, oldstate) {
+            this.storage.delete_item(newstate.get_meta('uid'));
+            newstate.set_meta('archived', true);
+            newstate.set_meta('deleted', true);
+            console.log("Deleted");
         }
     }]);
 
@@ -92,24 +95,24 @@ var BaseRole = (function (_StorageRole) {
         // Only subclass from here if you plan on storing the item somewhere.
         // If you dont change this.storage it will be stored locally.
 
-        value: function on_archive(event_object, item) {
-            if (item.get_meta('flagged') != true) {
-                item.set_meta('archived', true);
+        value: function on_archive(event_object, newstate, oldstate) {
+            if (newstate.get_meta('flagged') != true) {
+                newstate.set_meta('archived', true);
             }
         }
     }, {
         key: "on_toggle_flag",
-        value: function on_toggle_flag(event_object, item) {
-            if (item.get_meta('flagged') == true) {
-                item.set_meta('flagged', false);
+        value: function on_toggle_flag(event_object, newstate, oldstate) {
+            if (newstate.get_meta('flagged') == true) {
+                newstate.set_meta('flagged', false);
             } else {
-                item.set_meta('flagged', true);
+                newstate.set_meta('flagged', true);
             }
         }
     }, {
         key: "on_open",
-        value: function on_open(event_object, item) {
-            var body = item.as_line();
+        value: function on_open(event_object, newstate, oldstate) {
+            var body = newstate.as_line();
             var hit = false;
 
             body.split(' ').forEach(function (word) {
@@ -121,19 +124,19 @@ var BaseRole = (function (_StorageRole) {
         }
     }, {
         key: "on_view",
-        value: function on_view(event_object, item) {
-            this.on_open(event_object, item);
+        value: function on_view(event_object, newstate, oldstate) {
+            this.on_open(event_object, newstate, oldstate);
         }
     }, {
         key: "on_quote",
-        value: function on_quote(event_object, item) {
-            console.log([item.uid, item.as_json()]);
+        value: function on_quote(event_object, newstate, oldstate) {
+            console.log([newstate.get_meta('uid'), newstate.as_json()]);
         }
     }, {
         key: "on_sync",
-        value: function on_sync(event_object, item) {
+        value: function on_sync(event_object, newstate, oldstate) {
             console.log('on sync base class');
-            this.on_update(event_object, item);
+            this.on_update(event_object, newstate, oldstate);
         }
     }]);
 
@@ -154,16 +157,16 @@ var S3Role = (function (_StorageRole2) {
 
     _createClass(S3Role, [{
         key: "on_sync",
-        value: function on_sync(event_object, item) {
+        value: function on_sync(event_object, newstate, oldstate) {
             var _this = this;
 
             console.log('start s3 sync');
             // If the user requests a sync, update the local version.
             return new Promise(function (resolve, reject) {
-                _this.storage.get_item(item.uid).then(function (newItem) {
+                _this.storage.get_item(newstate.get_meta('uid')).then(function (newItem) {
                     console.log("loading new item from s3");
-                    item.text = newItem.text;
-                    item.meta = newItem.meta;
+                    newstate.text = newItem.text;
+                    newstate.meta = newItem.meta;
                     resolve();
                 });
             });

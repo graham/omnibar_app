@@ -112,7 +112,7 @@ var Application = (function () {
 
                     new_items.forEach(function (text) {
                         var item = Item.from_text(text);
-                        item.uid = uuid();
+                        item.set_meta('uid', uuid());
                         item.on_event('create', {});
                         list_controller.add_item(item);
                     });

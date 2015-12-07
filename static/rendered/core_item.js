@@ -8,7 +8,6 @@ var Item = (function () {
     function Item(init_text) {
         _classCallCheck(this, Item);
 
-        this.uid = null;
         this.meta = {};
         this.text = init_text;
         this.dirty = false;
@@ -41,12 +40,13 @@ var Item = (function () {
             var _this = this;
             var roles = this.parse()['roles'];
             var return_promises = [];
+            var new_state = Item.from_json(this.as_json());
 
             roles.forEach(function (m) {
                 var match = omni_app.roles[m];
                 if (match) {
                     _this2.pipeline.queue(function (resolve, reject) {
-                        var prom = match.on_event(etype, event_object, _this);
+                        var prom = match.on_event(etype, event_object, new_state, _this);
                         if (prom != undefined) {
                             return_promises.push(prom);
                             prom.then(function () {
@@ -63,6 +63,9 @@ var Item = (function () {
 
             var all_promise = Promise.all(return_promises);
             all_promise.then(function () {
+                _this2.meta = new_state.meta;
+                _this2.text = new_state.text;
+                _this2.dirty = new_state.dirty;
                 _this2.on_event_end(etype);
             });
             return all_promise;
@@ -199,7 +202,7 @@ var Item = (function () {
         key: 'from_text',
         value: function from_text(text) {
             var item = new Item(text);
-            item.uid = uuid();
+            item.set_meta('uid', uuid());
             return item;
         }
     }]);
